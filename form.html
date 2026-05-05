@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QC File Submission – QuantumCoders Data Solutions</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary:        #0f4c81;
+      --primary-light:  #1a6bb5;
+      --primary-dark:   #0a3459;
+      --primary-glow:   rgba(15,76,129,0.25);
+      --secondary:      #00b4d8;
+      --secondary-light:#48cae4;
+      --accent:         #f77f00;
+      --accent-light:   #fcbf49;
+      --success:        #06d6a0;
+      --danger:         #ef476f;
+      --warning:        #ffd166;
+      --purple:         #7c3aed;
+      --text:           #0d1b2a;
+      --text-muted:     #4a5568;
+      --text-light:     #8896a5;
+      --bg:             #f0f4f9;
+      --bg-2:           #ffffff;
+      --bg-3:           #e8edf5;
+      --card:           rgba(255,255,255,0.99);
+      --border:         rgba(15,76,129,0.12);
+      --border-strong:  rgba(15,76,129,0.28);
+      --shadow-xs:  0 1px 4px rgba(0,0,0,0.05);
+      --shadow-sm:  0 2px 10px rgba(0,0,0,0.06);
+      --shadow:     0 8px 28px rgba(0,0,0,0.08);
+      --shadow-md:  0 16px 45px rgba(0,0,0,0.12);
+      --shadow-lg:  0 24px 64px rgba(0,0,0,0.16);
+      --shadow-glow:0 0 35px rgba(15,76,129,0.18);
+      --tr:       all 0.28s cubic-bezier(0.4,0,0.2,1);
+      --radius:   16px;
+      --radius-sm:12px;
+      --radius-lg:24px;
+      --radius-xl:32px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    html, body { min-height: 100vh; overflow-x: hidden; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 5% 10%, rgba(15,76,129,0.09) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 95% 5%,  rgba(0,180,216,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 60% at 50% 100%,rgba(247,127,0,0.05) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(15,76,129,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,76,129,0.04) 1px, transparent 1px);
+      background-size: 52px 52px;
+      pointer-events: none;
+    }
+
+    /* ════ TOPBAR ════ */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      width: 100%;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 0 var(--border), var(--shadow-sm);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .topbar-logo-wrap {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px var(--primary-glow); flex-shrink: 0;
+    }
+    .topbar-logo-wrap i { color: white; font-size: 1.1rem; }
+    .topbar-logo { height: 40px; width: 40px; border-radius: 10px; object-fit: contain; transition: var(--tr); display: none; }
+    .topbar-logo.loaded { display: block; }
+    .topbar-logo:hover { transform: scale(1.06); }
+    .topbar-divider { width: 1.5px; height: 30px; background: linear-gradient(to bottom, transparent, var(--border-strong), transparent); }
+    .topbar-text { display: flex; flex-direction: column; }
+    .topbar-name {
+      font-family: 'Orbitron', sans-serif; font-size: 0.78rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; letter-spacing: 0.3px;
+    }
+    .topbar-sub { font-size: 0.56rem; font-weight: 700; color: var(--accent); letter-spacing: 2.5px; text-transform: uppercase; margin-top: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+    .topbar-clock {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; font-weight: 500;
+      color: var(--text-muted); background: var(--bg-3); padding: 5px 12px;
+      border-radius: 50px; border: 1px solid var(--border); letter-spacing: 0.5px;
+    }
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 50px;
+      background: rgba(6,214,160,0.08); border: 1px solid rgba(6,214,160,0.3);
+      font-size: 0.65rem; font-weight: 700; color: #059669; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); animation: pdot 2s infinite; }
+    @keyframes pdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
+    /* ════ PAGE SHELL ════ */
+    .page {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 520px;
+      padding: 36px 20px 60px;
+      display: flex; flex-direction: column; gap: 0; align-items: center;
+    }
+
+    /* ════ LIVE BADGE ════ */
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 8px 20px; border-radius: 50px;
+      background: linear-gradient(135deg, rgba(15,76,129,0.07), rgba(0,180,216,0.07));
+      border: 1px solid var(--border-strong);
+      font-size: 0.74rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 24px; align-self: center;
+    }
+    .hero-badge .bdot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 7px var(--success); animation: pdot 2s infinite; }
+
+    /* ════ MAIN CARD ════ */
+    .card {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 40px 36px 36px;
+      box-shadow: var(--shadow-md), var(--shadow-glow);
+      position: relative; overflow: hidden;
+      animation: cardIn 0.55s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes cardIn { from{opacity:0;transform:translateY(24px) scale(0.98)} to{opacity:1;transform:translateY(0) scale(1)} }
+
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--primary-dark), var(--primary), var(--secondary), var(--accent));
+    }
+    .card::after {
+      content: ''; position: absolute; top: -80px; right: -80px;
+      width: 220px; height: 220px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,180,216,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .card-orb {
+      position: absolute; bottom: -60px; left: -50px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(247,127,0,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Card Header */
+    .card-header { text-align: center; margin-bottom: 34px; position: relative; z-index: 1; }
+    .card-icon {
+      width: 62px; height: 62px; border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px;
+      box-shadow: 0 8px 28px var(--primary-glow);
+      font-size: 1.5rem; color: white;
+    }
+    .card-title {
+      font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 900;
+      color: var(--text); letter-spacing: 1.5px; margin-bottom: 6px;
+    }
+    .card-subtitle { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
+
+    /* Dividers */
+    .form-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 4px 0 22px;
+      font-size: 0.65rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--text-light);
+    }
+    .form-divider::before, .form-divider::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--border-strong), transparent); }
+    .form-divider i { font-size: 0.6rem; color: var(--primary); }
+
+    /* Fields */
+    .field { margin-bottom: 18px; position: relative; z-index: 1; }
+    .field-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 8px;
+    }
+    .field-label i { font-size: 0.62rem; opacity: 0.8; }
+
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--primary-light); opacity: 0.7; pointer-events: none; font-size: 0.82rem;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 13px 14px 13px 44px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem; font-weight: 500;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input::placeholder { color: var(--text-light); font-size: 0.83rem; font-weight: 400; }
+    input:focus {
+      border-color: var(--primary); background: var(--bg-2);
+      box-shadow: 0 0 0 4px rgba(15,76,129,0.09);
+    }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    /* Dropdown Container */
+    #nameList {
+      position: relative;
+      width: 100%;
+      background: #ffffff;
+      border: 2px solid #0f4c81;
+      border-radius: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      margin-top: 6px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    /* Dropdown Items */
+    #nameList div {
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #0d1b2a;
+      border-bottom: 1px solid #e5eaf2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #ffffff;
+    }
+
+    /* Icon */
+    #nameList div i {
+      color: #0f4c81;
+      width: 18px;
+    }
+
+    /* Hover */
+    #nameList div:hover {
+      background: linear-gradient(135deg, #e6f0ff, #e6f9ff);
+      color: #0f4c81;
+    }
+
+    /* Scrollbar */
+    #nameList::-webkit-scrollbar { width: 6px; }
+    #nameList::-webkit-scrollbar-track { background: var(--bg-3); border-radius: 10px; }
+    #nameList::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+    .dropdown { position: relative; width: 100%; }
+    .field { position: relative; z-index: 1; }
+
+    /* Info Chips */
+    .info-strip {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 10px;
+      margin: 24px 0; position: relative; z-index: 1;
+    }
+    .info-chip {
+      background: linear-gradient(135deg, rgba(15,76,129,0.04), rgba(0,180,216,0.04));
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 14px 8px; text-align: center; transition: var(--tr);
+    }
+    .info-chip:hover { border-color: var(--border-strong); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .chip-icon { font-size: 1rem; color: var(--primary); margin-bottom: 6px; }
+    .chip-label { font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-light); margin-bottom: 3px; font-weight: 700; }
+    .chip-val { font-family: 'Orbitron', sans-serif; font-size: 0.68rem; font-weight: 800; color: var(--primary); }
+
+    /* ════ BUTTONS ════ */
+    .btn-group { display: flex; flex-direction: column; gap: 12px; margin-top: 28px; position: relative; z-index: 1; }
+
+    .action-btn {
+      width: 100%; padding: 15px 20px; border: none; border-radius: var(--radius-sm);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.92rem; font-weight: 800; letter-spacing: 0.3px;
+      cursor: pointer; position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .action-btn::after {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      transition: 0.55s;
+    }
+    .action-btn:hover::after { left: 100%; }
+    .action-btn:hover:not(:disabled) { transform: translateY(-3px); }
+    .action-btn:active:not(:disabled) { transform: scale(0.99); }
+    .action-btn:disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+
+    .btn-submit {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary), var(--primary-light));
+      color: white; box-shadow: 0 6px 24px var(--primary-glow);
+    }
+    .btn-submit:hover { box-shadow: 0 10px 32px rgba(15,76,129,0.45); }
+
+    .btn-skip {
+      background: linear-gradient(135deg, #c44d00, var(--danger), #f87171);
+      color: white; box-shadow: 0 6px 20px rgba(239,71,111,0.3);
+    }
+    .btn-skip:hover { box-shadow: 0 10px 28px rgba(239,71,111,0.45); }
+
+    .dashboard-divider {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text-light); margin-top: 6px;
+    }
+    .dashboard-divider::before, .dashboard-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .btn-dashboard {
+      background: var(--bg-3);
+      color: var(--primary);
+      border: 1.5px solid var(--border-strong);
+      box-shadow: var(--shadow-xs);
+      font-size: 0.86rem;
+    }
+    .btn-dashboard:hover { background: var(--bg); box-shadow: var(--shadow-sm); border-color: var(--primary); }
+    .btn-dashboard .btn-sub { font-size: 0.65rem; font-weight: 500; color: var(--text-light); margin-top: 1px; display: block; letter-spacing: 0; }
+
+    .btn-inner { display: flex; flex-direction: column; align-items: center; line-height: 1.2; }
+
+    .btn-loading { display: none; align-items: center; gap: 10px; }
+    .btn-spinner {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: white; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ════ TOAST ════ */
+    .toast-container {
+      position: fixed; top: 76px; right: 18px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 10px;
+      pointer-events: none; width: 340px;
+      max-width: calc(100vw - 36px);
+    }
+    .toast {
+      background: var(--bg-2); border-radius: 16px;
+      border: 1px solid var(--border); box-shadow: var(--shadow-md);
+      overflow: hidden; pointer-events: all;
+      animation: toastIn 0.38s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes toastIn { from{opacity:0;transform:translateX(50px) scale(0.95)} to{opacity:1;transform:translateX(0) scale(1)} }
+    .toast.out { animation: toastOut 0.28s ease forwards; }
+    @keyframes toastOut { to{opacity:0;transform:translateX(50px) scale(0.95)} }
+
+    .toast-top-stripe { height: 4px; }
+    .ts-success { background: linear-gradient(90deg, var(--success), #4ade80); }
+    .ts-skip    { background: linear-gradient(90deg, var(--danger), #f87171); }
+    .ts-warning { background: linear-gradient(90deg, var(--accent), var(--accent-light)); }
+    .ts-error   { background: linear-gradient(90deg, var(--danger), #f87171); }
+
+    .toast-body { padding: 14px 14px 12px; display: flex; gap: 12px; align-items: flex-start; }
+    .toast-ico {
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .ti-success { background: rgba(6,214,160,0.1); color: #059669; }
+    .ti-skip    { background: rgba(239,71,111,0.1); color: var(--danger); }
+    .ti-warning { background: rgba(247,127,0,0.1); color: var(--accent); }
+    .ti-error   { background: rgba(239,71,111,0.1); color: var(--danger); }
+
+    .toast-content { flex: 1; min-width: 0; }
+    .toast-title { font-size: 0.85rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+    .toast-detail {
+      background: var(--bg-3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 10px;
+      display: flex; flex-direction: column; gap: 4px;
+      margin-bottom: 4px;
+    }
+    .toast-detail-row { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+    .toast-detail-row i { font-size: 0.62rem; color: var(--primary); flex-shrink: 0; width: 12px; text-align: center; }
+    .toast-detail-row span { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--text); }
+    .toast-grade { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 50px; font-size: 0.67rem; font-weight: 800; letter-spacing: 0.5px; margin-top: 2px; }
+    .tg-success { background: rgba(6,214,160,0.12); color: #047857; border: 1px solid rgba(6,214,160,0.25); }
+    .tg-skip    { background: rgba(239,71,111,0.1); color: #be185d; border: 1px solid rgba(239,71,111,0.2); }
+
+    .toast-close { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 0.72rem; padding: 4px; transition: color 0.2s; flex-shrink: 0; }
+    .toast-close:hover { color: var(--text); }
+
+    .toast-progress { height: 3px; background: var(--bg-3); }
+    .toast-prog-bar { height: 100%; animation: shrink 5s linear forwards; }
+    .tpb-success { background: var(--success); opacity: 0.5; }
+    .tpb-skip    { background: var(--danger); opacity: 0.5; }
+    .tpb-warning { background: var(--accent); opacity: 0.5; }
+    .tpb-error   { background: var(--danger); opacity: 0.5; }
+    @keyframes shrink { from{width:100%} to{width:0} }
+
+    /* ════ LOADING OVERLAY ════ */
+    .loading-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 8000;
+      background: rgba(8,18,32,0.55);
+      backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+    .loading-overlay.show { display: flex; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    .loading-card {
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 40px 44px;
+      text-align: center; box-shadow: var(--shadow-lg);
+      max-width: 300px; width: 90%;
+      animation: scaleIn 0.3s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes scaleIn { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
+
+    .loading-ring-wrap { position: relative; width: 72px; height: 72px; margin: 0 auto 20px; }
+    .loading-ring {
+      width: 72px; height: 72px; border-radius: 50%;
+      border: 4px solid var(--bg-3);
+      border-top-color: var(--primary);
+      border-right-color: var(--secondary);
+      animation: spin 1s cubic-bezier(0.4,0,0.2,1) infinite;
+    }
+    .loading-ring-inner {
+      position: absolute; top: 10px; left: 10px;
+      width: 52px; height: 52px; border-radius: 50%;
+      border: 3px solid var(--bg-3);
+      border-bottom-color: var(--accent);
+      animation: spin 0.7s cubic-bezier(0.4,0,0.2,1) infinite reverse;
+    }
+    .loading-icon-center {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      font-size: 1rem; color: var(--primary);
+    }
+    .loading-title { font-family: 'Orbitron', sans-serif; font-size: 0.85rem; font-weight: 800; color: var(--text); margin-bottom: 6px; letter-spacing: 1px; }
+    .loading-sub { font-size: 0.76rem; color: var(--text-muted); font-weight: 500; }
+    .loading-dots { display: inline-flex; gap: 5px; margin-top: 14px; }
+    .loading-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); animation: dotBounce 1.2s ease-in-out infinite; }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; background: var(--secondary); }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; background: var(--accent); }
+    @keyframes dotBounce { 0%,80%,100%{transform:scale(0.6);opacity:0.5} 40%{transform:scale(1);opacity:1} }
+
+    /* ════ SKIP REASON MODAL ════ */
+    .skip-modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 7000;
+      background: rgba(8,18,32,0.60);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      align-items: center; justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.22s ease;
+    }
+    .skip-modal-overlay.show { display: flex; }
+
+    .skip-modal {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 0;
+      box-shadow: var(--shadow-lg);
+      width: 100%; max-width: 460px;
+      overflow: hidden;
+      animation: scaleIn 0.32s cubic-bezier(0.22,1,0.36,1) both;
+      position: relative;
+    }
+
+    .skip-modal-stripe {
+      height: 4px;
+      background: linear-gradient(90deg, #c44d00, var(--danger), #f87171);
+    }
+
+    .skip-modal-body { padding: 28px 28px 24px; }
+
+    .skip-modal-header {
+      display: flex; align-items: flex-start; gap: 16px; margin-bottom: 22px;
+    }
+    .skip-modal-icon {
+      width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+      background: linear-gradient(135deg, #c44d00, var(--danger));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: white;
+      box-shadow: 0 6px 20px rgba(239,71,111,0.35);
+    }
+    .skip-modal-title-wrap { flex: 1; }
+    .skip-modal-title {
+      font-family: 'Orbitron', sans-serif; font-size: 0.92rem; font-weight: 900;
+      color: var(--text); letter-spacing: 1px; margin-bottom: 5px;
+    }
+    .skip-modal-subtitle {
+      font-size: 0.78rem; color: var(--text-muted); font-weight: 500; line-height: 1.5;
+    }
+    .skip-modal-file-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(239,71,111,0.08);
+      border: 1px solid rgba(239,71,111,0.22);
+      border-radius: 50px; padding: 4px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem; font-weight: 700; color: var(--danger);
+      margin-top: 6px; display: inline-flex;
+    }
+
+    .skip-reason-label {
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--primary);
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 10px;
+    }
+    .skip-reason-label i { font-size: 0.6rem; opacity: 0.8; }
+
+    .skip-reason-textarea {
+      width: 100%;
+      min-height: 96px;
+      padding: 13px 16px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem; font-weight: 500;
+      line-height: 1.6;
+      outline: none; resize: vertical;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+    .skip-reason-textarea::placeholder { color: var(--text-light); font-size: 0.83rem; font-weight: 400; }
+    .skip-reason-textarea:focus {
+      border-color: var(--danger);
+      background: var(--bg-2);
+      box-shadow: 0 0 0 4px rgba(239,71,111,0.09);
+    }
+    .skip-reason-textarea.error-shake {
+      border-color: var(--danger);
+      animation: shake 0.38s cubic-bezier(.36,.07,.19,.97);
+    }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)}
+      15%{transform:translateX(-7px)}
+      30%{transform:translateX(7px)}
+      45%{transform:translateX(-5px)}
+      60%{transform:translateX(5px)}
+      75%{transform:translateX(-3px)}
+      90%{transform:translateX(3px)}
+    }
+
+    .skip-reason-hint {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.7rem; font-weight: 600; color: var(--text-light);
+      margin-top: 8px;
+    }
+    .skip-reason-hint i { font-size: 0.62rem; }
+
+    .skip-reason-error {
+      display: none;
+      align-items: center; gap: 8px;
+      background: rgba(239,71,111,0.08);
+      border: 1px solid rgba(239,71,111,0.25);
+      border-radius: 10px; padding: 10px 14px;
+      margin-top: 10px;
+      font-size: 0.76rem; font-weight: 700; color: var(--danger);
+      animation: fadeIn 0.2s ease;
+    }
+    .skip-reason-error.show { display: flex; }
+    .skip-reason-error i { font-size: 0.82rem; flex-shrink: 0; }
+
+    .skip-modal-actions {
+      display: flex; gap: 10px; margin-top: 22px;
+    }
+    .skip-modal-cancel {
+      flex: 1; padding: 13px 16px; border-radius: var(--radius-sm);
+      background: var(--bg-3); border: 1.5px solid var(--border-strong);
+      color: var(--text-muted); font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem; font-weight: 700; cursor: pointer;
+      transition: var(--tr); display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .skip-modal-cancel:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); }
+
+    .skip-modal-confirm {
+      flex: 2; padding: 13px 16px; border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #c44d00, var(--danger), #f87171);
+      border: none; color: white;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem; font-weight: 800; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(239,71,111,0.3);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      position: relative; overflow: hidden;
+    }
+    .skip-modal-confirm::after {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      transition: 0.55s;
+    }
+    .skip-modal-confirm:hover::after { left: 100%; }
+    .skip-modal-confirm:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(239,71,111,0.45); }
+    .skip-modal-confirm:active { transform: scale(0.99); }
+
+    /* ════ FOOTER ════ */
+    .site-footer {
+      width: 100%; text-align: center;
+      padding: 32px 20px 16px;
+      position: relative; z-index: 1;
+    }
+    .footer-sep { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-light); }
+    .footer-sep::before, .footer-sep::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg,transparent,var(--border-strong),transparent); }
+    .footer-brand-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px; }
+    .footer-logo-wrap { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg,var(--primary-dark),var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: white; flex-shrink: 0; }
+    .footer-logo-img { height: 34px; width: 34px; border-radius: 9px; object-fit: contain; display: none; }
+    .footer-logo-img.loaded { display: block; }
+    .footer-company { font-family: 'Orbitron', sans-serif; font-size: 0.78rem; font-weight: 800; background: linear-gradient(135deg,var(--primary),var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .footer-address { font-size: 0.74rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.7; }
+    .footer-link {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 0.76rem; font-weight: 700; color: var(--primary);
+      text-decoration: none; padding: 7px 18px;
+      border: 1.5px solid var(--border-strong); border-radius: 50px; transition: var(--tr);
+      margin-bottom: 14px;
+    }
+    .footer-link:hover { background: var(--primary); color: white; border-color: var(--primary); box-shadow: var(--shadow-glow); }
+    .footer-copy { font-size: 0.67rem; color: var(--text-light); }
+
+    /* ════ RESPONSIVE ════ */
+    @media (max-width: 540px) {
+      .page { padding: 28px 14px 50px; }
+      .card { padding: 32px 22px 28px; }
+      .topbar { padding: 0 14px; height: 58px; }
+      .topbar-clock { display: none; }
+      .skip-modal-body { padding: 22px 18px 18px; }
+      .skip-modal-actions { flex-direction: column; }
+      .skip-modal-cancel, .skip-modal-confirm { flex: none; width: 100%; }
+    }
+    @media (max-width: 400px) {
+      .card { padding: 26px 16px 24px; }
+      .info-strip { grid-template-columns: 1fr 1fr; }
+      .info-strip .info-chip:last-child { grid-column: span 2; }
+      .toast-container { right: 10px; left: 10px; width: auto; }
+    }
+    @media (max-width: 320px) {
+      .topbar-name { font-size: 0.68rem; }
+      .card-title { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-card">
+    <div class="loading-ring-wrap">
+      <div class="loading-ring"></div>
+      <div class="loading-ring-inner"></div>
+      <div class="loading-icon-center"><i class="fas fa-paper-plane"></i></div>
+    </div>
+    <div class="loading-title" id="loadingTitle">SUBMITTING</div>
+    <div class="loading-sub" id="loadingSub">Saving your entry to the system…</div>
+    <div class="loading-dots">
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SKIP REASON MODAL ════ -->
+<div class="skip-modal-overlay" id="skipReasonOverlay">
+  <div class="skip-modal">
+    <div class="skip-modal-stripe"></div>
+    <div class="skip-modal-body">
+
+      <div class="skip-modal-header">
+        <div class="skip-modal-icon"><i class="fas fa-forward-fast"></i></div>
+        <div class="skip-modal-title-wrap">
+          <div class="skip-modal-title">SKIP THIS FILE?</div>
+          <div class="skip-modal-subtitle">
+            Please tell us why you are skipping
+          </div>
+          <div class="skip-modal-file-pill">
+            <i class="fas fa-hashtag"></i>
+            File ID: <span id="skipModalFileId">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="skip-reason-label">
+        <i class="fas fa-comment-dots"></i> Reason for Skipping
+      </div>
+      <textarea
+        class="skip-reason-textarea"
+        id="skipReasonInput"
+        placeholder="e.g. Audio quality too poor, background noise, file corrupted…"
+        maxlength="300"
+      ></textarea>
+      <div class="skip-reason-hint">
+        <i class="fas fa-circle-info"></i>
+        Reason must be descriptive (more than 5 characters &amp; at least 2 words)
+      </div>
+
+      <div class="skip-reason-error" id="skipReasonError">
+        <i class="fas fa-triangle-exclamation"></i>
+        <span id="skipReasonErrorMsg">Without a reason we cannot store this in the database.</span>
+      </div>
+
+      <div class="skip-modal-actions">
+        <button class="skip-modal-cancel" id="skipModalCancelBtn" onclick="closeSkipModal()">
+          <i class="fas fa-arrow-left"></i> Go Back
+        </button>
+        <button class="skip-modal-confirm" id="skipModalConfirmBtn" onclick="confirmSkip()">
+          <i class="fas fa-forward-fast"></i> Confirm Skip
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a class="topbar-brand" href="https://www.quantumcoderstechlab.codes/quantumcoders-data-solutions.html" target="_blank">
+    <div class="topbar-logo-wrap" id="logoWrap"><i class="fas fa-bolt"></i></div>
+    <img src="https://www.quantumcoderstechlab.codes/assets/Data%20Solutions/Logo/QCDL.png"
+      alt="QCDS" class="topbar-logo" id="topbarLogo"
+      onload="this.classList.add('loaded');document.getElementById('logoWrap').style.display='none'"
+      onerror="this.style.display='none'">
+    <div class="topbar-divider"></div>
+    <div class="topbar-text">
+      <div class="topbar-name">QuantumCoders Data Solutions</div>
+      <div class="topbar-sub">Production Entry System</div>
+    </div>
+  </a>
+  <div class="topbar-right">
+    <span class="topbar-clock" id="topbarClock">--:-- --</span>
+    <span class="live-badge"><span class="live-dot"></span>&nbsp;Live</span>
+  </div>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- Hero Badge -->
+  <div class="hero-badge">
+    <span class="bdot"></span>
+    System Live &nbsp;·&nbsp; QC Submission Portal
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="card">
+    <div class="card-orb"></div>
+
+    <div class="card-header">
+      <div class="card-icon"><i class="fas fa-file-circle-check"></i></div>
+      <div class="card-title">QC FILE SUBMISSION</div>
+      <div class="card-subtitle">Fill in all fields below to log your production entry</div>
+    </div>
+
+    <div class="form-divider"><i class="fas fa-user-circle"></i> Employee Details</div>
+
+    <!-- Name Field -->
+    <div class="field">
+      <div class="field-label"><i class="fas fa-user"></i> Employee Name</div>
+      <div class="dropdown">
+        <div class="input-wrap">
+          <span class="input-icon"><i class="fas fa-user-circle"></i></span>
+          <input type="text" id="name" placeholder="Start typing your name…" onkeyup="filterNames()" autocomplete="off">
+        </div>
+        <div id="nameList"></div>
+      </div>
+    </div>
+
+    <div class="form-divider" style="margin-top:24px;"><i class="fas fa-file-alt"></i> File Information</div>
+
+    <!-- File ID -->
+    <div class="field">
+      <div class="field-label"><i class="fas fa-hashtag"></i> File ID</div>
+      <div class="input-wrap">
+        <span class="input-icon"><i class="fas fa-barcode"></i></span>
+        <input type="number" id="id" placeholder="Enter File ID">
+      </div>
+    </div>
+
+    <!-- Recording Time -->
+    <div class="field">
+      <div class="field-label"><i class="fas fa-stopwatch"></i> Recording Time (Seconds)</div>
+      <div class="input-wrap">
+        <span class="input-icon"><i class="fas fa-clock"></i></span>
+        <input type="number" id="time" placeholder="Enter Recording Duration in Seconds">
+      </div>
+    </div>
+
+    <!-- Info Chips -->
+    <div class="info-strip">
+      <div class="info-chip">
+        <div class="chip-icon"><i class="fas fa-server"></i></div>
+        <div class="chip-label">System</div>
+        <div class="chip-val">Prod</div>
+      </div>
+      <div class="info-chip">
+        <div class="chip-icon"><i class="fas fa-tasks"></i></div>
+        <div class="chip-label">Type</div>
+        <div class="chip-val">QC</div>
+      </div>
+      <div class="info-chip">
+        <div class="chip-icon"><i class="fas fa-circle-check"></i></div>
+        <div class="chip-label">Status</div>
+        <div class="chip-val">Live</div>
+      </div>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="btn-group">
+
+      <!-- Submit -->
+      <button class="action-btn btn-submit" id="submitBtn" onclick="submitData()">
+        <i class="fas fa-paper-plane"></i>
+        <div class="btn-inner">
+          <span>Submit Entry</span>
+        </div>
+      </button>
+
+      <!-- Skip -->
+      <button class="action-btn btn-skip" id="skipBtn" onclick="submitSkip()">
+        <i class="fas fa-forward-fast"></i>
+        <div class="btn-inner">
+          <span>Skip This File</span>
+        </div>
+      </button>
+
+      <!-- Separator before dashboard -->
+      <div class="dashboard-divider">or navigate to</div>
+
+      <!-- Dashboard -->
+      <button class="action-btn btn-dashboard" onclick="openDashboard()">
+        <i class="fas fa-chart-line" style="color:var(--primary);font-size:1rem;"></i>
+        <div class="btn-inner">
+          <span style="color:var(--primary);">Production Dashboard</span>
+          <span class="btn-sub">Opens in a new tab</span>
+        </div>
+        <i class="fas fa-arrow-up-right-from-square" style="font-size:0.72rem;color:var(--text-light);margin-left:auto;"></i>
+      </button>
+
+      <!-- Report Page -->
+      <button class="action-btn btn-dashboard" onclick="openReportPage()">
+        <i class="fas fa-file-alt" style="color:var(--primary);font-size:1rem;"></i>
+        <div class="btn-inner">
+          <span style="color:var(--primary);">My Work Report</span>
+          <span class="btn-sub">View & download your report</span>
+        </div>
+        <i class="fas fa-arrow-up-right-from-square" style="font-size:0.72rem;color:var(--text-light);margin-left:auto;"></i>
+      </button>
+
+    </div>
+
+    <!-- Hidden message div (keep for GAS compatibility) -->
+    <div id="message" style="display:none;"></div>
+
+  </div><!-- /card -->
+
+  <!-- FOOTER -->
+  <div class="site-footer">
+    <div class="footer-sep">QuantumCoders Data Solutions</div>
+    <div class="footer-brand-row">
+      <div class="footer-logo-wrap" id="footerLogoWrap"><i class="fas fa-bolt"></i></div>
+      <img src="https://www.quantumcoderstechlab.codes/assets/Data%20Solutions/Logo/QCDL.png"
+        alt="QCDS" class="footer-logo-img" id="footerLogoImg"
+        onload="this.classList.add('loaded');document.getElementById('footerLogoWrap').style.display='none'"
+        onerror="this.style.display='none'">
+      <div class="footer-company">QuantumCoders Data Solutions</div>
+    </div>
+    <div class="footer-address">
+      Berhampur, Odisha, India &mdash; 760001<br>
+      <span style="font-size:0.68rem;color:var(--text-light);">All submissions are encrypted &amp; securely stored</span>
+    </div>
+    <a class="footer-link" href="https://quantumcoderstechlab.codes/quantumcoders-data-solutions.html" target="_blank">
+      <i class="fas fa-globe"></i> Visit Our Services Page
+    </a>
+    <div class="footer-copy">&copy; 2026 QuantumCoders Tech Lab. All rights reserved.</div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- ════════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════ -->
+<script>
+/* ── Clock ── */
+function updateClock() {
+  var now  = new Date();
+  var h    = now.getHours();
+  var m    = now.getMinutes().toString().padStart(2,'0');
+  var s    = now.getSeconds().toString().padStart(2,'0');
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  var h12  = (h % 12 || 12).toString().padStart(2,'0');
+  var el   = document.getElementById('topbarClock');
+  if (el) el.textContent = h12 + ':' + m + ':' + s + ' ' + ampm;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ── Toast System ── */
+var TOAST_ICONS = {
+  success: 'fas fa-circle-check',
+  skip:    'fas fa-forward-fast',
+  warning: 'fas fa-triangle-exclamation',
+  error:   'fas fa-circle-xmark'
+};
+
+function showToast(type, title, name, fileId, timeVal, gradeMsg, duration) {
+  duration = duration || 5500;
+  var container = document.getElementById('toastContainer');
+  var t = document.createElement('div');
+  t.className = 'toast';
+
+  var typeClass  = type === 'success' ? 'success' : type === 'skip' ? 'skip' : type;
+  var icoClass   = 'ti-' + typeClass;
+  var stripeClass= 'ts-' + typeClass;
+  var pbClass    = 'tpb-' + typeClass;
+  var gradeClass = type === 'success' ? 'tg-success' : 'tg-skip';
+
+  var secs    = parseFloat(timeVal) || 0;
+  var mins    = (secs / 60).toFixed(2);
+  var timeDisp= secs >= 60 ? mins + ' min (' + secs + 's)' : secs + ' sec';
+
+  t.innerHTML =
+    '<div class="toast-top-stripe ' + stripeClass + '"></div>' +
+    '<div class="toast-body">' +
+      '<div class="toast-ico ' + icoClass + '"><i class="' + TOAST_ICONS[type] + '"></i></div>' +
+      '<div class="toast-content">' +
+        '<div class="toast-title">' + title + '</div>' +
+        '<div class="toast-detail">' +
+          '<div class="toast-detail-row"><i class="fas fa-user"></i> Name: <span>' + name + '</span></div>' +
+          '<div class="toast-detail-row"><i class="fas fa-hashtag"></i> File ID: <span>' + fileId + '</span></div>' +
+          '<div class="toast-detail-row"><i class="fas fa-stopwatch"></i> Time: <span>' + timeDisp + '</span></div>' +
+        '</div>' +
+        '<span class="toast-grade ' + gradeClass + '"><i class="fas fa-star"></i>&nbsp;' + gradeMsg + '</span>' +
+      '</div>' +
+      '<button class="toast-close" onclick="dismissToast(this.closest(\'.toast\'))"><i class="fas fa-xmark"></i></button>' +
+    '</div>' +
+    '<div class="toast-progress"><div class="toast-prog-bar ' + pbClass + '" style="animation-duration:' + duration + 'ms;"></div></div>';
+
+  container.appendChild(t);
+  setTimeout(function(){ dismissToast(t); }, duration);
+}
+
+function showSimpleToast(type, title, msg, duration) {
+  duration = duration || 4000;
+  var typeMap = { warning:'warning', error:'error' };
+  var stripeClass = 'ts-' + (typeMap[type] || type);
+  var icoClass    = 'ti-' + (typeMap[type] || type);
+  var pbClass     = 'tpb-' + (typeMap[type] || type);
+  var container   = document.getElementById('toastContainer');
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML =
+    '<div class="toast-top-stripe ' + stripeClass + '"></div>' +
+    '<div class="toast-body">' +
+      '<div class="toast-ico ' + icoClass + '"><i class="' + (TOAST_ICONS[type] || TOAST_ICONS.warning) + '"></i></div>' +
+      '<div class="toast-content">' +
+        '<div class="toast-title">' + title + '</div>' +
+        '<div style="font-size:0.78rem;color:var(--text-muted);font-weight:600;margin-top:3px;">' + msg + '</div>' +
+      '</div>' +
+      '<button class="toast-close" onclick="dismissToast(this.closest(\'.toast\'))"><i class="fas fa-xmark"></i></button>' +
+    '</div>' +
+    '<div class="toast-progress"><div class="toast-prog-bar ' + pbClass + '" style="animation-duration:' + duration + 'ms;"></div></div>';
+  container.appendChild(t);
+  setTimeout(function(){ dismissToast(t); }, duration);
+}
+
+function dismissToast(t) {
+  if (!t || t.classList.contains('out')) return;
+  t.classList.add('out');
+  setTimeout(function(){ t.remove(); }, 300);
+}
+
+/* ── Loading Overlay ── */
+function showLoading(title, sub) {
+  document.getElementById('loadingTitle').textContent = title || 'SUBMITTING';
+  document.getElementById('loadingSub').textContent   = sub   || 'Saving your entry to the system…';
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+/* ── Set buttons state ── */
+function setBtnsState(disabled) {
+  document.getElementById('submitBtn').disabled = disabled;
+  document.getElementById('skipBtn').disabled   = disabled;
+}
+
+/* ── Grade message based on time ── */
+function getGrade(secs) {
+  var s = parseFloat(secs) || 0;
+  if (s === 0) return 'Entry Logged';
+  if (s < 60)  return 'Quick File — Great Work!';
+  if (s < 180) return 'Standard File — Good Job!';
+  if (s < 360) return 'Detailed File — Well Done!';
+  return 'Complex File — Excellent Effort!';
+}
+
+/* ════════════════════════════════════════
+   ORIGINAL SCRIPT FUNCTIONS — UNTOUCHED
+════════════════════════════════════════ */
+const names = [
+  "Bikash Bisoyi",
+  "Madhushmita Das",
+  "Sridhar Patro",
+  "Samir Kumar Dash",
+  "Sasmita Sahoo",
+  "Prem Prasad Pradhan",
+  "Siddharth Khuntia",
+  "Sankar Prasad Acharya",
+  "Chandan Biswal",
+  "Ashis Gouda",
+  "Satya Narayan Padhi",
+  "Subhasish Sahu",
+  "Amit Ranjan Sahu",
+  "Suchismita Ojha",
+  "Sidhanta Swain",
+  "Roshan Kumar Sahu",
+  "Ankit Pradhan",
+  "Ranjeet Shyamsundar Bhise",
+  "Pradipta Sahoo"
+];
+
+function filterNames() {
+  const input = document.getElementById("name").value.toLowerCase();
+  const list  = document.getElementById("nameList");
+  list.innerHTML = "";
+
+  if (input === "") {
+    list.style.display = "none";
+    return;
+  }
+
+  names.forEach(function(n) {
+    if (n.toLowerCase().includes(input)) {
+      var div = document.createElement("div");
+      div.innerHTML = `
+        <i class="fas fa-user"></i>
+        <span style="flex:1;">${n}</span>
+      `;
+      div.onclick = function() {
+        document.getElementById("name").value = n;
+        list.style.display = "none";
+      };
+      list.appendChild(div);
+    }
+  });
+
+  list.style.display = list.children.length ? "block" : "none";
+}
+
+/* Close dropdown when clicking outside */
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.dropdown')) {
+    document.getElementById('nameList').style.display = 'none';
+  }
+});
+
+function submitData() {
+  var name = document.getElementById("name").value.trim();
+  var id   = document.getElementById("id").value.trim();
+  var time = document.getElementById("time").value.trim();
+
+  if (name === "" || id === "" || time === "") {
+    showSimpleToast('warning', 'Fields Incomplete', 'Please fill in your name, file ID, and recording time before submitting.');
+    return;
+  }
+
+  setBtnsState(true);
+  showLoading('SUBMITTING', 'Saving File ID ' + id + ' to the production sheet…');
+
+  var data = { name: name, id: id, time: time };
+
+  google.script.run
+    .withSuccessHandler(function(response) {
+      hideLoading();
+      setBtnsState(false);
+
+      if (response === "SUCCESS") {
+        showToast('success', '✅ Entry Submitted Successfully!', name, id, time, getGrade(time));
+        document.getElementById("name").value = "";
+        document.getElementById("id").value   = "";
+        document.getElementById("time").value = "";
+      } else {
+        showSimpleToast('error', 'Submission Error', response || 'An unexpected error occurred. Please try again.', 5000);
+      }
+    })
+    .withFailureHandler(function(error) {
+      hideLoading();
+      setBtnsState(false);
+      showSimpleToast('error', 'Submission Failed', 'Could not connect to the server. Please check your connection and try again.', 5000);
+    })
+    .submitFileData(data);
+}
+
+/* ════════════════════════════════════════
+   SKIP REASON MODAL — NEW ADDITION ONLY
+════════════════════════════════════════ */
+
+/* Step 1: Skip button clicked → validate main fields → open modal */
+function submitSkip() {
+  var name = document.getElementById("name").value.trim();
+  var id   = document.getElementById("id").value.trim();
+  var time = document.getElementById("time").value.trim();
+
+  if (name === "" || id === "" || time === "") {
+    showSimpleToast('warning', 'Fields Incomplete', 'Please fill in all fields before marking a file as skipped.');
+    return;
+  }
+
+  /* Show the reason modal */
+  document.getElementById("skipModalFileId").textContent = id;
+  document.getElementById("skipReasonInput").value = "";
+  document.getElementById("skipReasonError").classList.remove("show");
+  document.getElementById("skipReasonInput").classList.remove("error-shake");
+  document.getElementById("skipReasonOverlay").classList.add("show");
+
+  /* Focus the textarea after a tiny delay so animation completes */
+  setTimeout(function() {
+    document.getElementById("skipReasonInput").focus();
+  }, 120);
+}
+
+/* Step 2: User clicks Go Back → close modal */
+function closeSkipModal() {
+  document.getElementById("skipReasonOverlay").classList.remove("show");
+}
+
+/* Close modal if overlay background is clicked */
+document.getElementById("skipReasonOverlay").addEventListener("click", function(e) {
+  if (e.target === this) closeSkipModal();
+});
+
+/* Step 3: User clicks Confirm Skip → validate reason → submit */
+function confirmSkip() {
+  var reason = document.getElementById("skipReasonInput").value.trim();
+  var errorEl = document.getElementById("skipReasonError");
+  var errorMsg = document.getElementById("skipReasonErrorMsg");
+  var textarea = document.getElementById("skipReasonInput");
+
+  /* Validation: must be more than 5 characters AND at least 2 words */
+  var wordCount = reason.split(/\s+/).filter(function(w){ return w.length > 0; }).length;
+  var isValid   = reason.length > 5 && wordCount >= 2;
+
+  if (!isValid) {
+    /* Show shake + error message */
+    textarea.classList.remove("error-shake");
+    void textarea.offsetWidth; /* reflow to restart animation */
+    textarea.classList.add("error-shake");
+
+    if (reason.length === 0) {
+      errorMsg.textContent = "Without a reason we cannot store this in the database. Please provide a reason.";
+    } else if (wordCount < 2) {
+      errorMsg.textContent = "Reason must contain at least 2 words. Please be more descriptive.";
+    } else {
+      errorMsg.textContent = "Reason is too short. Please provide a more descriptive reason (more than 5 characters).";
+    }
+
+    errorEl.classList.add("show");
+    textarea.focus();
+    return;
+  }
+
+  /* Valid — close modal, disable buttons, show loading, send to GAS */
+  errorEl.classList.remove("show");
+  closeSkipModal();
+
+  var name = document.getElementById("name").value.trim();
+  var id   = document.getElementById("id").value.trim();
+  var time = document.getElementById("time").value.trim();
+
+  setBtnsState(true);
+  showLoading('SKIPPING FILE', 'Logging File ID ' + id + ' to the skip record…');
+
+  var data = { name: name, id: id, time: time, reason: reason };
+
+  google.script.run
+    .withSuccessHandler(function(response) {
+      hideLoading();
+      setBtnsState(false);
+      showToast('skip', '⏭️ File Marked as Skipped', name, id, time, 'Stored in Skip Records', 5500);
+      document.getElementById("name").value = "";
+      document.getElementById("id").value   = "";
+      document.getElementById("time").value = "";
+    })
+    .withFailureHandler(function(error) {
+      hideLoading();
+      setBtnsState(false);
+      showSimpleToast('error', 'Skip Failed', 'Could not log the skip record. Please try again.', 5000);
+    })
+    .submitSkipData(data);
+}
+
+/* Clear shake class once animation ends so it can replay */
+document.getElementById("skipReasonInput").addEventListener("animationend", function() {
+  this.classList.remove("error-shake");
+});
+
+/* ════ Dashboard ════ */
+function openDashboard() {
+  window.open(
+    "https://script.google.com/macros/s/AKfycbwadtXnMFMolY8WJji-_YKlLiyHnJseOHTKGCUnw2aSmFiPHLcy2gMI7B9Uu1mhIWgCKw/exec?page=dashboard",
+    "_blank"
+  );
+}
+</script>
+<script>
+function openReportPage(){
+  window.open(
+    "https://script.google.com/macros/s/AKfycbwadtXnMFMolY8WJji-_YKlLiyHnJseOHTKGCUnw2aSmFiPHLcy2gMI7B9Uu1mhIWgCKw/exec?page=report",
+    "_blank"
+  );
+}
+</script>
+
+</body>
+</html>

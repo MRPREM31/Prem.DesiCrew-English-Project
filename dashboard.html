@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard – QuantumCoders Data Solutions</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <style>
+    :root {
+      --primary:        #0f4c81;
+      --primary-light:  #1a6bb5;
+      --primary-dark:   #0a3459;
+      --primary-glow:   rgba(15,76,129,0.22);
+      --secondary:      #00b4d8;
+      --secondary-light:#48cae4;
+      --accent:         #f77f00;
+      --accent-light:   #fcbf49;
+      --success:        #06d6a0;
+      --danger:         #ef476f;
+      --warning:        #ffd166;
+      --gold:           #f4a261;
+      --purple:         #7c3aed;
+      --text:           #0d1b2a;
+      --text-muted:     #4a5568;
+      --text-light:     #8896a5;
+      --bg:             #f0f4f9;
+      --bg-2:           #ffffff;
+      --bg-3:           #e8edf5;
+      --card:           rgba(255,255,255,0.98);
+      --border:         rgba(15,76,129,0.12);
+      --border-strong:  rgba(15,76,129,0.28);
+      --shadow-xs:  0 1px 4px rgba(0,0,0,0.05);
+      --shadow-sm:  0 2px 10px rgba(0,0,0,0.06);
+      --shadow:     0 8px 28px rgba(0,0,0,0.08);
+      --shadow-md:  0 16px 45px rgba(0,0,0,0.12);
+      --shadow-lg:  0 24px 64px rgba(0,0,0,0.16);
+      --shadow-glow:0 0 35px rgba(15,76,129,0.18);
+      --tr:       all 0.28s cubic-bezier(0.4,0,0.2,1);
+      --radius:   18px;
+      --radius-sm:12px;
+      --radius-lg:26px;
+      --radius-xl:32px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    html, body { min-height: 100vh; overflow-x: hidden; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.65; display: flex;
+      flex-direction: column; align-items: center;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 5% 10%, rgba(15,76,129,0.09) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 95% 5%,  rgba(0,180,216,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 60% at 50% 100%,rgba(247,127,0,0.05) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    body::after {
+      content: ''; position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(15,76,129,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,76,129,0.04) 1px, transparent 1px);
+      background-size: 52px 52px; pointer-events: none;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      position: sticky; top: 0; z-index: 100; width: 100%;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 0 var(--border), var(--shadow-sm);
+      padding: 0 28px; height: 66px;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+    .topbar-logo-wrap {
+      width: 42px; height: 42px; border-radius: 11px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px var(--primary-glow); flex-shrink: 0;
+    }
+    .topbar-logo-wrap i { color: white; font-size: 1.15rem; }
+    .topbar-logo { height: 42px; width: 42px; border-radius: 11px; object-fit: contain; transition: var(--tr); display: none; }
+    .topbar-logo.loaded { display: block; }
+    .topbar-logo:hover { transform: scale(1.06); }
+    .topbar-divider { width: 1.5px; height: 32px; background: linear-gradient(to bottom, transparent, var(--border-strong), transparent); }
+    .topbar-text { display: flex; flex-direction: column; }
+    .topbar-name {
+      font-family: 'Orbitron', sans-serif; font-size: 0.82rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; letter-spacing: 0.3px;
+    }
+    .topbar-sub { font-size: 0.58rem; font-weight: 700; color: var(--accent); letter-spacing: 2.5px; text-transform: uppercase; margin-top: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .topbar-time {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 500;
+      color: var(--text-muted); background: var(--bg-3); padding: 6px 14px;
+      border-radius: 50px; border: 1px solid var(--border); letter-spacing: 0.5px;
+    }
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 16px; border-radius: 50px;
+      background: linear-gradient(135deg, rgba(6,214,160,0.1), rgba(0,180,216,0.08));
+      border: 1px solid rgba(6,214,160,0.3);
+      font-size: 0.68rem; font-weight: 700; color: #059669; letter-spacing: 1.2px; text-transform: uppercase;
+    }
+    .live-pulse {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--success); box-shadow: 0 0 6px var(--success);
+      animation: pulse-dot 2s infinite; display: inline-block;
+    }
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
+
+    /* PAGE */
+    .page {
+      position: relative; z-index: 1; width: 100%; max-width: 1100px;
+      padding: 38px 22px 60px; display: flex; flex-direction: column; gap: 30px;
+    }
+
+    /* HERO */
+    .hero-banner {
+      background: linear-gradient(130deg, #081e36 0%, var(--primary-dark) 40%, var(--primary) 75%, var(--primary-light) 100%);
+      border-radius: var(--radius-xl); padding: 42px 44px 38px;
+      position: relative; overflow: hidden;
+      box-shadow: var(--shadow-lg), 0 0 60px rgba(15,76,129,0.25);
+      animation: heroIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .hero-banner::before {
+      content: ''; position: absolute; inset: 0; z-index: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .hero-banner::after {
+      content: ''; position: absolute; top: -100px; right: -100px;
+      width: 380px; height: 380px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,180,216,0.2) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+    .hero-orb {
+      position: absolute; bottom: -80px; left: -60px;
+      width: 260px; height: 260px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(247,127,0,0.12) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+    .hero-inner { position: relative; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 0.65rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 12px; }
+    .hero-tag::before { content: ''; width: 20px; height: 1px; background: rgba(255,255,255,0.35); }
+    .hero-title { font-family: 'Orbitron', sans-serif; font-size: clamp(1.6rem,4vw,2.4rem); font-weight: 900; color: white; line-height: 1.15; margin-bottom: 10px; letter-spacing: 0.5px; }
+    .hero-title .hl { background: linear-gradient(90deg,var(--accent-light),var(--gold),#fde68a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-sub { font-size: 0.87rem; font-weight: 400; color: rgba(255,255,255,0.65); max-width: 500px; line-height: 1.75; }
+    .hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+    .time-block { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 14px 22px; text-align: center; backdrop-filter: blur(8px); }
+    .time-block-time { font-family: 'JetBrains Mono', monospace; font-size: 1.7rem; font-weight: 600; color: white; letter-spacing: 2px; line-height: 1; }
+    .time-block-date { font-size: 0.68rem; color: rgba(255,255,255,0.55); margin-top: 5px; letter-spacing: 1px; text-transform: uppercase; }
+    .hero-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .hero-chip { display: inline-flex; align-items: center; gap: 7px; padding: 7px 15px; border-radius: 50px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); font-size: 0.73rem; font-weight: 600; color: rgba(255,255,255,0.88); backdrop-filter: blur(6px); }
+    .hero-chip i { font-size: 0.65rem; opacity: 0.8; }
+    @keyframes heroIn { from{opacity:0;transform:translateY(28px) scale(0.98)} to{opacity:1;transform:translateY(0) scale(1)} }
+
+    /* SECTION LABELS */
+    .section-label { display: flex; align-items: center; gap: 14px; font-size: 0.68rem; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-light); }
+    .section-label::before, .section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--border-strong), transparent); }
+    .section-label-icon { width: 26px; height: 26px; border-radius: 7px; background: var(--bg-2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--primary); box-shadow: var(--shadow-xs); }
+
+    /* KPI GRID */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+    .kpi-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      overflow: hidden; box-shadow: var(--shadow); position: relative;
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), box-shadow 0.28s;
+      animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .kpi-card:nth-child(1){animation-delay:0.05s}.kpi-card:nth-child(2){animation-delay:0.12s}
+    .kpi-card:nth-child(3){animation-delay:0.19s}.kpi-card:nth-child(4){animation-delay:0.26s}
+    .kpi-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-md),var(--shadow-glow); }
+    @keyframes cardIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    .kpi-stripe { height: 4px; width: 100%; }
+    .ks-blue   { background:linear-gradient(90deg,var(--primary-dark),var(--primary-light),var(--secondary)); }
+    .ks-orange { background:linear-gradient(90deg,#c44d00,var(--accent),var(--accent-light)); }
+    .ks-teal   { background:linear-gradient(90deg,#007a8e,var(--secondary),var(--success)); }
+    .ks-purple { background:linear-gradient(90deg,#4c1d95,var(--purple),#a855f7); }
+    .kpi-inner { padding: 22px 20px 20px; }
+    .kpi-icon-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .kpi-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: white; flex-shrink: 0; }
+    .ki-blue   { background:linear-gradient(135deg,var(--primary-dark),var(--primary-light)); box-shadow:0 5px 16px rgba(15,76,129,0.35); }
+    .ki-orange { background:linear-gradient(135deg,#c44d00,var(--accent)); box-shadow:0 5px 16px rgba(247,127,0,0.35); }
+    .ki-teal   { background:linear-gradient(135deg,#006d7e,var(--secondary)); box-shadow:0 5px 16px rgba(0,180,216,0.32); }
+    .ki-purple { background:linear-gradient(135deg,#4c1d95,var(--purple)); box-shadow:0 5px 16px rgba(124,58,237,0.35); }
+    .kpi-trend { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.5px; }
+    .kpi-trend.up   { background:rgba(6,214,160,0.1); color:#059669; border:1px solid rgba(6,214,160,0.25); }
+    .kpi-trend.info { background:rgba(15,76,129,0.08); color:var(--primary); border:1px solid var(--border); }
+    .kpi-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-light); margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+    .kpi-label i { font-size: 0.58rem; }
+    .kpi-value { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 700; line-height: 1; }
+    .kv-blue   { color: var(--primary); }
+    .kv-orange { color: var(--accent); }
+    .kv-teal   { color: #0891b2; }
+    .kv-purple { color: var(--purple); }
+    .kpi-sub-row { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 0.7rem; color: var(--text-light); font-weight: 600; }
+    .kpi-sub-row i { font-size: 0.62rem; }
+
+    /* MAIN GRID */
+    .main-grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; align-items: start; }
+    .left-col  { display: flex; flex-direction: column; gap: 20px; }
+    .side-col  { display: flex; flex-direction: column; gap: 20px; }
+
+    /* PANEL CARDS */
+    .panel-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      overflow: hidden; box-shadow: var(--shadow);
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), box-shadow 0.28s;
+      animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .panel-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md),var(--shadow-glow); }
+    .pc-stripe { height: 4px; }
+    .ps-blue   { background:linear-gradient(90deg,var(--primary-dark),var(--primary-light),var(--secondary)); }
+    .ps-orange { background:linear-gradient(90deg,#c44d00,var(--accent),var(--accent-light)); }
+    .ps-teal   { background:linear-gradient(90deg,#007a8e,var(--secondary),var(--success)); }
+    .ps-purple { background:linear-gradient(90deg,#4c1d95,var(--purple),#a855f7); }
+    .ps-success{ background:linear-gradient(90deg,#065f46,var(--success),#4ade80); }
+    .ps-gold   { background:linear-gradient(90deg,#92400e,var(--gold),var(--accent-light)); }
+    .panel-inner { padding: 24px 22px 22px; }
+    .panel-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px; }
+    .panel-icon { width: 48px; height: 48px; border-radius: 13px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: white; }
+    .pi-blue   { background:linear-gradient(135deg,var(--primary-dark),var(--primary-light)); box-shadow:0 5px 16px rgba(15,76,129,0.35); }
+    .pi-orange { background:linear-gradient(135deg,#c44d00,var(--accent)); box-shadow:0 5px 16px rgba(247,127,0,0.35); }
+    .pi-teal   { background:linear-gradient(135deg,#006d7e,var(--secondary)); box-shadow:0 5px 16px rgba(0,180,216,0.32); }
+    .pi-purple { background:linear-gradient(135deg,#4c1d95,var(--purple)); box-shadow:0 5px 16px rgba(124,58,237,0.35); }
+    .pi-success{ background:linear-gradient(135deg,#065f46,var(--success)); box-shadow:0 5px 16px rgba(6,214,160,0.35); }
+    .pi-gold   { background:linear-gradient(135deg,#92400e,var(--gold)); box-shadow:0 5px 16px rgba(244,162,97,0.35); }
+    .panel-title { font-size:0.97rem; font-weight:800; color:var(--text); line-height:1.2; }
+    .panel-desc  { font-size:0.76rem; color:var(--text-light); margin-top:3px; font-weight:500; }
+
+    /* DATA TABLE */
+    .data-table-wrap { overflow-x: auto; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+    .data-table-wrap::-webkit-scrollbar { height: 4px; }
+    .data-table-wrap::-webkit-scrollbar-track { background: var(--bg); }
+    .data-table-wrap::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .data-table thead tr { background: linear-gradient(135deg, var(--bg-3), var(--bg)); }
+    .data-table th { padding: 11px 14px; text-align: left; font-size: 0.65rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1.5px solid var(--border); white-space: nowrap; }
+    .data-table th i { font-size: 0.6rem; margin-right: 4px; color: var(--primary); }
+    .data-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text-muted); font-weight: 500; vertical-align: middle; }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr { transition: background 0.18s; }
+    .data-table tbody tr:hover { background: rgba(15,76,129,0.03); }
+    .td-date { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600; color: var(--primary); white-space: nowrap; }
+    .td-num  { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 700; color: var(--text); }
+    .td-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 50px; font-size: 0.68rem; font-weight: 700; white-space: nowrap; }
+    .tb-blue   { background:rgba(15,76,129,0.08); color:var(--primary); border:1px solid rgba(15,76,129,0.15); }
+    .tb-teal   { background:rgba(0,180,216,0.1); color:#0891b2; border:1px solid rgba(0,180,216,0.2); }
+    .tb-orange { background:rgba(247,127,0,0.1); color:var(--accent); border:1px solid rgba(247,127,0,0.2); }
+    .tb-green  { background:rgba(6,214,160,0.1); color:#059669; border:1px solid rgba(6,214,160,0.25); }
+    .tb-neutral{ background:var(--bg-3); color:var(--text-muted); border:1px solid var(--border); }
+
+    /* SKELETON */
+    .skeleton-row { height: 44px; background: linear-gradient(90deg, var(--bg-3) 25%, var(--bg-2) 50%, var(--bg-3) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; margin-bottom: 6px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* CHART */
+    .chart-container { background: linear-gradient(135deg,#f8f5ff,#f0ebff); border: 1px solid rgba(124,58,237,0.12); border-radius: var(--radius-sm); padding: 10px; overflow: hidden; }
+    #piechart { height: 280px; border-radius: var(--radius-sm); }
+
+    /* MEDALS */
+    .medal-cell { font-size: 1.1rem; text-align: center; min-width: 36px; }
+    .rank-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; background: var(--bg-3); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 800; color: var(--text-muted); }
+
+    /* TEAM TOTALS */
+    .totals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .total-stat { background: linear-gradient(135deg,var(--bg),var(--bg-3)); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 14px; position: relative; overflow: hidden; }
+    .total-stat::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+    .ts1::before { background:linear-gradient(90deg,var(--primary),var(--secondary)); }
+    .ts2::before { background:linear-gradient(90deg,var(--accent),var(--accent-light)); }
+    .total-label { font-size:0.62rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-light); margin-bottom:8px; display:flex; align-items:center; gap:5px; }
+    .total-label i { font-size:0.58rem; }
+    .total-value { font-family:'JetBrains Mono',monospace; font-size:1.7rem; font-weight:700; line-height:1; }
+    .tv1 { color:var(--primary); } .tv2 { color:var(--accent); }
+
+    /* LIVE FEED */
+    .live-feed-wrap { display: flex; flex-direction: column; gap: 7px; max-height: 340px; overflow-y: auto; padding-right: 2px; }
+    .live-feed-wrap::-webkit-scrollbar { width: 4px; }
+    .live-feed-wrap::-webkit-scrollbar-track { background: var(--bg); border-radius:4px; }
+    .live-feed-wrap::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:4px; }
+    .live-row { display: flex; align-items: center; gap: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; transition: border-color 0.2s, background 0.2s; }
+    .live-row:hover { border-color: rgba(0,180,216,0.3); background: rgba(0,180,216,0.04); }
+    .live-avatar { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; background: linear-gradient(135deg,var(--secondary),#48cae4); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 800; color: white; font-family: 'Orbitron', sans-serif; box-shadow: 0 3px 10px rgba(0,180,216,0.3); }
+    .live-name { flex: 1; font-size:0.82rem; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .live-time-badge { display:flex; align-items:center; gap:5px; background:linear-gradient(135deg,rgba(0,180,216,0.1),rgba(72,202,228,0.1)); border:1px solid rgba(0,180,216,0.25); border-radius:50px; padding:4px 10px; font-family:'JetBrains Mono',monospace; font-size:0.72rem; font-weight:700; color:#0891b2; white-space:nowrap; flex-shrink:0; }
+    .live-time-badge i { font-size:0.62rem; opacity:0.8; }
+    .live-date-pill { display:flex; align-items:center; gap:4px; background:var(--bg-3); border:1px solid var(--border); border-radius:50px; padding:3px 9px; font-size:0.65rem; font-weight:700; color:var(--text-muted); white-space:nowrap; flex-shrink:0; }
+    .live-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:28px 16px; background:var(--bg); border:1.5px dashed var(--border-strong); border-radius:var(--radius-sm); font-size:0.8rem; color:var(--text-light); font-weight:600; text-align:center; }
+    .live-empty i { font-size:1.6rem; color:var(--border-strong); }
+
+    /* FOOTER */
+    .site-footer { position:relative; z-index:1; width:100%; background:rgba(255,255,255,0.75); backdrop-filter:blur(18px); border-top:1px solid var(--border); padding:28px 28px 20px; }
+    .footer-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+    .footer-brand { display:flex; align-items:center; gap:12px; }
+    .footer-logo-wrap { width:34px; height:34px; border-radius:9px; flex-shrink:0; background:linear-gradient(135deg,var(--primary-dark),var(--primary)); display:flex; align-items:center; justify-content:center; font-size:0.85rem; color:white; }
+    .footer-logo-img { height:34px; width:34px; border-radius:9px; object-fit:contain; display:none; }
+    .footer-logo-img.loaded { display:block; }
+    .footer-brand-name { font-family:'Orbitron',sans-serif; font-size:0.76rem; font-weight:800; background:linear-gradient(135deg,var(--primary),var(--secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .footer-brand-tagline { font-size:0.64rem; color:var(--text-light); margin-top:2px; font-weight:500; }
+    .footer-center { text-align:center; }
+    .footer-address { font-size:0.74rem; color:var(--text-muted); line-height:1.6; }
+    .footer-right { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+    .footer-link { display:inline-flex; align-items:center; gap:7px; font-size:0.74rem; font-weight:700; color:var(--primary); text-decoration:none; padding:6px 16px; border:1.5px solid var(--border-strong); border-radius:50px; transition:var(--tr); }
+    .footer-link:hover { background:var(--primary); color:white; border-color:var(--primary); box-shadow:var(--shadow-glow); }
+    .footer-copy { font-size:0.64rem; color:var(--text-light); }
+
+    /* RESPONSIVE */
+    @media(max-width:900px) {
+      .kpi-grid { grid-template-columns:1fr 1fr; }
+      .main-grid { grid-template-columns:1fr; }
+    }
+    @media(max-width:640px) {
+      .topbar { padding:0 16px; height:60px; }
+      .topbar-time { display:none; }
+      .page { padding:24px 14px 48px; gap:22px; }
+      .kpi-grid { grid-template-columns:1fr 1fr; gap:10px; }
+      .hero-banner { padding:28px 24px; }
+      .hero-right { display:none; }
+      .totals-grid { grid-template-columns:1fr; }
+      .footer-inner { flex-direction:column; align-items:center; text-align:center; }
+      .footer-right { align-items:center; }
+    }
+    @media(max-width:400px) { .kpi-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a class="topbar-brand" href="https://www.quantumcoderstechlab.codes/quantumcoders-data-solutions.html" target="_blank">
+    <div class="topbar-logo-wrap" id="logoWrap"><i class="fas fa-bolt"></i></div>
+    <img src="https://www.quantumcoderstechlab.codes/assets/Data%20Solutions/Logo/QCDL.png"
+      alt="QCDS" class="topbar-logo" id="topbarLogo"
+      onload="this.classList.add('loaded');document.getElementById('logoWrap').style.display='none'"
+      onerror="this.style.display='none'">
+    <div class="topbar-divider"></div>
+    <div class="topbar-text">
+      <div class="topbar-name">QuantumCoders Data Solutions</div>
+      <div class="topbar-sub">Production Dashboard</div>
+    </div>
+  </a>
+  <div class="topbar-right">
+    <span class="topbar-time" id="topbarClock">--:-- --</span>
+    <span class="live-badge"><span class="live-pulse"></span>&nbsp;Live Data</span>
+  </div>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero-banner">
+    <div class="hero-orb"></div>
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-tag">QuantumCoders Data Solutions</div>
+        <div class="hero-title">Production <span class="hl">Dashboard</span></div>
+        <div class="hero-sub">Real-time production metrics, team performance analytics, and live activity feed — all in one place. Data auto-refreshes every 60 seconds.</div>
+        <div class="hero-chips">
+          <span class="hero-chip"><span class="live-pulse"></span>&nbsp; Live Dashboard</span>
+          <span class="hero-chip"><i class="fas fa-location-dot"></i> Berhampur, Odisha</span>
+          <span class="hero-chip"><i class="fas fa-rotate"></i> Auto-refresh: 60s</span>
+          <span class="hero-chip"><i class="fas fa-shield-halved"></i> Member Portal</span>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="time-block">
+          <div class="time-block-time" id="heroClock">--:--</div>
+          <div class="time-block-date" id="heroDate">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: TODAY -->
+  <div class="section-label">
+    <div class="section-label-icon"><i class="fas fa-gauge-high"></i></div>
+    Today's Production Snapshot
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-stripe ks-blue"></div>
+      <div class="kpi-inner">
+        <div class="kpi-icon-row">
+          <div class="kpi-icon ki-blue"><i class="fas fa-file-lines"></i></div>
+          <span class="kpi-trend info"><i class="fas fa-calendar-day"></i> Today</span>
+        </div>
+        <div class="kpi-label"><i class="fas fa-file-lines"></i> Files Processed</div>
+        <div class="kpi-value kv-blue" id="todayFiles">—</div>
+        <div class="kpi-sub-row"><i class="fas fa-info-circle"></i> Total files completed today</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-stripe ks-orange"></div>
+      <div class="kpi-inner">
+        <div class="kpi-icon-row">
+          <div class="kpi-icon ki-orange"><i class="fas fa-clock"></i></div>
+          <span class="kpi-trend info"><i class="fas fa-stopwatch"></i> Min</span>
+        </div>
+        <div class="kpi-label"><i class="fas fa-stopwatch"></i> Time Logged</div>
+        <div class="kpi-value kv-orange" id="todayTime">—</div>
+        <div class="kpi-sub-row"><i class="fas fa-info-circle"></i> Total minutes worked today</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-stripe ks-teal"></div>
+      <div class="kpi-inner">
+        <div class="kpi-icon-row">
+          <div class="kpi-icon ki-teal"><i class="fas fa-users"></i></div>
+          <span class="kpi-trend up"><i class="fas fa-circle-check"></i> Active</span>
+        </div>
+        <div class="kpi-label"><i class="fas fa-users"></i> Active Members</div>
+        <div class="kpi-value kv-teal" id="teamTotal">—</div>
+        <div class="kpi-sub-row"><i class="fas fa-info-circle"></i> Members with output today</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-stripe ks-purple"></div>
+      <div class="kpi-inner">
+        <div class="kpi-icon-row">
+          <div class="kpi-icon ki-purple"><i class="fas fa-trophy"></i></div>
+          <span class="kpi-trend up"><i class="fas fa-star"></i> Top</span>
+        </div>
+        <div class="kpi-label"><i class="fas fa-crown"></i> Top Performer</div>
+        <div class="kpi-value kv-purple" id="topName" style="font-size:1.1rem;padding-top:6px;">—</div>
+        <div class="kpi-sub-row"><i class="fas fa-info-circle"></i> Highest total contribution</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: ANALYTICS -->
+  <div class="section-label">
+    <div class="section-label-icon"><i class="fas fa-chart-line"></i></div>
+    Analytics & Performance
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT COL -->
+    <div class="left-col">
+
+      <!-- Daily Report -->
+      <div class="panel-card" style="animation-delay:0.1s">
+        <div class="pc-stripe ps-blue"></div>
+        <div class="panel-inner">
+          <div class="panel-header">
+            <div class="panel-icon pi-blue"><i class="fas fa-chart-bar"></i></div>
+            <div>
+              <div class="panel-title">Daily Production Report</div>
+              <div class="panel-desc">Historical production records by date</div>
+            </div>
+          </div>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th><i class="fas fa-calendar"></i> Date</th>
+                  <th><i class="fas fa-file-lines"></i> Files</th>
+                  <th><i class="fas fa-clock"></i> Time (Min)</th>
+                  <th><i class="fas fa-users"></i> Head Count</th>
+                </tr>
+              </thead>
+              <tbody id="reportTableBody">
+                <tr><td colspan="4"><div class="skeleton-row"></div><div class="skeleton-row" style="opacity:0.7"></div><div class="skeleton-row" style="opacity:0.4"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Member Report -->
+      <div class="panel-card" style="animation-delay:0.18s">
+        <div class="pc-stripe ps-orange"></div>
+        <div class="panel-inner">
+          <div class="panel-header">
+            <div class="panel-icon pi-orange"><i class="fas fa-users-between-lines"></i></div>
+            <div>
+              <div class="panel-title">Member Daily Report</div>
+              <div class="panel-desc">Today vs yesterday comparison by member</div>
+            </div>
+          </div>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th><i class="fas fa-user"></i> Member</th>
+                  <th><i class="fas fa-sun"></i> Today (Min)</th>
+                  <th><i class="fas fa-rotate-left"></i> Yesterday (Min)</th>
+                  <th><i class="fas fa-chart-line"></i> Trend</th>
+                </tr>
+              </thead>
+              <tbody id="memberTableBody">
+                <tr><td colspan="4"><div class="skeleton-row"></div><div class="skeleton-row" style="opacity:0.7"></div><div class="skeleton-row" style="opacity:0.4"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Activity -->
+      <div class="panel-card" style="animation-delay:0.26s">
+        <div class="pc-stripe ps-teal"></div>
+        <div class="panel-inner">
+          <div class="panel-header">
+            <div class="panel-icon pi-teal"><i class="fas fa-bolt"></i></div>
+            <div>
+              <div class="panel-title">Live Activity Feed</div>
+              <div class="panel-desc">Most recent production entries across the team</div>
+            </div>
+          </div>
+          <div class="live-feed-wrap" id="liveTable">
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row" style="opacity:0.7"></div>
+            <div class="skeleton-row" style="opacity:0.4"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /left col -->
+
+    <!-- SIDE COL -->
+    <div class="side-col">
+
+      <!-- Top Performers -->
+      <div class="panel-card" style="animation-delay:0.14s">
+        <div class="pc-stripe ps-gold"></div>
+        <div class="panel-inner">
+          <div class="panel-header">
+            <div class="panel-icon pi-gold"><i class="fas fa-trophy"></i></div>
+            <div>
+              <div class="panel-title">Top Performers</div>
+              <div class="panel-desc">Ranked by total contribution</div>
+            </div>
+          </div>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:40px;text-align:center;">#</th>
+                  <th><i class="fas fa-user"></i> Name</th>
+                  <th><i class="fas fa-clock"></i> Total (Min)</th>
+                </tr>
+              </thead>
+              <tbody id="topTableBody">
+                <tr><td colspan="3"><div class="skeleton-row"></div><div class="skeleton-row" style="opacity:0.7"></div><div class="skeleton-row" style="opacity:0.4"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Totals -->
+      <div class="panel-card" style="animation-delay:0.22s">
+        <div class="pc-stripe ps-success"></div>
+        <div class="panel-inner">
+          <div class="panel-header">
+            <div class="panel-icon pi-success"><i class="fas fa-calculator" style="font-size:1rem;"></i></div>
+            <div>
+              <div class="panel-title">Team Totals</div>
+              <div class="panel-desc">Overall cumulative metrics</div>
+            </div>
+          </div>
+          <div class="totals-grid">
+            <div class="total-stat ts1">
+              <div class="total-label"><i class="fas fa-file-lines"></i> Total Files</div>
+              <div class="total-value tv1" id="teamFilesVal">—</div>
+            </div>
+            <div class="total-stat ts2">
+              <div class="total-label"><i class="fas fa-clock"></i> Total Time</div>
+              <div class="total-value tv2" id="teamTimeVal">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie Chart -->
+      <div class="panel-card" style="animation-delay:0.30s">
+        <div class="pc-stripe ps-purple"></div>
+        <div class="panel-inner">
+          <div class="panel-header">
+            <div class="panel-icon pi-purple"><i class="fas fa-chart-pie"></i></div>
+            <div>
+              <div class="panel-title">Team Contribution</div>
+              <div class="panel-desc">Time share across all members</div>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div id="piechart"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /side col -->
+
+  </div><!-- /main-grid -->
+
+</div><!-- /page -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo-wrap" id="footerLogoWrap"><i class="fas fa-bolt"></i></div>
+      <img src="https://www.quantumcoderstechlab.codes/assets/Data%20Solutions/Logo/QCDL.png"
+        alt="QCDS" class="footer-logo-img" id="footerLogoImg"
+        onload="this.classList.add('loaded');document.getElementById('footerLogoWrap').style.display='none'"
+        onerror="this.style.display='none'">
+      <div>
+        <div class="footer-brand-name">QuantumCoders Data Solutions</div>
+        <div class="footer-brand-tagline">Production Dashboard — Member View</div>
+      </div>
+    </div>
+    <div class="footer-center">
+      <div class="footer-address">
+        Berhampur, Odisha, India — 760001<br>
+        <span style="font-size:0.68rem;color:var(--text-light);">Data refreshes every 60 seconds &nbsp;·&nbsp; All times in local timezone</span>
+      </div>
+    </div>
+    <div class="footer-right">
+      <a class="footer-link" href="https://quantumcoderstechlab.codes/quantumcoders-data-solutions.html" target="_blank">
+        <i class="fas fa-globe"></i> Visit Our Website
+      </a>
+      <div class="footer-copy">&copy; 2026 QuantumCoders Tech Lab. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script>
+google.charts.load('current', {'packages': ['corechart']});
+
+/* CLOCK */
+function updateClock() {
+  var now  = new Date();
+  var h    = now.getHours();
+  var m    = now.getMinutes().toString().padStart(2,'0');
+  var s    = now.getSeconds().toString().padStart(2,'0');
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  var h12  = (h % 12 || 12).toString().padStart(2,'0');
+  var tc = document.getElementById('topbarClock');
+  if (tc) tc.textContent = h12 + ':' + m + ':' + s + ' ' + ampm;
+  var hc = document.getElementById('heroClock');
+  if (hc) hc.textContent = h12 + ':' + m + ' ' + ampm;
+  var hd = document.getElementById('heroDate');
+  if (hd) {
+    var days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    hd.textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+  }
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* HELPERS */
+function getMedal(i) {
+  if (i === 0) return '🥇';
+  if (i === 1) return '🥈';
+  if (i === 2) return '🥉';
+  return '<span class="rank-num">' + (i + 1) + '</span>';
+}
+
+function trendBadge(today, yesterday) {
+  var t = parseFloat(today)     || 0;
+  var y = parseFloat(yesterday) || 0;
+  if (y === 0 && t === 0) return '<span class="td-badge tb-neutral">–</span>';
+  if (y === 0) return '<span class="td-badge tb-green"><i class="fas fa-arrow-up"></i> New</span>';
+  var pct = (((t - y) / y) * 100).toFixed(0);
+  if (t > y) return '<span class="td-badge tb-green"><i class="fas fa-arrow-up"></i> +' + pct + '%</span>';
+  if (t < y) return '<span class="td-badge tb-orange"><i class="fas fa-arrow-down"></i> ' + pct + '%</span>';
+  return '<span class="td-badge tb-neutral"><i class="fas fa-minus"></i> Same</span>';
+}
+
+/* ══════════════════════════════════════
+   DRAW DASHBOARD — DO NOT MODIFY
+   Interfaces with Google Apps Script
+══════════════════════════════════════ */
+function drawDashboard(data) {
+
+  /* KPI Cards */
+  var filesEl = document.getElementById("todayFiles");
+  if (filesEl) filesEl.textContent = data.todayFiles;
+
+  var timeEl = document.getElementById("todayTime");
+  if (timeEl) timeEl.textContent = data.todayTime;
+
+  var memberCountEl = document.getElementById("teamTotal");
+  if (memberCountEl) {
+    var activeCount = (data.members || []).filter(function(d){ return parseFloat(d.today) > 0; }).length;
+    memberCountEl.textContent = activeCount;
+  }
+
+  var topNameEl = document.getElementById("topName");
+  if (topNameEl && data.top && data.top.length > 0) {
+    topNameEl.textContent = data.top[0].name;
+  }
+
+  /* Daily Report */
+  var reportBody = document.getElementById("reportTableBody");
+  if (reportBody) {
+    if (!data.report || data.report.length === 0) {
+      reportBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-light);padding:20px;font-style:italic;">No data available</td></tr>';
+    } else {
+      var rHTML = '';
+      data.report.forEach(function(d) {
+        rHTML += '<tr>' +
+          '<td><span class="td-date">' + d.date + '</span></td>' +
+          '<td><span class="td-num">' + d.files + '</span></td>' +
+          '<td><span class="td-num">' + d.time + '</span></td>' +
+          '<td><span class="td-badge tb-blue"><i class="fas fa-users"></i> ' + d.head + '</span></td>' +
+          '</tr>';
+      });
+      reportBody.innerHTML = rHTML;
+    }
+  }
+
+  /* Member Report */
+  var memberBody = document.getElementById("memberTableBody");
+  if (memberBody) {
+    if (!data.members || data.members.length === 0) {
+      memberBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-light);padding:20px;font-style:italic;">No member data</td></tr>';
+    } else {
+      var mHTML = '';
+      data.members.forEach(function(d) {
+        var initial = (d.name || '?').charAt(0).toUpperCase();
+        mHTML += '<tr>' +
+          '<td><div style="display:flex;align-items:center;gap:8px;">' +
+            '<div style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;color:white;font-family:Orbitron,sans-serif;flex-shrink:0;">' + initial + '</div>' +
+            '<span style="font-weight:700;color:var(--text);">' + d.name + '</span>' +
+          '</div></td>' +
+          '<td><span class="td-badge tb-green"><i class="fas fa-clock"></i> ' + d.today + '</span></td>' +
+          '<td><span class="td-badge tb-neutral"><i class="fas fa-rotate-left"></i> ' + d.yesterday + '</span></td>' +
+          '<td>' + trendBadge(d.today, d.yesterday) + '</td>' +
+          '</tr>';
+      });
+      memberBody.innerHTML = mHTML;
+    }
+  }
+
+  /* Top Performers */
+  var topBody = document.getElementById("topTableBody");
+  if (topBody) {
+    if (!data.top || data.top.length === 0) {
+      topBody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-light);padding:20px;font-style:italic;">No data yet</td></tr>';
+    } else {
+      var tHTML = '';
+      data.top.forEach(function(d, i) {
+        var rowStyle = i < 3 ? 'background:rgba(244,162,97,0.04);' : '';
+        tHTML += '<tr style="' + rowStyle + '">' +
+          '<td class="medal-cell" style="text-align:center;">' + getMedal(i) + '</td>' +
+          '<td style="font-weight:700;color:var(--text);">' + d.name + '</td>' +
+          '<td><span class="td-badge tb-orange"><i class="fas fa-clock"></i> ' + d.total + '</span></td>' +
+          '</tr>';
+      });
+      topBody.innerHTML = tHTML;
+    }
+  }
+
+  /* Live Feed */
+  var liveWrap = document.getElementById("liveTable");
+  if (liveWrap) {
+    if (!data.liveFeed || data.liveFeed.length === 0) {
+      liveWrap.innerHTML = '<div class="live-empty"><i class="fas fa-satellite-dish"></i><span>No live activity yet</span></div>';
+    } else {
+      var lHTML = '';
+      data.liveFeed.forEach(function(d) {
+        var initial = (d.name || '?').charAt(0).toUpperCase();
+        lHTML +=
+          '<div class="live-row">' +
+            '<div class="live-avatar">' + initial + '</div>' +
+            '<div class="live-name">' + d.name + '</div>' +
+            '<div class="live-time-badge"><i class="fas fa-clock"></i> ' + d.time + ' min</div>' +
+            '<div class="live-date-pill"><i class="fas fa-calendar-day"></i> ' + d.date + '</div>' +
+          '</div>';
+      });
+      liveWrap.innerHTML = lHTML;
+    }
+  }
+
+  /* Team Totals */
+  var tFiles = document.getElementById("teamFilesVal");
+  var tTime  = document.getElementById("teamTimeVal");
+  if (tFiles) tFiles.textContent = data.teamFiles || '—';
+  if (tTime)  tTime.textContent  = (data.teamTime  || '—') + ' m';
+
+  /* Pie Chart */
+  var chartData = [['Name', 'Time (min)']];
+  if (data.top && data.top.length > 0) {
+    data.top.forEach(function(d) {
+      chartData.push([d.name, parseFloat(d.total) || 0]);
+    });
+  }
+  var pieData = google.visualization.arrayToDataTable(chartData);
+  var pieOptions = {
+    backgroundColor: 'transparent',
+    chartArea: { left: 10, top: 10, width: '80%', height: '80%' },
+    legend:    { position: 'right', textStyle: { fontName: 'Plus Jakarta Sans', fontSize: 11, color: '#4a5568' } },
+    pieHole:   0.38,
+    tooltip:   { textStyle: { fontName: 'Plus Jakarta Sans', fontSize: 12 } },
+    sliceVisibilityThreshold: 0,
+    colors: ['#0f4c81','#00b4d8','#f77f00','#7c3aed','#06d6a0','#ef476f','#fcbf49','#f4a261','#4ade80','#a855f7']
+  };
+  var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+  chart.draw(pieData, pieOptions);
+}
+
+/* ══════════════════════════════════════
+   DO NOT MODIFY — Sheet fetch functions
+══════════════════════════════════════ */
+function loadDashboard(){
+  google.script.run.withSuccessHandler(drawDashboard).getDashboardData();
+}
+
+loadDashboard();
+setInterval(loadDashboard, 60000);
+</script>
+
+</body>
+</html>

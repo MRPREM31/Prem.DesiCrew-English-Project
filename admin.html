@@ -1,0 +1,2424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Panel – QuantumCoders Data Solutions</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* ════════════════════════════════════════
+       DESIGN TOKENS
+    ════════════════════════════════════════ */
+    :root {
+      --primary:        #0f4c81;
+      --primary-light:  #1a6bb5;
+      --primary-dark:   #0a3459;
+      --primary-glow:   rgba(15,76,129,0.22);
+      --secondary:      #00b4d8;
+      --secondary-light:#48cae4;
+      --accent:         #f77f00;
+      --accent-light:   #fcbf49;
+      --success:        #06d6a0;
+      --danger:         #ef476f;
+      --warning:        #ffd166;
+      --gold:           #f4a261;
+      --purple:         #7c3aed;
+
+      --text:           #0d1b2a;
+      --text-muted:     #4a5568;
+      --text-light:     #8896a5;
+      --bg:             #f0f4f9;
+      --bg-2:           #ffffff;
+      --bg-3:           #e8edf5;
+      --card:           rgba(255,255,255,0.98);
+      --border:         rgba(15,76,129,0.12);
+      --border-strong:  rgba(15,76,129,0.28);
+
+      --shadow-xs:  0 1px 4px rgba(0,0,0,0.05);
+      --shadow-sm:  0 2px 10px rgba(0,0,0,0.06);
+      --shadow:     0 8px 28px rgba(0,0,0,0.08);
+      --shadow-md:  0 16px 45px rgba(0,0,0,0.12);
+      --shadow-lg:  0 24px 64px rgba(0,0,0,0.16);
+      --shadow-glow:0 0 35px rgba(15,76,129,0.18);
+
+      --tr:       all 0.28s cubic-bezier(0.4,0,0.2,1);
+      --radius:   18px;
+      --radius-sm:12px;
+      --radius-lg:26px;
+      --radius-xl:32px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    html, body { min-height: 100vh; overflow-x: hidden; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 5% 10%, rgba(15,76,129,0.09) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 95% 5%,  rgba(0,180,216,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 60% at 50% 100%,rgba(247,127,0,0.05) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(15,76,129,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,76,129,0.04) 1px, transparent 1px);
+      background-size: 52px 52px;
+      pointer-events: none;
+    }
+
+    /* ════════════════════════════════════════
+       ██████ LOGIN SCREEN ██████
+    ════════════════════════════════════════ */
+    #loginScreen {
+      position: fixed; inset: 0; z-index: 99999;
+      background: linear-gradient(135deg, #020e1f 0%, #071b34 40%, #0a2848 70%, #0d3560 100%);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 1; transition: opacity 0.5s ease;
+    }
+    #loginScreen.hiding { opacity: 0; pointer-events: none; }
+
+    /* Animated background dots */
+    #loginScreen::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: 32px 32px;
+      animation: gridFloat 20s linear infinite;
+    }
+    #loginScreen::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 15% 20%, rgba(0,180,216,0.15) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 60% at 85% 80%, rgba(247,127,0,0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    @keyframes gridFloat {
+      from { background-position: 0 0; }
+      to   { background-position: 32px 32px; }
+    }
+
+    .login-box {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 440px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 28px;
+      padding: 44px 40px 40px;
+      backdrop-filter: blur(24px) saturate(160%);
+      box-shadow:
+        0 40px 80px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.1),
+        0 0 60px rgba(0,180,216,0.08);
+      animation: loginBoxIn 0.7s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes loginBoxIn {
+      from { opacity:0; transform:translateY(40px) scale(0.95); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    /* Top accent */
+    .login-box::before {
+      content: '';
+      position: absolute; top:0; left:0; right:0; height:3px;
+      border-radius: 28px 28px 0 0;
+      background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+    }
+
+    .login-brand {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 34px;
+    }
+    .login-brand-icon {
+      width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: white;
+      box-shadow: 0 8px 24px rgba(15,76,129,0.5);
+    }
+    .login-brand-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.78rem; font-weight: 800;
+      background: linear-gradient(90deg, #e0f0ff, var(--secondary));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; letter-spacing: 0.5px;
+      line-height: 1.3;
+    }
+    .login-brand-sub {
+      font-size: 0.62rem; font-weight: 700;
+      color: var(--accent-light); letter-spacing: 2px;
+      text-transform: uppercase; margin-top: 3px;
+    }
+
+    .login-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem; font-weight: 900;
+      color: white; line-height: 1.2;
+      margin-bottom: 6px;
+    }
+    .login-subtitle {
+      font-size: 0.82rem; color: rgba(255,255,255,0.5);
+      margin-bottom: 34px; font-weight: 500;
+    }
+
+    .login-field {
+      margin-bottom: 18px;
+    }
+    .login-label {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.68rem; font-weight: 800;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 10px;
+    }
+    .login-label i { font-size: 0.62rem; color: var(--secondary); }
+
+    .login-input-wrap {
+      position: relative;
+    }
+    .login-input {
+      width: 100%;
+      padding: 15px 48px 15px 18px;
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius-sm);
+      color: white;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.92rem; font-weight: 500;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+      letter-spacing: 2px;
+    }
+    .login-input::placeholder {
+      color: rgba(255,255,255,0.28);
+      letter-spacing: 0.5px;
+      font-size: 0.84rem;
+    }
+    .login-input:focus {
+      border-color: var(--secondary);
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 0 0 4px rgba(0,180,216,0.15);
+    }
+    .login-input.error {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 4px rgba(239,71,111,0.15);
+      animation: shakeErr 0.4s ease;
+    }
+    @keyframes shakeErr {
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-8px)}
+      40%{transform:translateX(8px)}
+      60%{transform:translateX(-5px)}
+      80%{transform:translateX(5px)}
+    }
+
+    .login-eye-btn {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.35); font-size: 0.85rem;
+      transition: color 0.2s;
+      padding: 4px;
+    }
+    .login-eye-btn:hover { color: rgba(255,255,255,0.7); }
+
+    .login-error-msg {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(239,71,111,0.12);
+      border: 1px solid rgba(239,71,111,0.3);
+      border-radius: 9px; padding: 10px 14px;
+      font-size: 0.76rem; color: #fca5a5;
+      font-weight: 600; margin-top: 10px;
+      opacity: 0; transform: translateY(-4px);
+      transition: opacity 0.25s, transform 0.25s;
+    }
+    .login-error-msg.visible { opacity: 1; transform: translateY(0); }
+    .login-error-msg i { font-size: 0.72rem; }
+
+    .login-btn {
+      width: 100%; margin-top: 10px;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary), var(--primary-light));
+      color: white; border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.92rem; font-weight: 800;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: transform 0.25s, box-shadow 0.25s;
+      box-shadow: 0 8px 28px rgba(15,76,129,0.5);
+      position: relative; overflow: hidden;
+    }
+    .login-btn::after {
+      content: '';
+      position: absolute; top:0; left:-100%; width:100%; height:100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: 0.5s;
+    }
+    .login-btn:hover::after { left: 100%; }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(15,76,129,0.6); }
+    .login-btn:active { transform: scale(0.99); }
+    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .login-btn-spinner {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .login-btn.loading .login-btn-spinner { display: block; }
+    .login-btn.loading .login-btn-text { display: none; }
+
+    .login-footer {
+      margin-top: 28px; padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .login-security-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.65rem; color: rgba(255,255,255,0.35);
+      font-weight: 600; letter-spacing: 0.5px;
+    }
+    .login-security-badge i { color: var(--success); font-size: 0.6rem; }
+
+    /* ════════════════════════════════════════
+       TOPBAR
+    ════════════════════════════════════════ */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      width: 100%;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 0 var(--border), var(--shadow-sm);
+      padding: 0 28px;
+      height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+    }
+    .topbar-logo-wrap {
+      width: 42px; height: 42px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px var(--primary-glow);
+      flex-shrink: 0;
+    }
+    .topbar-logo-wrap i { color: white; font-size: 1.15rem; }
+    .topbar-logo {
+      height: 42px; width: 42px;
+      border-radius: 11px; object-fit: contain;
+      transition: var(--tr);
+      display: none;
+    }
+    .topbar-logo.loaded { display: block; }
+    .topbar-logo:hover { transform: scale(1.06); }
+
+    .topbar-divider {
+      width: 1.5px; height: 32px;
+      background: linear-gradient(to bottom, transparent, var(--border-strong), transparent);
+    }
+    .topbar-text { display: flex; flex-direction: column; }
+    .topbar-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.82rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.3px;
+    }
+    .topbar-sub {
+      font-size: 0.58rem; font-weight: 700;
+      color: var(--accent); letter-spacing: 2.5px;
+      text-transform: uppercase; margin-top: 1px;
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .topbar-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem; font-weight: 500;
+      color: var(--text-muted);
+      background: var(--bg-3);
+      padding: 6px 14px;
+      border-radius: 50px;
+      border: 1px solid var(--border);
+      letter-spacing: 0.5px;
+    }
+    .admin-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 16px; border-radius: 50px;
+      background: linear-gradient(135deg, rgba(239,71,111,0.08), rgba(247,127,0,0.08));
+      border: 1px solid rgba(239,71,111,0.25);
+      font-size: 0.68rem; font-weight: 700;
+      color: var(--danger); letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+    .admin-badge i { font-size: 0.62rem; }
+
+    /* Logout button */
+    .logout-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 16px; border-radius: 50px;
+      background: transparent;
+      border: 1.5px solid var(--border-strong);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.68rem; font-weight: 700;
+      color: var(--text-muted); letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: var(--tr);
+      text-transform: uppercase;
+    }
+    .logout-btn i { font-size: 0.65rem; }
+    .logout-btn:hover {
+      background: rgba(239,71,111,0.07);
+      border-color: rgba(239,71,111,0.35);
+      color: var(--danger);
+    }
+
+    /* ════════════════════════════════════════
+       PAGE SHELL
+    ════════════════════════════════════════ */
+    .page {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 980px;
+      padding: 38px 22px 60px;
+      display: flex; flex-direction: column; gap: 30px;
+    }
+
+    /* ════════════════════════════════════════
+       WELCOME HERO
+    ════════════════════════════════════════ */
+    .welcome-card {
+      background: linear-gradient(130deg, #081e36 0%, var(--primary-dark) 40%, var(--primary) 75%, var(--primary-light) 100%);
+      border-radius: var(--radius-xl);
+      padding: 42px 44px 38px;
+      position: relative; overflow: hidden;
+      box-shadow: var(--shadow-lg), 0 0 60px rgba(15,76,129,0.25);
+      animation: heroIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .welcome-card::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .welcome-card::after {
+      content: '';
+      position: absolute;
+      top: -100px; right: -100px;
+      width: 380px; height: 380px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,180,216,0.2) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+    .welcome-orb2 {
+      position: absolute;
+      bottom: -80px; left: -60px;
+      width: 260px; height: 260px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(247,127,0,0.12) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+    .welcome-inner { position: relative; z-index: 1; }
+    .welcome-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 20px; flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .welcome-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 12px;
+    }
+    .welcome-tag::before {
+      content: ''; width: 20px; height: 1px;
+      background: rgba(255,255,255,0.35);
+    }
+    .welcome-greeting-line {
+      font-size: 0.9rem; font-weight: 500;
+      color: rgba(255,255,255,0.78);
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .greeting-icon {
+      font-size: 1.3rem;
+      display: inline-block;
+      animation: wave 2.2s ease-in-out infinite;
+    }
+    @keyframes wave {
+      0%,100%{transform:rotate(0deg)} 25%{transform:rotate(18deg)} 50%{transform:rotate(0deg)} 75%{transform:rotate(-10deg)}
+    }
+    .welcome-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.7rem, 4.5vw, 2.6rem);
+      font-weight: 900;
+      color: white;
+      line-height: 1.15;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    .welcome-name .name-highlight {
+      background: linear-gradient(90deg, var(--accent-light), var(--gold), #fde68a);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .welcome-sub {
+      font-size: 0.87rem; font-weight: 400;
+      color: rgba(255,255,255,0.65);
+      max-width: 500px; line-height: 1.75;
+    }
+    .welcome-right {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    }
+    .time-block {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 16px;
+      padding: 14px 22px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+    .time-block-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.7rem; font-weight: 600;
+      color: white; letter-spacing: 2px;
+      line-height: 1;
+    }
+    .time-block-date {
+      font-size: 0.68rem; color: rgba(255,255,255,0.55);
+      margin-top: 5px; letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .greeting-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 16px; border-radius: 50px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      font-size: 0.72rem; font-weight: 700;
+      color: var(--accent-light); letter-spacing: 0.5px;
+    }
+    .greeting-badge i { font-size: 0.68rem; }
+    .welcome-chips {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-top: 24px;
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 15px; border-radius: 50px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      font-size: 0.73rem; font-weight: 600;
+      color: rgba(255,255,255,0.88);
+      backdrop-filter: blur(6px);
+    }
+    .meta-chip i { font-size: 0.65rem; opacity: 0.8; }
+    .action-chip {
+      cursor: pointer;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: 0.2s;
+    }
+    .action-chip:hover {
+      background: #1a6bb5;
+      border-color: #1a6bb5;
+      transform: translateY(-2px);
+    }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)}
+    }
+    @keyframes heroIn {
+      from { opacity:0; transform:translateY(28px) scale(0.98); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    /* ════════════════════════════════════════
+       SECTION LABELS
+    ════════════════════════════════════════ */
+    .section-label {
+      display: flex; align-items: center; gap: 14px;
+      font-size: 0.68rem; font-weight: 800;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--text-light);
+    }
+    .section-label::before, .section-label::after {
+      content: '';
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+    }
+    .section-label-icon {
+      width: 26px; height: 26px; border-radius: 7px;
+      background: var(--bg-2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; color: var(--primary);
+      box-shadow: var(--shadow-xs);
+    }
+
+    /* ════════════════════════════════════════
+       CONTROL GRID
+    ════════════════════════════════════════ */
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto;
+      gap: 20px;
+      align-items: start;
+    }
+    .card-sc { grid-column: 1; grid-row: 1; }
+    .card-et { grid-column: 2; grid-row: 1; }
+    .card-tp { grid-column: 3; grid-row: 1 / span 2; align-self: stretch; }
+    .card-tc { grid-column: 1; grid-row: 2; }
+    .card-md { grid-column: 2; grid-row: 2; }
+
+    /* ── Panel Card ── */
+    .panel-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      position: relative;
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), box-shadow 0.28s;
+      animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .panel-card:nth-child(1) { animation-delay: 0.00s; }
+    .panel-card:nth-child(2) { animation-delay: 0.08s; }
+    .panel-card:nth-child(3) { animation-delay: 0.16s; }
+    .panel-card:nth-child(4) { animation-delay: 0.24s; }
+    .panel-card:nth-child(5) { animation-delay: 0.32s; }
+    @keyframes cardIn {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .panel-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md), var(--shadow-glow); }
+    .card-tp:hover { transform: translateY(-3px); }
+
+    .card-stripe { height: 4px; width: 100%; }
+    .stripe-blue   { background: linear-gradient(90deg, var(--primary-dark), var(--primary-light), var(--secondary)); }
+    .stripe-orange { background: linear-gradient(90deg, #c44d00, var(--accent), var(--accent-light)); }
+    .stripe-teal   { background: linear-gradient(90deg, #007a8e, var(--secondary), var(--success)); }
+    .stripe-purple { background: linear-gradient(90deg, #4c1d95, var(--purple), #a855f7); }
+    .stripe-success{ background: linear-gradient(90deg, #065f46, var(--success), #4ade80); }
+
+    .panel-inner { padding: 24px 22px 22px; }
+
+    .panel-header {
+      display: flex; align-items: flex-start; gap: 14px;
+      margin-bottom: 20px;
+    }
+    .panel-icon {
+      width: 48px; height: 48px; border-radius: 13px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; color: white;
+    }
+    .icon-blue    { background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));  box-shadow: 0 5px 16px rgba(15,76,129,0.35); }
+    .icon-orange  { background: linear-gradient(135deg, #c44d00, var(--accent));                     box-shadow: 0 5px 16px rgba(247,127,0,0.35); }
+    .icon-teal    { background: linear-gradient(135deg, #006d7e, var(--secondary));                  box-shadow: 0 5px 16px rgba(0,180,216,0.32); }
+    .icon-purple  { background: linear-gradient(135deg, #4c1d95, var(--purple));                     box-shadow: 0 5px 16px rgba(124,58,237,0.35); }
+    .icon-success { background: linear-gradient(135deg, #065f46, var(--success));                    box-shadow: 0 5px 16px rgba(6,214,160,0.35); }
+
+    .panel-title { font-size: 0.97rem; font-weight: 800; color: var(--text); line-height: 1.2; }
+    .panel-desc  { font-size: 0.76rem; color: var(--text-light); margin-top: 3px; font-weight: 500; }
+
+    .panel-body { display: flex; flex-direction: column; gap: 9px; }
+
+    /* ── Action Buttons ── */
+    .action-btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: none; border-radius: var(--radius-sm);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.84rem; font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      text-align: left; position: relative; overflow: hidden;
+    }
+    .action-btn::after {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: 0.5s;
+    }
+    .action-btn:hover::after { left: 100%; }
+    .action-btn:hover:not(:disabled) { transform: translateY(-2px); }
+    .action-btn:active { transform: scale(0.98); }
+
+    .btn-icon {
+      width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; background: rgba(255,255,255,0.2);
+    }
+    .btn-label { flex: 1; }
+    .btn-arrow { font-size: 0.65rem; opacity: 0.65; transition: transform 0.2s; }
+    .action-btn:hover .btn-arrow { transform: translateX(4px); }
+
+    .btn-solid-blue {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white; box-shadow: 0 4px 16px rgba(15,76,129,0.3);
+    }
+    .btn-solid-orange {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      color: white; box-shadow: 0 4px 16px rgba(247,127,0,0.28);
+    }
+    .btn-ghost {
+      background: var(--bg);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--bg-3); border-color: var(--border-strong); }
+    .btn-ghost .btn-icon { background: var(--bg-3); }
+
+    /* ════════════════════════════════════════
+       ★★★ EMAIL QUOTA STATUS PANEL ★★★
+    ════════════════════════════════════════ */
+    .quota-panel {
+      margin-top: 4px;
+      background: linear-gradient(135deg, #f0f7ff, #e8f4ff);
+      border: 1.5px solid rgba(15,76,129,0.15);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    .quota-panel-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .quota-panel-header:hover { background: rgba(15,76,129,0.04); }
+    .quota-panel-icon {
+      width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; color: white;
+    }
+    .quota-panel-label {
+      flex: 1;
+      font-size: 0.76rem; font-weight: 800;
+      color: var(--primary); letter-spacing: 0.3px;
+    }
+    .quota-panel-chevron {
+      font-size: 0.6rem; color: var(--text-light);
+      transition: transform 0.3s;
+    }
+    .quota-panel.open .quota-panel-chevron { transform: rotate(180deg); }
+
+    .quota-panel-body {
+      padding: 0 14px;
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.3s;
+    }
+    .quota-panel.open .quota-panel-body {
+      max-height: 300px;
+      padding: 0 14px 14px;
+    }
+
+    /* Two stat boxes inside quota panel */
+    .quota-stats-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 12px;
+    }
+    .quota-stat-box {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      position: relative; overflow: hidden;
+    }
+    .quota-stat-box::before {
+      content: ''; position:absolute;
+      top:0;left:0;right:0;height:2px;
+    }
+    .qsb-blue::before  { background: linear-gradient(90deg, var(--primary), var(--secondary)); }
+    .qsb-green::before { background: linear-gradient(90deg, var(--success), #4ade80); }
+    .qsb-red::before   { background: linear-gradient(90deg, var(--danger), #f87171); }
+
+    .quota-stat-label {
+      font-size: 0.6rem; font-weight: 800;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text-light); margin-bottom: 7px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .quota-stat-label i { font-size: 0.55rem; }
+    .quota-stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--primary); line-height: 1;
+    }
+    .quota-stat-sub {
+      font-size: 0.62rem; color: var(--text-light);
+      margin-top: 4px; font-weight: 500;
+    }
+
+    /* Sent badge */
+    .sent-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 50px;
+      font-size: 0.65rem; font-weight: 800;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .sent-badge.yes {
+      background: rgba(6,214,160,0.12);
+      border: 1px solid rgba(6,214,160,0.3);
+      color: #047857;
+    }
+    .sent-badge.no {
+      background: rgba(239,71,111,0.1);
+      border: 1px solid rgba(239,71,111,0.25);
+      color: var(--danger);
+    }
+    .sent-badge i { font-size: 0.6rem; }
+
+    /* Quota bar */
+    .quota-bar-wrap {
+      background: var(--bg-3);
+      border-radius: 50px; height: 6px; overflow: hidden;
+      margin-top: 8px;
+    }
+    .quota-bar-fill {
+      height: 100%; border-radius: 50px;
+      background: linear-gradient(90deg, var(--success), #4ade80);
+      transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+    }
+    .quota-bar-fill.low { background: linear-gradient(90deg, var(--accent), var(--accent-light)); }
+    .quota-bar-fill.critical { background: linear-gradient(90deg, var(--danger), #f87171); }
+
+    /* Refresh quota button */
+    .quota-refresh-btn {
+      width: 100%;
+      padding: 9px 14px;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.73rem; font-weight: 700;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: var(--tr);
+    }
+    .quota-refresh-btn:hover {
+      background: var(--primary);
+      color: white; border-color: var(--primary);
+    }
+    .quota-refresh-btn i { font-size: 0.65rem; transition: transform 0.4s; }
+    .quota-refresh-btn:hover i { transform: rotate(180deg); }
+    .quota-refresh-btn.refreshing i { animation: spin 0.7s linear infinite; }
+
+    .quota-last-updated {
+      font-size: 0.6rem; color: var(--text-light);
+      text-align: center; margin-top: 7px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ════════════════════════════════════════
+       Chart styles
+    ════════════════════════════════════════ */
+    .chart-wrap {
+      position: relative;
+      background: linear-gradient(135deg, #f8f5ff, #f0ebff);
+      border: 1px solid rgba(124,58,237,0.12);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chart-wrap canvas { max-height: 200px; }
+
+    /* ════════════════════════════════════════
+       MEMBER DAILY
+    ════════════════════════════════════════ */
+    .member-output-wrap {
+      display: flex; flex-direction: column; gap: 7px;
+      max-height: 260px; overflow-y: auto; padding-right: 2px;
+    }
+    .member-output-wrap::-webkit-scrollbar { width: 4px; }
+    .member-output-wrap::-webkit-scrollbar-track { background: var(--bg); border-radius: 4px; }
+    .member-output-wrap::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+    .member-row {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 12px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .member-row:hover { border-color: rgba(6,214,160,0.3); background: rgba(6,214,160,0.04); }
+    .member-avatar {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--success), #4ade80);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 800; color: white;
+      font-family: 'Orbitron', sans-serif;
+      box-shadow: 0 3px 10px rgba(6,214,160,0.3);
+    }
+    .member-name-text { flex: 1; font-size: 0.82rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .member-time-badge {
+      display: flex; align-items: center; gap: 5px;
+      background: linear-gradient(135deg, rgba(6,214,160,0.1), rgba(74,222,128,0.1));
+      border: 1px solid rgba(6,214,160,0.25);
+      border-radius: 50px; padding: 4px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; font-weight: 700;
+      color: #047857; white-space: nowrap; flex-shrink: 0;
+    }
+    .member-time-badge i { font-size: 0.62rem; opacity: 0.8; }
+    .member-empty {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 10px; padding: 28px 16px;
+      background: var(--bg);
+      border: 1.5px dashed var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem; color: var(--text-light);
+      font-weight: 600; text-align: center;
+    }
+    .member-empty i { font-size: 1.6rem; color: var(--border-strong); }
+    .skeleton-row {
+      height: 52px;
+      background: linear-gradient(90deg, var(--bg-3) 25%, var(--bg-2) 50%, var(--bg-3) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 10px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ════════════════════════════════════════
+       TODAY'S PRODUCTION CARD
+    ════════════════════════════════════════ */
+    .prod-summary {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .prod-stat {
+      background: linear-gradient(135deg, #f5f8fc, #eef3f9);
+      border: 1px solid #dde5f0;
+      border-radius: var(--radius-sm);
+      padding: 14px 14px 12px;
+      position: relative; overflow: hidden;
+    }
+    .prod-stat::before {
+      content: ''; position:absolute;
+      top:0;left:0;right:0;height:2px;
+    }
+    .prod-stat.s1::before { background: linear-gradient(90deg, var(--primary), var(--secondary)); }
+    .prod-stat.s2::before { background: linear-gradient(90deg, var(--accent), var(--accent-light)); }
+    .prod-stat.s3::before { background: linear-gradient(90deg, var(--success), #4ade80); }
+    .prod-stat.s4::before { background: linear-gradient(90deg, var(--purple), #a855f7); }
+    .prod-stat-label {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--text-light);
+      margin-bottom: 6px; display: flex; align-items: center; gap: 5px;
+    }
+    .prod-stat-label i { font-size: 0.58rem; }
+    .prod-stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.55rem; font-weight: 700;
+      color: var(--primary); line-height: 1;
+    }
+    .prod-stat.s2 .prod-stat-value { color: var(--accent); }
+    .prod-stat.s3 .prod-stat-value { color: #059669; }
+    .prod-stat.s4 .prod-stat-value { color: var(--purple); }
+
+    .last3-section {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 14px 15px;
+    }
+    .last3-header {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.68rem; font-weight: 800;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 11px; padding-bottom: 9px;
+      border-bottom: 1px solid var(--border);
+    }
+    .last3-header i { color: var(--primary); font-size: 0.65rem; }
+    .last3-rows { display: flex; flex-direction: column; gap: 7px; }
+    .last3-row {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 12px;
+      font-size: 0.72rem; transition: border-color 0.2s;
+    }
+    .last3-row:hover { border-color: var(--border-strong); }
+    .last3-date { font-family:'JetBrains Mono',monospace; font-size:0.68rem; font-weight:600; color:var(--primary); white-space:nowrap; }
+    .last3-chip { display:flex;align-items:center;gap:4px;font-size:0.67rem;font-weight:600;color:var(--text-muted); }
+    .last3-chip i { font-size:0.58rem;opacity:0.7; }
+    .last3-chip span { font-weight:700;color:var(--text); }
+    .last3-empty { font-size:0.78rem;color:var(--text-light);text-align:center;padding:8px 0;font-style:italic; }
+
+    /* ════════════════════════════════════════
+       EMAIL COMPOSER
+    ════════════════════════════════════════ */
+    .composer-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow), var(--shadow-glow);
+      animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) 0.36s both;
+    }
+    .composer-stripe {
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-dark), var(--primary), var(--secondary), var(--accent));
+    }
+    .composer-inner { padding: 34px 36px 36px; }
+    .composer-header { display:flex;align-items:flex-start;gap:18px;margin-bottom:32px; }
+    .composer-icon {
+      width:58px;height:58px;border-radius:15px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.45rem;color:white;
+      background:linear-gradient(135deg,var(--accent),#ffb347);
+      box-shadow:0 8px 26px rgba(247,127,0,0.32);
+    }
+    .composer-title { font-size:1.12rem;font-weight:800;color:var(--text);margin-bottom:4px; }
+    .composer-sub { font-size:0.8rem;color:var(--text-muted);font-weight:500;line-height:1.55; }
+
+    .recipient-strip {
+      display:flex;align-items:center;gap:10px;
+      background:linear-gradient(135deg,rgba(15,76,129,0.04),rgba(0,180,216,0.04));
+      border:1.5px solid var(--border);border-radius:var(--radius-sm);
+      padding:12px 16px;margin-bottom:24px;
+    }
+    .recipient-strip-icon {
+      width:32px;height:32px;border-radius:9px;flex-shrink:0;
+      background:linear-gradient(135deg,var(--primary),var(--primary-light));
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.78rem;color:white;
+    }
+    .recipient-strip-text { flex:1; }
+    .recipient-label { font-size:0.68rem;font-weight:700;color:var(--text-light);letter-spacing:1px;text-transform:uppercase; }
+    .recipient-val { font-size:0.82rem;font-weight:700;color:var(--primary);margin-top:1px; }
+    .recipient-badge {
+      background:rgba(6,214,160,0.1);border:1px solid rgba(6,214,160,0.3);
+      border-radius:50px;padding:4px 12px;font-size:0.65rem;font-weight:700;
+      color:#059669;letter-spacing:0.5px;
+    }
+
+    .form-row { display:grid;gap:20px; }
+    .form-row.two-col { grid-template-columns:1fr 1fr; }
+    .form-group { display:flex;flex-direction:column;gap:8px; }
+    .form-label {
+      font-size:0.72rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+      color:var(--primary);display:flex;align-items:center;gap:6px;
+    }
+    .form-label i { font-size:0.65rem;opacity:0.75; }
+    .form-input, .form-textarea {
+      width:100%;padding:13px 16px;background:var(--bg);border:1.5px solid var(--border);
+      border-radius:var(--radius-sm);color:var(--text);
+      font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;font-weight:500;
+      outline:none;transition:border-color 0.25s,box-shadow 0.25s,background 0.25s;
+    }
+    .form-input::placeholder,.form-textarea::placeholder { color:var(--text-light);font-size:0.84rem;font-weight:400; }
+    .form-input:focus,.form-textarea:focus {
+      border-color:var(--primary);background:var(--bg-2);
+      box-shadow:0 0 0 4px rgba(15,76,129,0.08);
+    }
+    .body-editor-wrap {
+      border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;
+      transition:border-color 0.25s,box-shadow 0.25s;
+    }
+    .body-editor-wrap:focus-within { border-color:var(--primary);box-shadow:0 0 0 4px rgba(15,76,129,0.08); }
+    .body-toolbar {
+      display:flex;align-items:center;gap:2px;padding:8px 12px;
+      background:var(--bg-3);border-bottom:1px solid var(--border);flex-wrap:wrap;
+    }
+    .toolbar-group { display:flex;align-items:center;gap:2px;padding:0 6px;border-right:1px solid var(--border); }
+    .toolbar-group:last-child { border-right:none;padding-right:0; }
+    .tb-btn {
+      width:28px;height:28px;border-radius:6px;border:none;background:transparent;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+      font-size:0.78rem;color:var(--text-muted);transition:background 0.18s,color 0.18s;
+    }
+    .tb-btn:hover { background:var(--bg-2);color:var(--primary); }
+    .body-note {
+      display:flex;align-items:center;gap:6px;margin-left:auto;
+      font-size:0.63rem;color:var(--text-light);font-weight:600;letter-spacing:0.5px;
+    }
+    .body-note i { font-size:0.6rem;color:var(--success); }
+    .form-textarea.body-ta { border:none;border-radius:0;min-height:160px;resize:vertical;font-size:0.88rem;line-height:1.7; }
+    .form-textarea.body-ta:focus { border:none;box-shadow:none;outline:none; }
+
+    .attachment-zone {
+      border:1.5px dashed var(--border-strong);border-radius:var(--radius-sm);
+      padding:18px 20px;background:var(--bg);cursor:pointer;
+      transition:border-color 0.25s,background 0.25s;position:relative;
+    }
+    .attachment-zone:hover,.attachment-zone.drag-over { border-color:var(--primary);background:rgba(15,76,129,0.03); }
+    .attachment-zone input[type="file"] { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%; }
+    .attachment-inner { display:flex;align-items:center;gap:14px;pointer-events:none; }
+    .attachment-icon {
+      width:42px;height:42px;border-radius:11px;flex-shrink:0;
+      background:linear-gradient(135deg,rgba(15,76,129,0.1),rgba(0,180,216,0.1));
+      border:1px solid var(--border-strong);
+      display:flex;align-items:center;justify-content:center;
+      font-size:1rem;color:var(--primary);
+    }
+    .attachment-text-main { font-size:0.84rem;font-weight:700;color:var(--text); }
+    .attachment-text-sub { font-size:0.72rem;color:var(--text-light);margin-top:2px;font-weight:500; }
+    .attachment-types { margin-left:auto;display:flex;flex-wrap:wrap;gap:5px;pointer-events:none; }
+    .type-pill {
+      background:var(--bg-3);border:1px solid var(--border);border-radius:50px;
+      padding:3px 9px;font-size:0.6rem;font-weight:700;color:var(--text-muted);
+      letter-spacing:0.5px;text-transform:uppercase;
+    }
+    .attached-list { display:flex;flex-direction:column;gap:7px;margin-top:10px; }
+    .attached-item {
+      display:flex;align-items:center;gap:10px;background:var(--bg-2);
+      border:1px solid var(--border);border-radius:9px;padding:9px 12px;
+      animation:fadeIn 0.25s ease;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+    .attached-thumb { width:38px;height:38px;border-radius:8px;object-fit:cover;border:1px solid var(--border);flex-shrink:0; }
+    .attached-file-icon {
+      width:38px;height:38px;border-radius:8px;flex-shrink:0;
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:white;
+    }
+    .attached-info { flex:1;min-width:0; }
+    .attached-name { font-size:0.8rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .attached-size { font-size:0.68rem;color:var(--text-light);margin-top:1px;font-weight:500; }
+    .remove-attach {
+      width:28px;height:28px;border-radius:7px;flex-shrink:0;
+      border:1px solid var(--border);background:var(--bg);
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+      font-size:0.72rem;color:var(--text-light);
+      transition:background 0.18s,color 0.18s,border-color 0.18s;
+    }
+    .remove-attach:hover { background:rgba(239,71,111,0.08);color:var(--danger);border-color:rgba(239,71,111,0.3); }
+    .preview-note {
+      display:flex;align-items:center;gap:7px;
+      background:rgba(6,214,160,0.07);border:1px solid rgba(6,214,160,0.2);
+      border-radius:9px;padding:10px 14px;
+      font-size:0.74rem;color:#047857;font-weight:600;
+    }
+    .preview-note i { color:var(--success);font-size:0.7rem; }
+    .send-btn {
+      width:100%;padding:16px;
+      background:linear-gradient(135deg,var(--primary-dark),var(--primary),var(--primary-light));
+      color:white;border:none;border-radius:var(--radius-sm);
+      font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:800;
+      letter-spacing:0.3px;cursor:pointer;position:relative;overflow:hidden;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      transition:transform 0.25s,box-shadow 0.25s;
+      box-shadow:0 6px 24px var(--primary-glow),var(--shadow);margin-top:6px;
+    }
+    .send-btn::after {
+      content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);
+      transition:0.6s;
+    }
+    .send-btn:hover::after { left:100%; }
+    .send-btn:hover { transform:translateY(-3px) scale(1.005);box-shadow:var(--shadow-md),0 0 35px rgba(15,76,129,0.4); }
+    .send-btn:active { transform:scale(0.99); }
+    .send-btn-icon { font-size:1rem; }
+    .composer-footer-row {
+      display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:16px;
+      border-top:1px solid var(--border);flex-wrap:wrap;
+    }
+    .compose-meta-chip {
+      display:inline-flex;align-items:center;gap:6px;background:var(--bg);
+      border:1px solid var(--border);border-radius:50px;padding:5px 12px;
+      font-size:0.67rem;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;
+    }
+    .compose-meta-chip i { font-size:0.62rem;color:var(--success); }
+
+    /* ════════════════════════════════════════
+       TOAST
+    ════════════════════════════════════════ */
+    .toast-container {
+      position:fixed;top:76px;right:22px;z-index:9999;
+      display:flex;flex-direction:column;gap:10px;
+      pointer-events:none;width:360px;
+    }
+    .toast {
+      background:var(--bg-2);border-radius:var(--radius);border:1px solid var(--border);
+      box-shadow:var(--shadow-md);overflow:hidden;pointer-events:all;
+      animation:toastIn 0.35s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes toastIn { from{opacity:0;transform:translateX(50px) scale(0.95)} to{opacity:1;transform:translateX(0) scale(1)} }
+    .toast.out { animation:toastOut 0.28s ease forwards; }
+    @keyframes toastOut { to{opacity:0;transform:translateX(50px) scale(0.95)} }
+    .toast-stripe { height:4px; }
+    .toast-stripe.success { background:linear-gradient(90deg,var(--success),#4ade80); }
+    .toast-stripe.error   { background:linear-gradient(90deg,var(--danger),#f87171); }
+    .toast-stripe.info    { background:linear-gradient(90deg,var(--primary),var(--secondary)); }
+    .toast-stripe.warning { background:linear-gradient(90deg,var(--accent),var(--accent-light)); }
+    .toast-body { display:flex;align-items:flex-start;gap:12px;padding:14px 16px; }
+    .toast-ico { width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.95rem; }
+    .toast-ico.success { background:rgba(6,214,160,0.1);color:#059669; }
+    .toast-ico.error   { background:rgba(239,71,111,0.1);color:var(--danger); }
+    .toast-ico.info    { background:rgba(15,76,129,0.09);color:var(--primary); }
+    .toast-ico.warning { background:rgba(247,127,0,0.1);color:var(--accent); }
+    .toast-content { flex:1; }
+    .toast-title { font-size:0.84rem;font-weight:800;color:var(--text);margin-bottom:2px; }
+    .toast-msg   { font-size:0.76rem;color:var(--text-muted);line-height:1.5; }
+    .toast-close { background:none;border:none;cursor:pointer;color:var(--text-light);font-size:0.75rem;padding:4px;transition:color 0.2s; }
+    .toast-close:hover { color:var(--text); }
+    .toast-progress { height:3px;background:var(--bg-3); }
+    .toast-prog-bar { height:100%;animation:shrink 4s linear forwards; }
+    .toast-prog-bar.success { background:var(--success);opacity:0.5; }
+    .toast-prog-bar.error   { background:var(--danger);opacity:0.5; }
+    .toast-prog-bar.info    { background:var(--primary);opacity:0.5; }
+    .toast-prog-bar.warning { background:var(--accent);opacity:0.5; }
+    @keyframes shrink { from{width:100%} to{width:0} }
+
+    /* ════════════════════════════════════════
+       CONFIRM MODAL
+    ════════════════════════════════════════ */
+    .modal-overlay {
+      position:fixed;inset:0;background:rgba(8,18,32,0.65);
+      backdrop-filter:blur(8px);z-index:8888;
+      display:flex;align-items:center;justify-content:center;padding:20px;
+      opacity:0;pointer-events:none;transition:opacity 0.25s;
+    }
+    .modal-overlay.open { opacity:1;pointer-events:all; }
+    .modal {
+      background:var(--bg-2);border:1px solid var(--border);
+      border-radius:var(--radius-xl);padding:40px 36px 36px;
+      max-width:460px;width:100%;box-shadow:var(--shadow-lg);
+      position:relative;overflow:hidden;
+      transform:translateY(24px) scale(0.96);
+      transition:transform 0.32s cubic-bezier(0.22,1,0.36,1);
+    }
+    .modal-overlay.open .modal { transform:translateY(0) scale(1); }
+    .modal::before {
+      content:'';position:absolute;top:0;left:0;right:0;height:4px;
+      background:var(--modal-stripe,linear-gradient(90deg,var(--primary),var(--secondary),var(--accent)));
+    }
+    .modal-icon { width:68px;height:68px;border-radius:20px;margin:0 auto 22px;display:flex;align-items:center;justify-content:center;font-size:1.85rem; }
+    .modal-brand { display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px; }
+    .modal-brand-name {
+      font-family:'Orbitron',sans-serif;font-size:0.68rem;font-weight:800;
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px;
+    }
+    .modal-title { font-family:'Orbitron',sans-serif;font-size:0.96rem;font-weight:800;color:var(--text);text-align:center;margin-bottom:10px; }
+    .modal-msg   { font-size:0.86rem;color:var(--text-muted);text-align:center;line-height:1.75;margin-bottom:16px; }
+    .modal-warn-banner {
+      display:none;align-items:flex-start;gap:10px;
+      background:rgba(239,71,111,0.07);border:1px solid rgba(239,71,111,0.2);
+      border-radius:10px;padding:12px 14px;margin-bottom:22px;
+      font-size:0.78rem;color:#be185d;font-weight:600;line-height:1.55;
+    }
+    .modal-warn-banner.visible { display:flex; }
+    .modal-warn-banner i { font-size:0.85rem;flex-shrink:0;margin-top:1px; }
+    .modal-actions { display:flex;gap:12px; }
+    .modal-btn {
+      flex:1;padding:13px;border:none;border-radius:var(--radius-sm);
+      font-family:'Plus Jakarta Sans',sans-serif;font-size:0.87rem;font-weight:800;cursor:pointer;
+      transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:7px;
+    }
+    .modal-btn.cancel { background:var(--bg-3);color:var(--text-muted);border:1.5px solid var(--border); }
+    .modal-btn.cancel:hover { background:var(--bg);color:var(--text); }
+    .modal-btn.confirm { color:white;box-shadow:var(--shadow-glow); }
+    .modal-btn.confirm:hover { transform:translateY(-2px);box-shadow:var(--shadow-md),var(--shadow-glow); }
+
+    /* ════════════════════════════════════════
+       FOOTER
+    ════════════════════════════════════════ */
+    .site-footer {
+      position:relative;z-index:1;width:100%;
+      background:rgba(255,255,255,0.75);backdrop-filter:blur(18px);
+      border-top:1px solid var(--border);padding:28px 28px 20px;
+    }
+    .footer-inner {
+      max-width:980px;margin:0 auto;
+      display:flex;align-items:center;justify-content:space-between;
+      gap:20px;flex-wrap:wrap;
+    }
+    .footer-brand { display:flex;align-items:center;gap:12px; }
+    .footer-brand-icon {
+      width:34px;height:34px;border-radius:9px;flex-shrink:0;
+      background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+      display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:white;
+    }
+    .footer-brand-name {
+      font-family:'Orbitron',sans-serif;font-size:0.76rem;font-weight:800;
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .footer-brand-tagline { font-size:0.64rem;color:var(--text-light);margin-top:2px;font-weight:500; }
+    .footer-center { text-align:center; }
+    .footer-address { font-size:0.74rem;color:var(--text-muted);line-height:1.6; }
+    .footer-right { display:flex;flex-direction:column;align-items:flex-end;gap:8px; }
+    .footer-link {
+      display:inline-flex;align-items:center;gap:7px;font-size:0.74rem;font-weight:700;
+      color:var(--primary);text-decoration:none;padding:6px 16px;
+      border:1.5px solid var(--border-strong);border-radius:50px;transition:var(--tr);
+    }
+    .footer-link:hover { background:var(--primary);color:white;border-color:var(--primary);box-shadow:var(--shadow-glow); }
+    .footer-copy { font-size:0.64rem;color:var(--text-light); }
+
+    /* ════════════════════════════════════════
+       RESPONSIVE
+    ════════════════════════════════════════ */
+    @media (max-width: 860px) {
+      .control-grid { grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto; }
+      .card-sc { grid-column:1;grid-row:1; }
+      .card-et { grid-column:2;grid-row:1; }
+      .card-tc { grid-column:1;grid-row:2; }
+      .card-md { grid-column:2;grid-row:2; }
+      .card-tp { grid-column:1 / -1;grid-row:3; }
+      .prod-summary { grid-template-columns:repeat(4,1fr); }
+    }
+    @media (max-width: 640px) {
+      .topbar { padding:0 16px;height:60px; }
+      .topbar-time { display:none; }
+      .page { padding:24px 14px 48px;gap:22px; }
+      .control-grid { grid-template-columns:1fr;grid-template-rows:auto; }
+      .card-sc,.card-et,.card-tc,.card-md,.card-tp { grid-column:auto;grid-row:auto; }
+      .prod-summary { grid-template-columns:1fr 1fr; }
+      .composer-inner { padding:24px 20px 26px; }
+      .form-row.two-col { grid-template-columns:1fr; }
+      .welcome-card { padding:28px 24px; }
+      .welcome-right { display:none; }
+      .footer-inner { flex-direction:column;align-items:center;text-align:center; }
+      .footer-right { align-items:center; }
+      .login-box { padding:32px 24px 28px; }
+      .quota-stats-row { grid-template-columns:1fr; }
+    }
+    @media (max-width: 400px) {
+      .toast-container { right:12px;left:12px;width:auto; }
+      .modal { padding:28px 18px 24px; }
+      .modal-actions { flex-direction:column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     ██████ LOGIN SCREEN ██████
+══════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-brand">
+      <div class="login-brand-icon"><i class="fas fa-bolt"></i></div>
+      <div>
+        <div class="login-brand-name">QuantumCoders Data Solutions</div>
+        <div class="login-brand-sub">Admin Control Panel</div>
+      </div>
+    </div>
+
+    <div class="login-title">Secure Access</div>
+    <div class="login-subtitle">Enter your admin password to continue</div>
+
+    <div class="login-field">
+      <div class="login-label"><i class="fas fa-lock"></i> Admin Password</div>
+      <div class="login-input-wrap">
+        <input
+          type="password"
+          id="loginPassInput"
+          class="login-input"
+          placeholder="Enter password"
+          onkeydown="if(event.key==='Enter') attemptLogin()"
+          autocomplete="current-password"
+        >
+        <button class="login-eye-btn" id="eyeBtn" onclick="toggleEye()" title="Show/hide password">
+          <i class="fas fa-eye" id="eyeIcon"></i>
+        </button>
+      </div>
+      <div class="login-error-msg" id="loginErr">
+        <i class="fas fa-circle-xmark"></i>
+        <span id="loginErrText">Incorrect password. Please try again.</span>
+      </div>
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="attemptLogin()">
+      <div class="login-btn-spinner"></div>
+      <div class="login-btn-text">
+        <i class="fas fa-shield-halved"></i>&nbsp; Unlock Admin Panel
+      </div>
+    </button>
+
+    <div class="login-footer">
+      <span class="login-security-badge"><i class="fas fa-circle-check"></i> Encrypted · Secured · Logged</span>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ════════════ CONFIRM MODAL ════════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="modal-brand">
+      <div style="width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--primary-dark),var(--primary));display:flex;align-items:center;justify-content:center;">
+        <i class="fas fa-bolt" style="color:white;font-size:0.6rem;"></i>
+      </div>
+      <div class="modal-brand-name">QCDS ADMIN</div>
+    </div>
+    <div class="modal-icon" id="modalIconWrap">
+      <i id="modalIconEl" class="fas fa-shield-halved" style="color:var(--accent)"></i>
+    </div>
+    <div class="modal-title" id="modalTitle">Confirm Action</div>
+    <div class="modal-msg"   id="modalMsg">Are you sure you want to proceed?</div>
+    <div class="modal-warn-banner" id="modalWarnBanner">
+      <i class="fas fa-triangle-exclamation"></i>
+      <span id="modalWarnText"></span>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal(false)">
+        <i class="fas fa-xmark"></i> Cancel
+      </button>
+      <button class="modal-btn confirm" id="modalConfirmBtn" onclick="closeModal(true)">
+        <i class="fas fa-check"></i> Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     TOPBAR
+════════════════════════════════════════ -->
+<div class="topbar">
+  <a class="topbar-brand" href="https://www.quantumcoderstechlab.codes/quantumcoders-data-solutions.html" target="_blank">
+    <div class="topbar-logo-wrap" id="logoWrap">
+      <i class="fas fa-bolt"></i>
+    </div>
+    <img
+      src="https://www.quantumcoderstechlab.codes/assets/Data%20Solutions/Logo/QCDL.png"
+      alt="QCDS" class="topbar-logo" id="topbarLogo"
+      onload="this.classList.add('loaded');document.getElementById('logoWrap').style.display='none'"
+      onerror="this.style.display='none'"
+    >
+    <div class="topbar-divider"></div>
+    <div class="topbar-text">
+      <div class="topbar-name">QuantumCoders Data Solutions</div>
+      <div class="topbar-sub">Admin Control Panel</div>
+    </div>
+  </a>
+  <div class="topbar-right">
+    <span class="topbar-time" id="topbarClock">--:-- --</span>
+    <span class="admin-badge"><i class="fas fa-user-shield"></i> Admin Access</span>
+    <button class="logout-btn" onclick="doLogout()">
+      <i class="fas fa-right-from-bracket"></i> Logout
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE
+════════════════════════════════════════ -->
+<div class="page">
+
+  <!-- WELCOME HERO -->
+  <div class="welcome-card">
+    <div class="welcome-orb2"></div>
+    <div class="welcome-inner">
+      <div class="welcome-top">
+        <div class="welcome-left">
+          <div class="welcome-tag">QuantumCoders Data Solutions</div>
+          <div class="welcome-greeting-line">
+            <span id="greetText">Good Morning</span>
+            <span class="greeting-icon" id="greetIcon">☀️</span>
+          </div>
+          <div class="welcome-name">
+            Hi, Mr. <span class="name-highlight">Prem</span>
+          </div>
+          <div class="welcome-sub">
+            You have full administrative access to the QuantumCoders Data Solutions production system. All controls are active and secured.
+          </div>
+        </div>
+        <div class="welcome-right">
+          <div class="time-block">
+            <div class="time-block-time" id="heroClock">--:--</div>
+            <div class="time-block-date" id="heroDate">Loading...</div>
+          </div>
+          <div class="greeting-badge" id="greetBadge">
+            <i class="fas fa-sun"></i> <span id="greetBadgeText">Good Morning</span>
+          </div>
+        </div>
+      </div>
+      <div class="welcome-chips">
+        <span class="meta-chip"><span class="live-dot"></span>&nbsp; System Online</span>
+        <span class="meta-chip action-chip" onclick="openEmailPage()">
+          <i class="fas fa-file-circle-plus"></i>&nbsp; Email System
+        </span>
+        <span class="meta-chip action-chip" onclick="openEntry()">
+          <i class="fas fa-file-circle-plus"></i>&nbsp; QC Entry Page
+        </span>
+        <span class="meta-chip action-chip" onclick="openDashboard()">
+          <i class="fas fa-chart-line"></i>&nbsp; Production Dashboard
+        </span>
+        <span class="meta-chip" id="sessionChip"><i class="fas fa-clock"></i> <span id="sessionTime">Session Active</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">
+    <div class="section-label-icon"><i class="fas fa-sliders"></i></div>
+    System Controls & Analytics
+  </div>
+
+  <div class="control-grid">
+
+    <!-- ─── Card 1: System Controls ─── -->
+    <div class="panel-card card-sc">
+      <div class="card-stripe stripe-blue"></div>
+      <div class="panel-inner">
+        <div class="panel-header">
+          <div class="panel-icon icon-blue"><i class="fas fa-gears"></i></div>
+          <div>
+            <div class="panel-title">System Controls</div>
+            <div class="panel-desc">Manage dashboards &amp; reports</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <button class="action-btn btn-solid-blue" onclick="refreshAll()">
+            <span class="btn-icon"><i class="fas fa-rotate"></i></span>
+            <span class="btn-label">Refresh All Dashboards</span>
+            <i class="fas fa-chevron-right btn-arrow"></i>
+          </button>
+          <button class="action-btn btn-ghost" onclick="sendDaily()">
+            <span class="btn-icon"><i class="fas fa-chart-line" style="color:var(--primary)"></i></span>
+            <span class="btn-label">Send Daily Report Email</span>
+            <i class="fas fa-chevron-right btn-arrow" style="color:var(--primary)"></i>
+          </button>
+          <button class="action-btn btn-ghost" onclick="fixNames()">
+            <span class="btn-icon"><i class="fas fa-spell-check" style="color:var(--success)"></i></span>
+            <span class="btn-label">Fix All Names in Sheet</span>
+            <i class="fas fa-chevron-right btn-arrow" style="color:var(--primary)"></i>
+          </button>
+
+          
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Card 2: Email Tools ─── -->
+    <div class="panel-card card-et">
+      <div class="card-stripe stripe-orange"></div>
+      <div class="panel-inner">
+        <div class="panel-header">
+          <div class="panel-icon icon-orange"><i class="fas fa-envelope-open-text"></i></div>
+          <div>
+            <div class="panel-title">Email Tools</div>
+            <div class="panel-desc">Communication &amp; mailing</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <button class="action-btn btn-solid-orange" onclick="openGmail()">
+            <span class="btn-icon"><i class="fas fa-inbox"></i></span>
+            <span class="btn-label">Open Gmail With All Emails</span>
+            <i class="fas fa-chevron-right btn-arrow"></i>
+          </button>
+          <button class="action-btn btn-ghost" onclick="manageEmails()">
+            <span class="btn-icon"><i class="fas fa-address-book" style="color:var(--accent)"></i></span>
+            <span class="btn-label">Manage Email List</span>
+            <i class="fas fa-chevron-right btn-arrow" style="color:var(--accent)"></i>
+          </button>
+        </div>
+        <!-- ★★★ EMAIL QUOTA STATUS PANEL ★★★ -->
+          <div class="quota-panel" id="quotaPanel">
+            <div class="quota-panel-header" onclick="toggleQuotaPanel()">
+              <div class="quota-panel-icon"><i class="fas fa-envelope-circle-check"></i></div>
+              <div class="quota-panel-label">Email Quota & Report Status</div>
+              <i class="fas fa-chevron-down quota-panel-chevron"></i>
+            </div>
+            <div class="quota-panel-body" id="quotaPanelBody">
+
+              <!-- Stat boxes -->
+              <div class="quota-stats-row">
+                <!-- Quota Remaining -->
+                <div class="quota-stat-box qsb-blue">
+                  <div class="quota-stat-label"><i class="fas fa-envelope"></i> Quota Left</div>
+                  <div class="quota-stat-value" id="quotaValue">—</div>
+                  <div class="quota-stat-sub">of 100 daily emails</div>
+                  <div class="quota-bar-wrap">
+                    <div class="quota-bar-fill" id="quotaBar" style="width:0%"></div>
+                  </div>
+                </div>
+                <!-- Daily Report Sent -->
+                <div class="quota-stat-box" id="sentStatBox">
+                  <div class="quota-stat-label"><i class="fas fa-paper-plane"></i> Daily Report</div>
+                  <div style="margin-top:8px;" id="sentBadgeWrap">
+                    <span class="sent-badge no" id="sentBadge">
+                      <i class="fas fa-circle-xmark"></i> Not Sent
+                    </span>
+                  </div>
+                  <div class="quota-stat-sub" id="sentSubText" style="margin-top:8px;">Checking…</div>
+                </div>
+              </div>
+
+              <!-- Refresh button -->
+              <button class="quota-refresh-btn" id="quotaRefreshBtn" onclick="loadQuotaStatus()">
+                <i class="fas fa-rotate-right"></i> Check Now
+              </button>
+              <div class="quota-last-updated" id="quotaUpdatedAt">Not checked yet</div>
+
+            </div>
+          </div>
+          <!-- END QUOTA PANEL -->
+      </div>
+    </div>
+
+    <!-- ─── Card 3: Today's Production ─── -->
+    <div class="panel-card card-tp">
+      <div class="card-stripe stripe-teal"></div>
+      <div class="panel-inner">
+        <div class="panel-header">
+          <div class="panel-icon icon-teal"><i class="fas fa-calendar-day"></i></div>
+          <div>
+            <div class="panel-title">Today's Production</div>
+            <div class="panel-desc">Live production statistics</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="prod-summary">
+            <div class="prod-stat s1">
+              <div class="prod-stat-label"><i class="fas fa-calendar"></i> Date</div>
+              <div class="prod-stat-value" id="statDate" style="font-size:1rem;padding-top:2px;">--</div>
+            </div>
+            <div class="prod-stat s2">
+              <div class="prod-stat-label"><i class="fas fa-file-lines"></i> Files</div>
+              <div class="prod-stat-value" id="statFiles">0</div>
+            </div>
+            <div class="prod-stat s3">
+              <div class="prod-stat-label"><i class="fas fa-clock"></i> Time (Min)</div>
+              <div class="prod-stat-value" id="statTime">0.00</div>
+            </div>
+            <div class="prod-stat s4">
+              <div class="prod-stat-label"><i class="fas fa-users"></i> Head Count</div>
+              <div class="prod-stat-value" id="statHead">0</div>
+            </div>
+          </div>
+          <div class="last3-section">
+            <div class="last3-header">
+              <i class="fas fa-chart-bar"></i> Last 3 Days Recap
+            </div>
+            <div class="last3-rows" id="last3Rows">
+              <div class="last3-empty">Loading data…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Card 4: Team Contribution ─── -->
+    <div class="panel-card card-tc">
+      <div class="card-stripe stripe-purple"></div>
+      <div class="panel-inner">
+        <div class="panel-header">
+          <div class="panel-icon icon-purple"><i class="fas fa-chart-pie"></i></div>
+          <div>
+            <div class="panel-title">Team Contribution</div>
+            <div class="panel-desc">Work distribution by members</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="chart-wrap">
+            <canvas id="teamChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Card 5: Member Daily ─── -->
+    <div class="panel-card card-md">
+      <div class="card-stripe stripe-success"></div>
+      <div class="panel-inner">
+        <div class="panel-header">
+          <div class="panel-icon icon-success"><i class="fas fa-users"></i></div>
+          <div>
+            <div class="panel-title">Member Daily Output</div>
+            <div class="panel-desc">Today's production by member</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="memberToday" class="member-output-wrap">
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row" style="opacity:0.7;"></div>
+            <div class="skeleton-row" style="opacity:0.4;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /control-grid -->
+
+  <div class="section-label">
+    <div class="section-label-icon"><i class="fas fa-paper-plane"></i></div>
+    Custom Email Composer
+  </div>
+
+  <!-- EMAIL COMPOSER -->
+  <div class="composer-card">
+    <div class="composer-stripe"></div>
+    <div class="composer-inner">
+      <div class="composer-header">
+        <div class="composer-icon"><i class="fas fa-paper-plane"></i></div>
+        <div>
+          <div class="composer-title">Send Custom Email to All</div>
+          <div class="composer-sub">Compose and broadcast a professional message to the entire team. Line breaks and formatting are preserved exactly as typed.</div>
+        </div>
+      </div>
+      <div class="recipient-strip">
+        <div class="recipient-strip-icon"><i class="fas fa-users"></i></div>
+        <div class="recipient-strip-text">
+          <div class="recipient-label">Recipients</div>
+          <div class="recipient-val">All Team Members · QuantumCoders Data Solutions</div>
+        </div>
+        <div class="recipient-badge"><i class="fas fa-circle-check"></i> Verified List</div>
+      </div>
+      <div class="form-row" style="gap:18px;margin-bottom:18px;">
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-tag"></i> Email Subject</label>
+          <input type="text" id="subject" class="form-input" placeholder="e.g. Production Update — April 2026">
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-align-left"></i> Message Body</label>
+          <div class="body-editor-wrap">
+            <div class="body-toolbar">
+              <div class="toolbar-group">
+                <button class="tb-btn" title="Bold" onclick="fmtText('bold')"><i class="fas fa-bold"></i></button>
+                <button class="tb-btn" title="Italic" onclick="fmtText('italic')"><i class="fas fa-italic"></i></button>
+                <button class="tb-btn" title="Underline" onclick="fmtText('underline')"><i class="fas fa-underline"></i></button>
+              </div>
+              <div class="toolbar-group">
+                <button class="tb-btn" title="Bullet list" onclick="insertListItem()"><i class="fas fa-list-ul"></i></button>
+                <button class="tb-btn" title="Insert separator" onclick="insertSeparator()"><i class="fas fa-minus"></i></button>
+              </div>
+              <div class="toolbar-group">
+                <button class="tb-btn" title="Add time-based greeting" onclick="insertGreeting()"><i class="fas fa-handshake"></i></button>
+                <button class="tb-btn" title="Add professional closing" onclick="insertClosing()"><i class="fas fa-signature"></i></button>
+              </div>
+              <div class="body-note">
+                <i class="fas fa-circle-check"></i> Line breaks preserved
+              </div>
+            </div>
+            <textarea id="body" class="form-textarea body-ta" placeholder="Write your message here…&#10;&#10;Each new line will be a new line in the email."></textarea>
+          </div>
+          <div style="font-size:0.68rem;color:var(--text-light);margin-top:5px;display:flex;align-items:center;gap:5px;">
+            <i class="fas fa-info-circle" style="color:var(--secondary);"></i>
+            Press Enter for a new line. Each paragraph break becomes a blank line in the email.
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-paperclip"></i> Attachments <span style="font-size:0.6rem;font-weight:500;color:var(--text-light);text-transform:none;letter-spacing:0;">(optional)</span></label>
+          <div class="attachment-zone" id="attachZone"
+               ondragover="handleDragOver(event)"
+               ondragleave="handleDragLeave(event)"
+               ondrop="handleDrop(event)">
+            <input type="file" id="fileInput" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip"
+                   onchange="handleFiles(this.files)">
+            <div class="attachment-inner">
+              <div class="attachment-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+              <div>
+                <div class="attachment-text-main">Drop files here or click to browse</div>
+                <div class="attachment-text-sub">Images will appear at the bottom of the email</div>
+              </div>
+              <div class="attachment-types">
+                <span class="type-pill">JPG</span>
+                <span class="type-pill">PNG</span>
+                <span class="type-pill">PDF</span>
+                <span class="type-pill">DOC</span>
+                <span class="type-pill">XLS</span>
+              </div>
+            </div>
+          </div>
+          <div class="attached-list" id="attachedList"></div>
+        </div>
+        <div class="preview-note">
+          <i class="fas fa-circle-info"></i>
+          <span>Images will be embedded at the bottom of your email — recipients see them inline, no download needed. Other files are sent as attachments.</span>
+        </div>
+        <button class="send-btn" onclick="sendCustom()">
+          <i class="fas fa-paper-plane send-btn-icon"></i>
+          Send Professional Email To All
+        </button>
+        <div class="composer-footer-row">
+          <span class="compose-meta-chip"><i class="fas fa-shield-halved"></i> Encrypted Transit</span>
+          <span class="compose-meta-chip"><i class="fas fa-circle-check"></i> Verified Recipients</span>
+          <span class="compose-meta-chip"><i class="fas fa-code-branch"></i> QuantumCoders SMTP</span>
+          <span style="margin-left:auto;font-size:0.65rem;color:var(--text-light);">Powered by QuantumCoders Mail Engine</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-icon"><i class="fas fa-bolt"></i></div>
+      <div>
+        <div class="footer-brand-name">QuantumCoders Data Solutions</div>
+        <div class="footer-brand-tagline">Admin Control Panel — Internal Use Only</div>
+      </div>
+    </div>
+    <div class="footer-center">
+      <div class="footer-address">
+        Berhampur, Odisha, India — 760001<br>
+        <span style="font-size:0.68rem;color:var(--text-light);">Session secured &amp; activity logged</span>
+      </div>
+    </div>
+    <div class="footer-right">
+      <a class="footer-link" href="https://quantumcoderstechlab.codes/quantumcoders-data-solutions.html" target="_blank">
+        <i class="fas fa-globe"></i> Visit Services Page
+      </a>
+      <div class="footer-copy">&copy; 2026 QuantumCoders Tech Lab. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════
+   LOGIN SYSTEM
+════════════════════════════ */
+const SESSION_KEY = 'qcds_admin_v1';
+
+function checkLogin() {
+  var stored = localStorage.getItem(SESSION_KEY);
+  if (stored) {
+    try {
+      var sess = JSON.parse(stored);
+      // Session valid for 24 hours
+      if (Date.now() - sess.ts < 86400000) {
+        hideLoginScreen();
+        return;
+      }
+    } catch(e) {}
+  }
+  // Show login screen
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function hideLoginScreen() {
+  var screen = document.getElementById('loginScreen');
+  screen.classList.add('hiding');
+  setTimeout(function(){ screen.style.display = 'none'; }, 500);
+}
+
+function toggleEye() {
+  var inp = document.getElementById('loginPassInput');
+  var ico = document.getElementById('eyeIcon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    ico.className = 'fas fa-eye-slash';
+  } else {
+    inp.type = 'password';
+    ico.className = 'fas fa-eye';
+  }
+}
+
+function showLoginError(msg) {
+  var inp = document.getElementById('loginPassInput');
+  var err = document.getElementById('loginErr');
+  var errTxt = document.getElementById('loginErrText');
+  inp.classList.add('error');
+  err.classList.add('visible');
+  if (msg) errTxt.textContent = msg;
+  setTimeout(function(){ inp.classList.remove('error'); }, 600);
+}
+
+function clearLoginError() {
+  document.getElementById('loginPassInput').classList.remove('error');
+  document.getElementById('loginErr').classList.remove('visible');
+}
+
+function attemptLogin() {
+  var pass = document.getElementById('loginPassInput').value;
+  var btn  = document.getElementById('loginBtn');
+
+  clearLoginError();
+
+  if (!pass) {
+    showLoginError('Please enter your password.');
+    return;
+  }
+
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+      if (res) {
+        localStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now() }));
+        hideLoginScreen();
+        showToast('success', 'Welcome back, Prem!', 'Admin panel unlocked successfully.');
+      } else {
+        showLoginError('Incorrect password. Please try again.');
+        document.getElementById('loginPassInput').value = '';
+      }
+    })
+    .withFailureHandler(function(err) {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+      showLoginError('Connection error. Please try again.');
+    })
+    .verifyPassword(pass);
+}
+
+function doLogout() {
+  showConfirm('Logout', 'Are you sure you want to end your admin session?', 'warning')
+    .then(function(confirmed) {
+      if (!confirmed) return;
+      localStorage.removeItem(SESSION_KEY);
+      location.reload();
+    });
+}
+
+// Run login check immediately
+checkLogin();
+
+/* ════════════════════════
+   CLOCK & GREETING
+════════════════════════ */
+function updateClock() {
+  var now  = new Date();
+  var h    = now.getHours();
+  var m    = now.getMinutes().toString().padStart(2,'0');
+  var s    = now.getSeconds().toString().padStart(2,'0');
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  var h12  = (h % 12 || 12).toString().padStart(2,'0');
+
+  var tc = document.getElementById('topbarClock');
+  if (tc) tc.textContent = h12+':'+m+':'+s+' '+ampm;
+
+  var hc = document.getElementById('heroClock');
+  if (hc) hc.textContent = h12+':'+m+' '+ampm;
+
+  var hd = document.getElementById('heroDate');
+  if (hd) {
+    var days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    hd.textContent = days[now.getDay()]+', '+months[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear();
+  }
+
+  var greet, icon, badgeIcon;
+  if      (h>=5  && h<12) { greet='Good Morning';   icon='☀️';  badgeIcon='fa-sun'; }
+  else if (h>=12 && h<14) { greet='Good Noon';      icon='🌤️'; badgeIcon='fa-cloud-sun'; }
+  else if (h>=14 && h<18) { greet='Good Afternoon'; icon='🌅'; badgeIcon='fa-sun'; }
+  else if (h>=18 && h<21) { greet='Good Evening';   icon='🌇'; badgeIcon='fa-moon'; }
+  else                     { greet='Good Night';     icon='🌙'; badgeIcon='fa-moon'; }
+
+  var gt = document.getElementById('greetText');
+  var gi = document.getElementById('greetIcon');
+  var gb = document.getElementById('greetBadge');
+  var gbt= document.getElementById('greetBadgeText');
+  if (gt)  gt.textContent  = greet;
+  if (gi)  gi.textContent  = icon;
+  if (gbt) gbt.textContent = greet;
+  if (gb)  gb.querySelector('i').className = 'fas '+badgeIcon;
+}
+
+var sessionStart = Date.now();
+function updateSession() {
+  var el = document.getElementById('sessionTime');
+  if (!el) return;
+  var diff = Math.floor((Date.now()-sessionStart)/1000);
+  var mm = Math.floor(diff/60);
+  var ss = diff%60;
+  el.textContent = 'Session: '+mm+'m '+ss.toString().padStart(2,'0')+'s';
+}
+
+updateClock();
+setInterval(updateClock, 1000);
+setInterval(updateSession, 1000);
+
+/* ════════════════════════
+   TOAST
+════════════════════════ */
+var TOAST_ICONS  = { success:'fas fa-circle-check', error:'fas fa-circle-xmark', info:'fas fa-circle-info', warning:'fas fa-triangle-exclamation' };
+var TOAST_TITLES = { success:'Success', error:'Error', info:'Information', warning:'Warning' };
+
+function showToast(type, title, msg, duration) {
+  duration = duration || 4500;
+  var container = document.getElementById('toastContainer');
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML =
+    '<div class="toast-stripe '+type+'"></div>'+
+    '<div class="toast-body">'+
+      '<div class="toast-ico '+type+'"><i class="'+TOAST_ICONS[type]+'"></i></div>'+
+      '<div class="toast-content">'+
+        '<div class="toast-title">'+(title||TOAST_TITLES[type])+'</div>'+
+        '<div class="toast-msg">'+msg+'</div>'+
+      '</div>'+
+      '<button class="toast-close" onclick="dismissToast(this.closest(\'.toast\'))"><i class="fas fa-xmark"></i></button>'+
+    '</div>'+
+    '<div class="toast-progress"><div class="toast-prog-bar '+type+'" style="animation-duration:'+duration+'ms"></div></div>';
+  container.appendChild(t);
+  setTimeout(function(){ dismissToast(t); }, duration);
+}
+function dismissToast(t) {
+  if (!t || t.classList.contains('out')) return;
+  t.classList.add('out');
+  setTimeout(function(){ t.remove(); }, 300);
+}
+
+/* ════════════════════════
+   CONFIRM MODAL
+════════════════════════ */
+var _modalResolve = null;
+function showConfirm(title, msg, type, warnText) {
+  type     = type     || 'default';
+  warnText = warnText || '';
+  return new Promise(function(resolve) {
+    _modalResolve = resolve;
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalMsg').textContent   = msg;
+    var iconWrap   = document.getElementById('modalIconWrap');
+    var iconEl     = document.getElementById('modalIconEl');
+    var confirmBtn = document.getElementById('modalConfirmBtn');
+    var warnBanner = document.getElementById('modalWarnBanner');
+    var warnTxt    = document.getElementById('modalWarnText');
+    var modalBox   = document.getElementById('modalBox');
+    iconWrap.style.cssText   = '';
+    confirmBtn.style.cssText = '';
+    iconEl.style.cssText     = '';
+    if (type === 'warning') {
+      iconWrap.style.background   = 'linear-gradient(135deg,rgba(239,71,111,0.1),rgba(247,127,0,0.1))';
+      iconWrap.style.border       = '1px solid rgba(239,71,111,0.25)';
+      iconEl.className            = 'fas fa-triangle-exclamation';
+      iconEl.style.color          = 'var(--danger)';
+      confirmBtn.style.background = 'linear-gradient(135deg,#c44d00,var(--danger))';
+      confirmBtn.innerHTML        = '<i class="fas fa-exclamation-triangle"></i>&nbsp; Yes, Proceed';
+      modalBox.style.setProperty('--modal-stripe','linear-gradient(90deg,var(--danger),var(--accent))');
+    } else if (type === 'info') {
+      iconWrap.style.background   = 'linear-gradient(135deg,rgba(15,76,129,0.1),rgba(0,180,216,0.1))';
+      iconWrap.style.border       = '1px solid rgba(15,76,129,0.2)';
+      iconEl.className            = 'fas fa-circle-info';
+      iconEl.style.color          = 'var(--primary)';
+      confirmBtn.style.background = 'linear-gradient(135deg,var(--primary),var(--primary-light))';
+      confirmBtn.innerHTML        = '<i class="fas fa-check"></i>&nbsp; Confirm';
+      modalBox.style.setProperty('--modal-stripe','linear-gradient(90deg,var(--primary),var(--secondary))');
+    } else {
+      iconWrap.style.background   = 'linear-gradient(135deg,rgba(247,127,0,0.1),rgba(252,191,73,0.1))';
+      iconWrap.style.border       = '1px solid rgba(247,127,0,0.22)';
+      iconEl.className            = 'fas fa-shield-halved';
+      iconEl.style.color          = 'var(--accent)';
+      confirmBtn.style.background = 'linear-gradient(135deg,var(--primary),var(--primary-light))';
+      confirmBtn.innerHTML        = '<i class="fas fa-check"></i>&nbsp; Confirm';
+      modalBox.style.setProperty('--modal-stripe','linear-gradient(90deg,var(--primary),var(--secondary),var(--accent))');
+    }
+    if (warnText) {
+      warnBanner.classList.add('visible');
+      warnTxt.textContent = warnText;
+    } else {
+      warnBanner.classList.remove('visible');
+      warnTxt.textContent = '';
+    }
+    document.getElementById('modalOverlay').classList.add('open');
+  });
+}
+function closeModal(result) {
+  document.getElementById('modalOverlay').classList.remove('open');
+  if (_modalResolve) { _modalResolve(result); _modalResolve = null; }
+}
+
+/* ════════════════════════════════════
+   ★★★ QUOTA PANEL ★★★
+════════════════════════════════════ */
+function toggleQuotaPanel() {
+  var panel = document.getElementById('quotaPanel');
+  var isOpen = panel.classList.toggle('open');
+  if (isOpen) {
+    loadQuotaStatus();
+  }
+}
+
+function loadQuotaStatus() {
+  var btn = document.getElementById('quotaRefreshBtn');
+  btn.classList.add('refreshing');
+  btn.disabled = true;
+
+  google.script.run
+    .withSuccessHandler(function(data) {
+      btn.classList.remove('refreshing');
+      btn.disabled = false;
+
+      var quota    = data.quota;
+      var sentToday= data.sentToday;
+
+      // Update quota value
+      document.getElementById('quotaValue').textContent = quota;
+
+      // Quota bar (out of 100)
+      var pct = Math.min(100, Math.max(0, quota));
+      var bar = document.getElementById('quotaBar');
+      bar.style.width = pct + '%';
+      bar.className = 'quota-bar-fill';
+      if (pct <= 20) bar.classList.add('critical');
+      else if (pct <= 50) bar.classList.add('low');
+
+      // Update sent badge
+      var badge   = document.getElementById('sentBadge');
+      var sentSub = document.getElementById('sentSubText');
+      var sentBox = document.getElementById('sentStatBox');
+
+      if (sentToday) {
+        badge.className = 'sent-badge yes';
+        badge.innerHTML = '<i class="fas fa-circle-check"></i> Sent Today';
+        sentSub.textContent = 'Delivered to all members';
+        sentBox.classList.remove('qsb-red');
+        sentBox.classList.add('qsb-green');
+      } else {
+        badge.className = 'sent-badge no';
+        badge.innerHTML = '<i class="fas fa-circle-xmark"></i> Not Sent';
+        sentSub.textContent = 'Report not sent today yet';
+        sentBox.classList.remove('qsb-green');
+        sentBox.classList.add('qsb-red');
+      }
+
+      // Last updated time
+      var now = new Date();
+      var h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      h = (h%12||12).toString().padStart(2,'0');
+      document.getElementById('quotaUpdatedAt').textContent =
+        'Last checked: ' + h + ':' + m.toString().padStart(2,'0') + ':' + s.toString().padStart(2,'0') + ' ' + ampm;
+
+      showToast('success', 'Status Updated', 'Quota: ' + quota + ' remaining · Daily report: ' + (sentToday ? 'Sent ✓' : 'Not sent yet'), 3000);
+    })
+    .withFailureHandler(function(err) {
+      btn.classList.remove('refreshing');
+      btn.disabled = false;
+      showToast('error', 'Failed to Load', 'Could not fetch email status. Check your connection.');
+    })
+    .checkEmailStatus();
+}
+
+/* ════════════════════════
+   ADMIN ACTIONS
+════════════════════════ */
+function refreshAll() {
+  showConfirm('Refresh All Dashboards','This will reload all production dashboards from the latest sheet data.','default')
+    .then(function(confirmed) {
+      if (!confirmed) return;
+      google.script.run.withSuccessHandler(function() {
+        showToast('success','Dashboards Refreshed','All production dashboards have been updated from the latest data.');
+      }).refreshAll();
+    });
+}
+
+function sendDaily() {
+  showConfirm('Send Daily Report Email','This will immediately send the Daily Production Report email to all team members.','warning',
+    '⚠️ This action cannot be undone. The email will be dispatched to every team member right now. Please confirm only if today\'s data is complete and ready.')
+    .then(function(confirmed) {
+      if (!confirmed) return;
+      showToast('info','Sending Report…','The daily report is being prepared and sent. Please wait.',6000);
+      google.script.run.withSuccessHandler(function() {
+        showToast('success','Daily Report Sent','The daily production report has been dispatched to all recipients.');
+        // Refresh quota after sending
+        if (document.getElementById('quotaPanel').classList.contains('open')) {
+          loadQuotaStatus();
+        }
+      }).sendDailyReport();
+    });
+}
+
+function fixNames() {
+  showConfirm('Fix All Names in Sheet','This will scan the entire sheet and standardize all employee name entries to the correct format.','info',
+    'This operation modifies data directly in the Google Sheet. Ensure there are no unsaved edits before proceeding.')
+    .then(function(confirmed) {
+      if (!confirmed) return;
+      google.script.run.withSuccessHandler(function() {
+        showToast('success','Names Fixed','All employee name entries in the sheet have been standardized successfully.');
+      }).fixAllNamesInSheet();
+    });
+}
+
+function openGmail() {
+  showConfirm('Open Gmail With All Emails','This will open a Gmail compose window with all verified team email addresses pre-filled.','info')
+    .then(function(confirmed) {
+      if (!confirmed) return;
+      google.script.run.withSuccessHandler(function(emails) {
+        window.location.href = 'mailto:'+emails.join(',');
+      }).getEmailsFromSheet();
+    });
+}
+
+function manageEmails() {
+  showConfirm('Manage Email List','This will open the Email Management Sheet in a new tab where you can add, edit, or remove email addresses.','info')
+    .then(function(confirmed) {
+      if (!confirmed) return;
+      google.script.run.withSuccessHandler(function(url) {
+        window.open(url,'_blank');
+      }).getSheetUrl();
+    });
+}
+
+/* ════════════════════════
+   ATTACHMENTS
+════════════════════════ */
+var attachedFiles = [];
+function handleDragOver(e) { e.preventDefault(); document.getElementById('attachZone').classList.add('drag-over'); }
+function handleDragLeave(e) { document.getElementById('attachZone').classList.remove('drag-over'); }
+function handleDrop(e) { e.preventDefault(); document.getElementById('attachZone').classList.remove('drag-over'); handleFiles(e.dataTransfer.files); }
+function handleFiles(files) {
+  Array.from(files).forEach(function(file) {
+    if (attachedFiles.find(function(f){ return f.name===file.name && f.size===file.size; })) return;
+    attachedFiles.push(file);
+    renderAttachedItem(file);
+  });
+}
+function renderAttachedItem(file) {
+  var list    = document.getElementById('attachedList');
+  var item    = document.createElement('div');
+  item.className        = 'attached-item';
+  item.dataset.fileName = file.name;
+  var isImage = file.type.startsWith('image/');
+  var sizeStr = file.size > 1024*1024
+    ? (file.size/(1024*1024)).toFixed(1)+' MB'
+    : (file.size/1024).toFixed(0)+' KB';
+  if (isImage) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      item.innerHTML =
+        '<img src="'+e.target.result+'" class="attached-thumb" alt="'+file.name+'">'+
+        '<div class="attached-info"><div class="attached-name">'+file.name+'</div><div class="attached-size">'+sizeStr+' · Image</div></div>'+
+        '<button class="remove-attach" onclick="removeAttach(\''+file.name+'\')"><i class="fas fa-xmark"></i></button>';
+    };
+    reader.readAsDataURL(file);
+  } else {
+    item.innerHTML =
+      '<div class="attached-file-icon"><i class="'+getFileIcon(file.name)+'"></i></div>'+
+      '<div class="attached-info"><div class="attached-name">'+file.name+'</div><div class="attached-size">'+sizeStr+' · Attachment</div></div>'+
+      '<button class="remove-attach" onclick="removeAttach(\''+file.name+'\')"><i class="fas fa-xmark"></i></button>';
+  }
+  list.appendChild(item);
+}
+function getFileIcon(name) {
+  var ext = name.split('.').pop().toLowerCase();
+  var map = {pdf:'fas fa-file-pdf',doc:'fas fa-file-word',docx:'fas fa-file-word',xls:'fas fa-file-excel',xlsx:'fas fa-file-excel',txt:'fas fa-file-lines',zip:'fas fa-file-zipper',rar:'fas fa-file-zipper'};
+  return map[ext] || 'fas fa-file';
+}
+function removeAttach(name) {
+  attachedFiles = attachedFiles.filter(function(f){ return f.name!==name; });
+  var item = document.getElementById('attachedList').querySelector('[data-file-name="'+name+'"]');
+  if (item) item.remove();
+  showToast('info','Attachment Removed','"'+name+'" has been removed.',2500);
+}
+
+/* ════════════════════════
+   BODY TOOLBAR
+════════════════════════ */
+function fmtText(cmd) {
+  var ta=document.getElementById('body'), start=ta.selectionStart, end=ta.selectionEnd, sel=ta.value.substring(start,end);
+  if(!sel) return;
+  var wrap='';
+  if(cmd==='bold') wrap='**'+sel+'**';
+  if(cmd==='italic') wrap='_'+sel+'_';
+  if(cmd==='underline') wrap='__'+sel+'__';
+  ta.value=ta.value.substring(0,start)+wrap+ta.value.substring(end);
+  ta.focus();
+}
+function insertListItem() {
+  var ta=document.getElementById('body'), pos=ta.selectionStart, ins='\n• ';
+  ta.value=ta.value.substring(0,pos)+ins+ta.value.substring(pos);
+  ta.selectionStart=ta.selectionEnd=pos+ins.length; ta.focus();
+}
+function insertSeparator() {
+  var ta=document.getElementById('body'), pos=ta.selectionStart, ins='\n─────────────────────\n';
+  ta.value=ta.value.substring(0,pos)+ins+ta.value.substring(pos);
+  ta.selectionStart=ta.selectionEnd=pos+ins.length; ta.focus();
+}
+function insertGreeting() {
+  var ta=document.getElementById('body'), h=new Date().getHours(), g;
+  if(h>=5&&h<12) g='Good Morning'; else if(h>=12&&h<14) g='Good Noon';
+  else if(h>=14&&h<18) g='Good Afternoon'; else if(h>=18&&h<21) g='Good Evening'; else g='Good Night';
+  var ins='Dear Team,\n\n'+g+',\n\n';
+  ta.value=ins+ta.value; ta.selectionStart=ta.selectionEnd=ins.length; ta.focus();
+}
+function insertClosing() {
+  var ta=document.getElementById('body');
+  var ins='\n\nBest regards,\nPrem Prasad Pradhan\nFounder\nQuantumCoders Data Solutions\nhttps://www.quantumcoderstechlab.codes/quantumcoders-data-solutions.html';
+  ta.value=ta.value+ins; ta.selectionStart=ta.selectionEnd=ta.value.length; ta.focus();
+}
+
+/* ════════════════════════
+   SEND CUSTOM EMAIL
+════════════════════════ */
+function sendCustom() {
+  var subject = document.getElementById('subject').value.trim();
+  var rawBody = document.getElementById('body').value;
+  if (!subject) { showToast('warning','Subject Missing','Please enter an email subject before sending.'); return; }
+  if (!rawBody.trim()) { showToast('warning','Message Empty','Please write a message body before sending.'); return; }
+  showConfirm('Send Email to All Members','You are about to broadcast this email to all team members of QuantumCoders Data Solutions.','warning',
+    '⚠️ This action cannot be undone. Once sent, the email will be delivered to every team member immediately. Please double-check your subject and message before confirming.')
+    .then(function(confirmed) {
+      if (!confirmed) return;
+      var htmlBody = rawBody.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+      var imageFiles = attachedFiles.filter(function(f){ return f.type.startsWith('image/'); });
+      var readImagesAsBase64 = imageFiles.map(function(file) {
+        return new Promise(function(resolve) {
+          var reader = new FileReader();
+          reader.onload = function(e){ resolve({name:file.name,dataUrl:e.target.result,type:file.type}); };
+          reader.readAsDataURL(file);
+        });
+      });
+      Promise.all(readImagesAsBase64).then(function(images) {
+        var imgSection = '';
+        if (images.length > 0) {
+          imgSection = '<div style="margin-top:28px;padding-top:20px;border-top:1px solid #e2e8f0;"><p style="font-size:12px;color:#718096;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">Attachments</p><div style="display:flex;flex-wrap:wrap;gap:12px;">'+
+            images.map(function(img){ return '<div style="text-align:center;"><img src="'+img.dataUrl+'" alt="'+img.name+'" style="max-width:400px;max-height:300px;border-radius:10px;border:1px solid #e2e8f0;"><p style="font-size:11px;color:#a0aec0;margin-top:6px;">'+img.name+'</p></div>'; }).join('')+
+            '</div></div>';
+        }
+        var fullHtmlBody = '<div style="font-family:\'Helvetica Neue\',Arial,sans-serif;max-width:640px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.08);border:1px solid #e2e8f0;"><div style="background:linear-gradient(135deg,#0a3459,#0f4c81,#1a6bb5);padding:32px 36px 28px;"><div style="font-size:13px;font-weight:800;color:white;letter-spacing:1px;">QUANTUMCODERS DATA SOLUTIONS</div><div style="font-size:10px;color:rgba(255,255,255,0.6);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">From the desk of Prem Prasad Pradhan · Founder & Admin</div></div><div style="background:#f7fafc;border-bottom:1px solid #e2e8f0;padding:16px 36px;"><div style="font-size:11px;color:#718096;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Subject</div><div style="font-size:18px;font-weight:800;color:#0d1b2a;">'+subject.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div></div><div style="padding:32px 36px 28px;"><div style="font-size:15px;line-height:1.8;color:#2d3748;">'+htmlBody+'</div>'+imgSection+'</div><div style="background:#f7fafc;border-top:1px solid #e2e8f0;padding:20px 36px;text-align:center;"><div style="font-size:11px;color:#718096;">QuantumCoders Data Solutions · Berhampur, Odisha, India 760001</div></div></div>';
+        showToast('info','Sending Email…','Your message is being delivered. Please wait.',6000);
+        google.script.run
+          .withSuccessHandler(function() {
+            showToast('success','Email Sent Successfully','Your message "'+subject+'" has been delivered to all team members.');
+            document.getElementById('subject').value = '';
+            document.getElementById('body').value    = '';
+            attachedFiles = [];
+            document.getElementById('attachedList').innerHTML = '';
+          })
+          .withFailureHandler(function(err) {
+            showToast('error','Send Failed','There was an error sending the email. Error: '+err);
+          })
+          .sendCustomEmail(subject, fullHtmlBody);
+      });
+    });
+}
+
+/* ════════════════════════
+   PRODUCTION DATA
+════════════════════════ */
+function loadTodayProduction() {
+  google.script.run.withSuccessHandler(function(data) {
+    if (!data) {
+      document.getElementById('statDate').innerText  = 'No Data';
+      document.getElementById('statFiles').innerText = '0';
+      document.getElementById('statTime').innerText  = '0.00';
+      document.getElementById('statHead').innerText  = '0';
+      document.getElementById('last3Rows').innerHTML = '<div class="last3-empty">No data available</div>';
+      return;
+    }
+    var t = data.today;
+    document.getElementById('statDate').innerText  = t[0]||'--';
+    document.getElementById('statFiles').innerText = t[1]||'0';
+    document.getElementById('statTime').innerText  = Number(t[2]||0).toFixed(2);
+    document.getElementById('statHead').innerText  = t[3]||'0';
+    var container = document.getElementById('last3Rows');
+    if (!data.last3 || data.last3.length===0) {
+      container.innerHTML = '<div class="last3-empty">No recent data found</div>';
+      return;
+    }
+    container.innerHTML = '';
+    data.last3.forEach(function(r) {
+      var row = document.createElement('div');
+      row.className = 'last3-row';
+      row.innerHTML =
+        '<span class="last3-date">'+(r[0]||'—')+'</span>'+
+        '<span class="last3-chip"><i class="fas fa-file-lines"></i> Files: <span>'+(r[1]||0)+'</span></span>'+
+        '<span class="last3-chip"><i class="fas fa-clock"></i> Time: <span>'+Number(r[2]||0).toFixed(1)+' min</span></span>'+
+        '<span class="last3-chip"><i class="fas fa-users"></i> HC: <span>'+(r[3]||'—')+'</span></span>';
+      container.appendChild(row);
+    });
+  }).getTodayProduction();
+}
+
+function loadTodayMembers() {
+  google.script.run.withSuccessHandler(function(data) {
+    var wrap = document.getElementById('memberToday');
+    var html = '';
+    if (!data || data.length===0) {
+      html = '<div class="member-empty"><i class="fas fa-inbox"></i><span>No output recorded today</span></div>';
+    } else {
+      data.forEach(function(r) {
+        var initial = (r[0]||'?').charAt(0).toUpperCase();
+        html +=
+          '<div class="member-row">'+
+          '<div class="member-avatar">'+initial+'</div>'+
+          '<div class="member-name-text">'+r[0]+'</div>'+
+          '<div class="member-time-badge"><i class="fas fa-clock"></i>'+r[1].toFixed(2)+' min</div>'+
+          '</div>';
+      });
+    }
+    wrap.innerHTML = html;
+  }).getTodayMemberOutput();
+}
+
+var teamChart = null;
+function loadTeamContribution() {
+  google.script.run.withSuccessHandler(function(data) {
+    var names=[],times=[];
+    data.forEach(function(r){ names.push(r[0]); times.push(r[1]); });
+    var ctx = document.getElementById('teamChart').getContext('2d');
+    if (teamChart) teamChart.destroy();
+    teamChart = new Chart(ctx, {
+      type:'pie',
+      data:{ labels:names, datasets:[{data:times}] },
+      options:{
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:function(c){ return c.label+' : '+c.raw.toFixed(2)+' min'; }}}
+        }
+      }
+    });
+  }).getTeamContribution();
+}
+
+window.onload = function() {
+  loadTodayProduction();   setInterval(loadTodayProduction,  60000);
+  loadTodayMembers();      setInterval(loadTodayMembers,     60000);
+  loadTeamContribution();  setInterval(loadTeamContribution, 300000);
+};
+
+function openEntry(){
+  window.open('https://script.google.com/macros/s/AKfycbwadtXnMFMolY8WJji-_YKlLiyHnJseOHTKGCUnw2aSmFiPHLcy2gMI7B9Uu1mhIWgCKw/exec','_blank');
+}
+function openDashboard(){
+  window.open('https://script.google.com/macros/s/AKfycbwadtXnMFMolY8WJji-_YKlLiyHnJseOHTKGCUnw2aSmFiPHLcy2gMI7B9Uu1mhIWgCKw/exec?page=dashboard','_blank');
+}
+function openEmailPage() {
+  window.open('https://script.google.com/macros/s/AKfycbwadtXnMFMolY8WJji-_YKlLiyHnJseOHTKGCUnw2aSmFiPHLcy2gMI7B9Uu1mhIWgCKw/exec?page=email', '_blank'); // opens in new tab
+}
+</script>
+
+</body>
+</html>

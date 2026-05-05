@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Work Report · QuantumCoders Data Solutions</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --primary:        #0f4c81;
+      --primary-light:  #1a6bb5;
+      --primary-dark:   #0a3459;
+      --primary-glow:   rgba(15,76,129,0.22);
+      --secondary:      #00b4d8;
+      --accent:         #f77f00;
+      --accent-light:   #fcbf49;
+      --success:        #06d6a0;
+      --danger:         #ef476f;
+      --warning:        #ffd166;
+      --gold:           #f4a261;
+      --purple:         #7c3aed;
+      --text:           #0d1b2a;
+      --text-muted:     #4a5568;
+      --text-light:     #8896a5;
+      --bg:             #f0f4f9;
+      --bg-2:           #ffffff;
+      --bg-3:           #e8edf5;
+      --card:           rgba(255,255,255,0.98);
+      --border:         rgba(15,76,129,0.12);
+      --border-strong:  rgba(15,76,129,0.28);
+      --shadow-xs:  0 1px 4px rgba(0,0,0,0.05);
+      --shadow-sm:  0 2px 10px rgba(0,0,0,0.06);
+      --shadow:     0 8px 28px rgba(0,0,0,0.08);
+      --shadow-md:  0 16px 45px rgba(0,0,0,0.12);
+      --shadow-lg:  0 24px 64px rgba(0,0,0,0.16);
+      --shadow-glow:0 0 35px rgba(15,76,129,0.18);
+      --radius:   18px;
+      --radius-sm:12px;
+      --radius-lg:26px;
+      --radius-xl:32px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    html, body { min-height: 100vh; overflow-x: hidden; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.65; display: flex;
+      flex-direction: column; align-items: center;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 5% 10%, rgba(15,76,129,0.09) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 95% 5%,  rgba(0,180,216,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 60% at 50% 100%,rgba(247,127,0,0.05) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    body::after {
+      content: ''; position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(15,76,129,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,76,129,0.04) 1px, transparent 1px);
+      background-size: 52px 52px; pointer-events: none;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100; width: 100%;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(24px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 0 var(--border), var(--shadow-sm);
+      padding: 0 28px; height: 66px;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+    .topbar-logo-wrap {
+      width: 42px; height: 42px; border-radius: 11px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px var(--primary-glow); flex-shrink: 0;
+    }
+    .topbar-logo-wrap i { color: white; font-size: 1.15rem; }
+    .topbar-logo { height: 42px; width: 42px; border-radius: 11px; object-fit: contain; display: none; }
+    .topbar-logo.loaded { display: block; }
+    .topbar-divider { width: 1.5px; height: 32px; background: linear-gradient(to bottom, transparent, var(--border-strong), transparent); }
+    .topbar-name {
+      font-family: 'Orbitron', sans-serif; font-size: 0.82rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .topbar-sub { font-size: 0.58rem; font-weight: 700; color: var(--accent); letter-spacing: 2.5px; text-transform: uppercase; margin-top: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .topbar-time {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 500;
+      color: var(--text-muted); background: var(--bg-3); padding: 6px 14px;
+      border-radius: 50px; border: 1px solid var(--border);
+    }
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 7px; padding: 7px 16px; border-radius: 50px;
+      background: linear-gradient(135deg, rgba(6,214,160,0.1), rgba(0,180,216,0.08));
+      border: 1px solid rgba(6,214,160,0.3);
+      font-size: 0.68rem; font-weight: 700; color: #059669; letter-spacing: 1.2px; text-transform: uppercase;
+    }
+    .live-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); animation: pulse-dot 2s infinite; display: inline-block; }
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
+
+    /* ── PAGE ── */
+    .page {
+      position: relative; z-index: 1; width: 100%; max-width: 1100px;
+      padding: 38px 22px 60px; display: flex; flex-direction: column; gap: 28px;
+    }
+
+    /* ── HERO ── */
+    .hero-banner {
+      background: linear-gradient(130deg, #081e36 0%, var(--primary-dark) 40%, var(--primary) 75%, var(--primary-light) 100%);
+      border-radius: var(--radius-xl); padding: 40px 44px 36px;
+      position: relative; overflow: hidden;
+      box-shadow: var(--shadow-lg), 0 0 60px rgba(15,76,129,0.25);
+      animation: heroIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .hero-banner::before { content:''; position:absolute; inset:0; z-index:0; background-image:radial-gradient(circle,rgba(255,255,255,0.08) 1px,transparent 1px); background-size:28px 28px; }
+    .hero-banner::after { content:''; position:absolute; top:-100px; right:-100px; width:380px; height:380px; border-radius:50%; background:radial-gradient(circle,rgba(0,180,216,0.2) 0%,transparent 65%); pointer-events:none; z-index:0; }
+    .hero-inner { position:relative; z-index:1; display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+    .hero-tag { display:inline-flex; align-items:center; gap:8px; font-size:0.65rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.55); margin-bottom:12px; }
+    .hero-tag::before { content:''; width:20px; height:1px; background:rgba(255,255,255,0.35); }
+    .hero-title { font-family:'Orbitron',sans-serif; font-size:clamp(1.5rem,4vw,2.2rem); font-weight:900; color:white; line-height:1.15; margin-bottom:10px; }
+    .hero-title .hl { background:linear-gradient(90deg,var(--accent-light),var(--gold),#fde68a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .hero-sub { font-size:0.87rem; font-weight:400; color:rgba(255,255,255,0.65); max-width:480px; line-height:1.75; }
+    .hero-chips { display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+    .hero-chip { display:inline-flex; align-items:center; gap:7px; padding:7px 15px; border-radius:50px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18); font-size:0.73rem; font-weight:600; color:rgba(255,255,255,0.88); }
+    @keyframes heroIn { from{opacity:0;transform:translateY(28px) scale(0.98)} to{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes cardIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── SEARCH PANEL ── */
+    .search-panel {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      overflow: hidden; box-shadow: var(--shadow);
+      animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+    }
+    .sp-stripe { height: 4px; background: linear-gradient(90deg, var(--primary-dark), var(--primary-light), var(--secondary)); }
+    .sp-inner { padding: 26px 26px 24px; }
+    .sp-header { display:flex; align-items:center; gap:14px; margin-bottom:22px; }
+    .sp-icon { width:48px; height:48px; border-radius:13px; background:linear-gradient(135deg,var(--primary-dark),var(--primary-light)); display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:white; box-shadow:0 5px 16px rgba(15,76,129,0.35); flex-shrink:0; }
+    .sp-title { font-size:1rem; font-weight:800; color:var(--text); }
+    .sp-desc  { font-size:0.76rem; color:var(--text-light); margin-top:2px; }
+    .fields-grid { display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:16px; margin-bottom:18px; }
+    .field-group { display:flex; flex-direction:column; gap:6px; }
+    .field-label { font-size:0.7rem; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-muted); display:flex; align-items:center; gap:5px; }
+    .field-label i { color:var(--primary); font-size:0.62rem; }
+    .field-input {
+      padding:11px 14px; border:2px solid var(--border); border-radius:var(--radius-sm);
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:0.88rem; color:var(--text);
+      background:var(--bg); transition:border-color 0.2s, box-shadow 0.2s; outline:none; width:100%;
+    }
+    .field-input:focus { border-color:var(--primary); box-shadow:0 0 0 4px rgba(15,76,129,0.08); background:white; }
+    .field-input.error { border-color:var(--danger); box-shadow:0 0 0 4px rgba(239,71,111,0.08); }
+    .field-hint { font-size:0.68rem; color:var(--text-light); margin-top:4px; min-height:18px; }
+    .field-hint.danger { color:var(--danger); }
+    .field-hint.success { color:#059669; }
+
+    /* Autocomplete dropdown */
+    .autocomplete-wrap { position:relative; }
+    .autocomplete-list {
+      position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:50;
+      background:white; border:2px solid var(--primary); border-radius:var(--radius-sm);
+      box-shadow:var(--shadow-md); max-height:220px; overflow-y:auto; display:none;
+    }
+    .autocomplete-list.open { display:block; animation:dropIn 0.18s ease; }
+    @keyframes dropIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+    .ac-item { padding:11px 14px; cursor:pointer; font-size:0.88rem; font-weight:600; color:var(--text); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; transition:background 0.15s; }
+    .ac-item:last-child { border-bottom:none; }
+    .ac-item:hover, .ac-item.focused { background:rgba(15,76,129,0.06); color:var(--primary); }
+    .ac-avatar { width:28px; height:28px; border-radius:7px; background:linear-gradient(135deg,var(--primary),var(--secondary)); display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; color:white; font-family:'Orbitron',sans-serif; flex-shrink:0; }
+    .ac-empty { padding:16px 14px; text-align:center; font-size:0.82rem; color:var(--text-light); }
+
+    /* Days badge */
+    .days-badge {
+      display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:50px;
+      background:rgba(6,214,160,0.1); border:1px solid rgba(6,214,160,0.25);
+      font-size:0.72rem; font-weight:700; color:#059669;
+    }
+
+    /* Buttons row */
+    .btn-row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+    .btn {
+      padding:11px 22px; border:none; border-radius:var(--radius-sm);
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:0.85rem; font-weight:700;
+      cursor:pointer; transition:all 0.22s; display:inline-flex; align-items:center; gap:8px;
+    }
+    .btn-primary { background:linear-gradient(135deg,var(--primary-dark),var(--primary-light)); color:white; box-shadow:0 4px 14px rgba(15,76,129,0.35); }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(15,76,129,0.45); }
+    .btn-primary:active { transform:translateY(0); }
+    .btn-ghost { background:var(--bg); color:var(--text-muted); border:2px solid var(--border); }
+    .btn-ghost:hover { background:var(--bg-3); border-color:var(--border-strong); color:var(--text); }
+    .btn-success { background:linear-gradient(135deg,#047857,var(--success)); color:white; box-shadow:0 4px 14px rgba(6,214,160,0.3); }
+    .btn-success:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(6,214,160,0.4); }
+    .btn-warning { background:linear-gradient(135deg,#b45309,var(--accent)); color:white; box-shadow:0 4px 14px rgba(247,127,0,0.3); }
+    .btn-warning:hover { transform:translateY(-2px); }
+    .btn-wa { background:linear-gradient(135deg,#1a7a35,#25D366); color:white; box-shadow:0 4px 14px rgba(37,211,102,0.3); }
+    .btn-wa:hover { transform:translateY(-2px); }
+    .btn-email { background:linear-gradient(135deg,#0891b2,var(--secondary)); color:white; box-shadow:0 4px 14px rgba(0,180,216,0.3); }
+    .btn-email:hover { transform:translateY(-2px); }
+    .btn:disabled { opacity:0.45; cursor:not-allowed; transform:none !important; }
+    .btn.spin i { animation:spinAnim 0.7s linear infinite; }
+    @keyframes spinAnim { to{transform:rotate(360deg)} }
+
+    /* ── LOADING BAR ── */
+    .loading-bar-wrap { height:3px; width:100%; background:var(--border); border-radius:99px; overflow:hidden; display:none; }
+    .loading-bar-wrap.active { display:block; }
+    .loading-bar { height:100%; width:0%; background:linear-gradient(90deg,var(--primary),var(--secondary),var(--accent)); border-radius:99px; transition:width 0.4s ease; animation:barPulse 1.5s ease-in-out infinite; }
+    @keyframes barPulse { 0%,100%{opacity:1} 50%{opacity:0.65} }
+
+    /* ── SUMMARY CARDS ── */
+    .summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+    .sum-card {
+      background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
+      overflow:hidden; box-shadow:var(--shadow);
+      animation:cardIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+      transition:transform 0.25s, box-shadow 0.25s;
+    }
+    .sum-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md),var(--shadow-glow); }
+    .sum-stripe { height:4px; }
+    .ss1 { background:linear-gradient(90deg,var(--primary-dark),var(--primary-light),var(--secondary)); }
+    .ss2 { background:linear-gradient(90deg,#c44d00,var(--accent),var(--accent-light)); }
+    .ss3 { background:linear-gradient(90deg,#007a8e,var(--secondary),var(--success)); }
+    .ss4 { background:linear-gradient(90deg,#4c1d95,var(--purple),#a855f7); }
+    .sum-inner { padding:20px 18px 18px; }
+    .sum-icon { width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:1rem; color:white; margin-bottom:14px; }
+    .si1 { background:linear-gradient(135deg,var(--primary-dark),var(--primary-light)); box-shadow:0 5px 14px rgba(15,76,129,0.35); }
+    .si2 { background:linear-gradient(135deg,#c44d00,var(--accent)); box-shadow:0 5px 14px rgba(247,127,0,0.35); }
+    .si3 { background:linear-gradient(135deg,#006d7e,var(--secondary)); box-shadow:0 5px 14px rgba(0,180,216,0.32); }
+    .si4 { background:linear-gradient(135deg,#4c1d95,var(--purple)); box-shadow:0 5px 14px rgba(124,58,237,0.35); }
+    .sum-label { font-size:0.62rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-light); margin-bottom:7px; }
+    .sum-value { font-family:'JetBrains Mono',monospace; font-size:1.9rem; font-weight:700; line-height:1; }
+    .sv1 { color:var(--primary); } .sv2 { color:var(--accent); } .sv3 { color:#0891b2; } .sv4 { color:var(--purple); }
+    .sum-sub { font-size:0.68rem; color:var(--text-light); font-weight:500; margin-top:6px; }
+
+    /* ── RANK CARD ── */
+    .rank-card {
+      background:linear-gradient(135deg,#FFF9E8,#FFF3E0);
+      border:1.5px solid rgba(244,162,97,0.3); border-radius:var(--radius-lg);
+      padding:22px 24px; display:flex; align-items:center; gap:18px;
+      box-shadow:var(--shadow); animation:cardIn 0.5s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+    }
+    .rank-trophy { font-size:2.2rem; }
+    .rank-label-sm { font-size:0.65rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:5px; }
+    .rank-value-big { font-family:'JetBrains Mono',monospace; font-size:1.6rem; font-weight:800; color:var(--primary-dark); }
+    .rank-sub { font-size:0.74rem; color:var(--text-muted); margin-top:4px; font-weight:500; }
+
+    /* ── CHART PANEL ── */
+    .chart-panel {
+      background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
+      overflow:hidden; box-shadow:var(--shadow); animation:cardIn 0.5s cubic-bezier(0.22,1,0.36,1) 0.15s both;
+    }
+    .cp-stripe { height:4px; background:linear-gradient(90deg,#4c1d95,var(--purple),#a855f7); }
+    .cp-inner { padding:22px 22px 18px; }
+    .cp-head { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+    .cp-icon { width:42px; height:42px; border-radius:11px; background:linear-gradient(135deg,#4c1d95,var(--purple)); display:flex; align-items:center; justify-content:center; font-size:1rem; color:white; box-shadow:0 5px 14px rgba(124,58,237,0.35); flex-shrink:0; }
+    .cp-title { font-size:0.95rem; font-weight:800; color:var(--text); }
+    .cp-desc  { font-size:0.73rem; color:var(--text-light); margin-top:2px; }
+    #reportChart { max-height:260px; }
+
+    /* ── TABLE PANEL ── */
+    .table-panel {
+      background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
+      overflow:hidden; box-shadow:var(--shadow); animation:cardIn 0.5s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+    }
+    .tp-stripe { height:4px; background:linear-gradient(90deg,var(--primary-dark),var(--primary-light),var(--secondary)); }
+    .tp-inner { padding:22px 22px 0; }
+    .tp-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+    .tp-title-wrap { display:flex; align-items:center; gap:12px; }
+    .tp-icon { width:42px; height:42px; border-radius:11px; background:linear-gradient(135deg,var(--primary-dark),var(--primary-light)); display:flex; align-items:center; justify-content:center; font-size:1rem; color:white; box-shadow:0 5px 14px rgba(15,76,129,0.35); flex-shrink:0; }
+    .tp-title { font-size:0.95rem; font-weight:800; color:var(--text); }
+    .tp-count { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:50px; background:rgba(15,76,129,0.08); border:1px solid rgba(15,76,129,0.15); font-size:0.72rem; font-weight:700; color:var(--primary); }
+    .table-scroll { overflow-x:auto; }
+    .table-scroll::-webkit-scrollbar { height:4px; }
+    .table-scroll::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:4px; }
+    .data-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+    .data-table thead tr { background:linear-gradient(135deg,var(--bg-3),var(--bg)); }
+    .data-table th { padding:11px 14px; text-align:left; font-size:0.63rem; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-muted); border-bottom:1.5px solid var(--border); white-space:nowrap; }
+    .data-table th i { font-size:0.58rem; margin-right:4px; color:var(--primary); }
+    .data-table td { padding:11px 14px; border-bottom:1px solid var(--border); color:var(--text-muted); font-weight:500; vertical-align:middle; }
+    .data-table tbody tr:last-child td { border-bottom:none; }
+    .data-table tbody tr { transition:background 0.15s; }
+    .data-table tbody tr:hover { background:rgba(15,76,129,0.025); }
+    .td-mono { font-family:'JetBrains Mono',monospace; font-size:0.78rem; font-weight:600; color:var(--text); }
+    .td-date { font-family:'JetBrains Mono',monospace; font-size:0.75rem; font-weight:600; color:var(--primary); white-space:nowrap; }
+    .status-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:50px; font-size:0.68rem; font-weight:700; white-space:nowrap; }
+    .sp-accepted { background:rgba(6,214,160,0.1); color:#059669; border:1px solid rgba(6,214,160,0.25); }
+    .sp-rejected { background:rgba(239,71,111,0.1); color:var(--danger); border:1px solid rgba(239,71,111,0.25); }
+    .sp-pending  { background:rgba(255,209,102,0.15); color:#b45309; border:1px solid rgba(255,209,102,0.3); }
+    .tp-footer { padding:14px 22px; background:var(--bg); border-top:1px solid var(--border); font-size:0.72rem; color:var(--text-light); font-weight:600; }
+
+    /* ── SKELETON ── */
+    .skeleton { height:44px; background:linear-gradient(90deg,var(--bg-3) 25%,var(--bg-2) 50%,var(--bg-3) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:8px; margin-bottom:6px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:60px 20px; color:var(--text-light); font-size:0.88rem; font-weight:600; text-align:center; }
+    .empty-state i { font-size:3rem; color:var(--border-strong); }
+    .empty-state p { font-size:0.82rem; color:var(--text-light); margin-top:4px; }
+
+    /* ── TOAST SYSTEM ── */
+    #toast-container { position:fixed; top:80px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+    .toast {
+      display:flex; align-items:flex-start; gap:12px;
+      background:white; border-radius:var(--radius-sm);
+      padding:14px 18px; min-width:280px; max-width:380px;
+      box-shadow:var(--shadow-md); border-left:4px solid var(--primary);
+      pointer-events:all; animation:toastIn 0.35s cubic-bezier(0.22,1,0.36,1);
+      transition:all 0.35s; position:relative; overflow:hidden;
+    }
+    .toast::after { content:''; position:absolute; bottom:0; left:0; height:2px; background:var(--primary); animation:toastProgress 4s linear forwards; }
+    @keyframes toastIn { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes toastOut { to{opacity:0;transform:translateX(50px);max-height:0;padding:0;margin:0} }
+    @keyframes toastProgress { from{width:100%} to{width:0%} }
+    .toast.out { animation:toastOut 0.35s ease forwards; }
+    .toast-success { border-color:var(--success); }
+    .toast-success::after { background:var(--success); }
+    .toast-error { border-color:var(--danger); }
+    .toast-error::after { background:var(--danger); }
+    .toast-warning { border-color:var(--accent); }
+    .toast-warning::after { background:var(--accent); }
+    .toast-info { border-color:var(--primary); }
+    .toast-info::after { background:var(--primary); }
+    .toast-icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+    .toast-success .toast-icon { color:var(--success); }
+    .toast-error   .toast-icon { color:var(--danger); }
+    .toast-warning .toast-icon { color:var(--accent); }
+    .toast-info    .toast-icon { color:var(--primary); }
+    .toast-body-wrap { flex:1; }
+    .toast-title { font-size:0.85rem; font-weight:700; color:var(--text); }
+    .toast-msg   { font-size:0.76rem; color:var(--text-muted); margin-top:3px; }
+    .toast-close { background:none; border:none; cursor:pointer; color:var(--text-light); font-size:1rem; padding:0; flex-shrink:0; line-height:1; margin-top:1px; }
+    .toast-close:hover { color:var(--text); }
+
+    /* ── MODAL ── */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:500; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(4px); }
+    .modal-overlay.open { display:flex; animation:fadeIn 0.2s; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .modal-box { background:white; border-radius:var(--radius-lg); max-width:460px; width:100%; box-shadow:var(--shadow-lg); animation:slideUp 0.3s cubic-bezier(0.22,1,0.36,1); overflow:hidden; }
+    @keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+    .modal-header { padding:22px 24px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .modal-title { font-size:1rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:10px; }
+    .modal-title i { color:var(--primary); }
+    .modal-close-btn { background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--text-light); padding:0; }
+    .modal-close-btn:hover { color:var(--text); }
+    .modal-body { padding:22px 24px; }
+    .modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; }
+
+    /* ── FOOTER ── */
+    .site-footer { position:relative; z-index:1; width:100%; background:rgba(255,255,255,0.75); backdrop-filter:blur(18px); border-top:1px solid var(--border); padding:26px 28px 20px; }
+    .footer-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+    .footer-brand { display:flex; align-items:center; gap:12px; }
+    .footer-logo-wrap { width:34px; height:34px; border-radius:9px; flex-shrink:0; background:linear-gradient(135deg,var(--primary-dark),var(--primary)); display:flex; align-items:center; justify-content:center; font-size:0.85rem; color:white; }
+    .footer-brand-name { font-family:'Orbitron',sans-serif; font-size:0.74rem; font-weight:800; background:linear-gradient(135deg,var(--primary),var(--secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .footer-brand-tagline { font-size:0.63rem; color:var(--text-light); margin-top:2px; }
+    .footer-address { font-size:0.74rem; color:var(--text-muted); line-height:1.6; text-align:center; }
+    .footer-link { display:inline-flex; align-items:center; gap:7px; font-size:0.74rem; font-weight:700; color:var(--primary); text-decoration:none; padding:6px 16px; border:1.5px solid var(--border-strong); border-radius:50px; transition:all 0.2s; }
+    .footer-link:hover { background:var(--primary); color:white; border-color:var(--primary); }
+    .footer-copy { font-size:0.63rem; color:var(--text-light); }
+
+    /* ── SECTION LABEL ── */
+    .section-label { display:flex; align-items:center; gap:14px; font-size:0.67rem; font-weight:800; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-light); }
+    .section-label::before, .section-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,transparent,var(--border-strong),transparent); }
+    .section-label-icon { width:26px; height:26px; border-radius:7px; background:var(--bg-2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:0.6rem; color:var(--primary); }
+
+    /* ── RESULT SECTION ── */
+    .results-wrap { display:flex; flex-direction:column; gap:20px; }
+    .hidden { display:none !important; }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px) {
+      .fields-grid { grid-template-columns:1fr 1fr; }
+      .summary-grid { grid-template-columns:1fr 1fr; }
+    }
+    @media(max-width:640px) {
+      .topbar { padding:0 16px; height:60px; }
+      .topbar-time { display:none; }
+      .page { padding:22px 14px 48px; gap:20px; }
+      .hero-banner { padding:26px 22px; }
+      .fields-grid { grid-template-columns:1fr; }
+      .summary-grid { grid-template-columns:1fr 1fr; }
+      .sp-inner { padding:20px 18px; }
+      .footer-inner { flex-direction:column; align-items:center; text-align:center; }
+    }
+    @media(max-width:400px) { .summary-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Email Modal -->
+<div class="modal-overlay" id="emailModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fas fa-envelope"></i> Send Report via Email</div>
+      <button class="modal-close-btn" onclick="closeModal('emailModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label class="field-label"><i class="fas fa-at"></i> Recipient Email Address</label>
+        <input type="email" class="field-input" id="emailInput" placeholder="example@gmail.com">
+        <div class="field-hint" id="emailHint">Enter a valid email address</div>
+      </div>
+      <div style="margin-top:14px;padding:12px;background:rgba(15,76,129,0.04);border-radius:var(--radius-sm);border:1px solid var(--border);">
+        <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;">📎 The email will include a full summary and work record table.</div>
+        <div style="font-size:0.68rem;color:var(--text-light);margin-top:6px;">⚠️ Limit: 2 emails per day per user.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('emailModal')">Cancel</button>
+      <button class="btn btn-email" id="sendEmailBtn" onclick="submitEmail()">
+        <i class="fas fa-paper-plane"></i> Send Email
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a class="topbar-brand" href="#" style="text-decoration:none">
+    <div class="topbar-logo-wrap" id="logoWrap"><i class="fas fa-user-chart"></i></div>
+    <img src="https://www.quantumcoderstechlab.codes/assets/Data%20Solutions/Logo/QCDL.png"
+      alt="QCDS" class="topbar-logo" id="topbarLogo"
+      onload="this.classList.add('loaded');document.getElementById('logoWrap').style.display='none'"
+      onerror="this.style.display='none'">
+    <div class="topbar-divider"></div>
+    <div>
+      <div class="topbar-name">QuantumCoders Data Solutions</div>
+      <div class="topbar-sub">Member Report Portal</div>
+    </div>
+  </a>
+  <div class="topbar-right">
+    <span class="topbar-time" id="topbarClock">--:-- --</span>
+    <span class="live-badge"><span class="live-pulse"></span>&nbsp;Portal</span>
+  </div>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero-banner">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-tag">QuantumCoders Data Solutions</div>
+        <div class="hero-title">My Work <span class="hl">Report</span></div>
+        <div class="hero-sub">View your personal production analytics, download reports, and track your performance over any date range. Select your name and date range to get started.</div>
+        <div class="hero-chips">
+          <span class="hero-chip"><i class="fas fa-shield-halved"></i> Personal Portal</span>
+          <span class="hero-chip"><i class="fas fa-chart-line"></i> Analytics</span>
+          <span class="hero-chip"><i class="fas fa-download"></i> Download CSV / PDF</span>
+          <span class="hero-chip"><i class="fas fa-envelope"></i> Email Report</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH PANEL -->
+  <div class="search-panel">
+    <div class="sp-stripe"></div>
+    <div class="sp-inner">
+      <div class="sp-header">
+        <div class="sp-icon"><i class="fas fa-magnifying-glass-chart"></i></div>
+        <div>
+          <div class="sp-title">Filter Your Report</div>
+          <div class="sp-desc">Select your name from the dropdown and choose a date range</div>
+        </div>
+      </div>
+
+      <div class="fields-grid">
+        <!-- NAME -->
+        <div class="field-group">
+          <label class="field-label"><i class="fas fa-user"></i> Your Name</label>
+          <div class="autocomplete-wrap">
+            <input type="text" class="field-input" id="nameInput"
+              placeholder="Type 2+ letters to search..." autocomplete="off"
+              oninput="handleNameInput(this.value)" onkeydown="handleNameKey(event)">
+            <div class="autocomplete-list" id="acList"></div>
+          </div>
+          <div class="field-hint" id="nameHint">Start typing your name to see suggestions</div>
+        </div>
+
+        <!-- FROM DATE -->
+        <div class="field-group">
+          <label class="field-label"><i class="fas fa-calendar-day"></i> From Date</label>
+          <input type="date" class="field-input" id="fromDate" onchange="validateDates()">
+          <div class="field-hint" id="fromHint">&nbsp;</div>
+        </div>
+
+        <!-- TO DATE -->
+        <div class="field-group">
+          <label class="field-label"><i class="fas fa-calendar-check"></i> To Date</label>
+          <input type="date" class="field-input" id="toDate" onchange="validateDates()">
+          <div class="field-hint" id="toHint">&nbsp;</div>
+        </div>
+      </div>
+
+      <!-- Days badge -->
+      <div id="daysBadgeWrap" style="margin-bottom:16px;display:none;">
+        <span class="days-badge" id="daysBadge"><i class="fas fa-calendar-range"></i> — days selected</span>
+      </div>
+
+      <!-- Loading bar -->
+      <div class="loading-bar-wrap" id="loadingBar"><div class="loading-bar" id="loadingBarFill" style="width:0%"></div></div>
+      <div style="height:10px"></div>
+
+      <!-- Buttons -->
+      <div class="btn-row">
+        <button class="btn btn-primary" id="fetchBtn" onclick="fetchReport()">
+          <i class="fas fa-search"></i> Fetch Report
+        </button>
+        <button class="btn btn-ghost" onclick="resetAll()">
+          <i class="fas fa-rotate-left"></i> Reset
+        </button>
+        <button class="btn btn-success hidden" id="csvBtn" onclick="downloadCSV()">
+          <i class="fas fa-file-csv"></i> Download CSV
+        </button>
+        <button class="btn btn-warning hidden" id="pdfBtn" onclick="downloadPDF()">
+          <i class="fas fa-file-pdf"></i> Download PDF
+        </button>
+        <button class="btn btn-email hidden" id="emailBtn" onclick="openModal('emailModal')">
+          <i class="fas fa-envelope"></i> Email Report
+        </button>
+        <button class="btn btn-wa hidden" id="waBtn" onclick="shareWhatsApp()">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS (hidden until data loads) -->
+  <div class="results-wrap hidden" id="resultsSection">
+
+    <!-- SECTION LABEL -->
+    <div class="section-label">
+      <div class="section-label-icon"><i class="fas fa-gauge-high"></i></div>
+      Summary Statistics
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="summary-grid" id="summaryGrid">
+      <div class="sum-card"><div class="sum-stripe ss1"></div><div class="sum-inner"><div class="sum-icon si1"><i class="fas fa-file-lines"></i></div><div class="sum-label">Total Files</div><div class="sum-value sv1" id="statFiles">—</div><div class="sum-sub">Completed in range</div></div></div>
+      <div class="sum-card"><div class="sum-stripe ss2"></div><div class="sum-inner"><div class="sum-icon si2"><i class="fas fa-stopwatch"></i></div><div class="sum-label">Total Time (Min)</div><div class="sum-value sv2" id="statMins" style="font-size:1.5rem">—</div><div class="sum-sub">Minutes worked</div></div></div>
+      <div class="sum-card"><div class="sum-stripe ss3"></div><div class="sum-inner"><div class="sum-icon si3"><i class="fas fa-clock"></i></div><div class="sum-label">Total Time (H:M:S)</div><div class="sum-value sv3" id="statHMS" style="font-size:1.3rem">—</div><div class="sum-sub">Hours format</div></div></div>
+      <div class="sum-card"><div class="sum-stripe ss4"></div><div class="sum-inner"><div class="sum-icon si4"><i class="fas fa-chart-simple"></i></div><div class="sum-label">Avg Time/File</div><div class="sum-value sv4" id="statAvg" style="font-size:1.5rem">—</div><div class="sum-sub">Minutes average</div></div></div>
+    </div>
+
+    <!-- RANK CARD -->
+    <div class="rank-card hidden" id="rankCard">
+      <div class="rank-trophy">🏆</div>
+      <div>
+        <div class="rank-label-sm">Your Team Ranking</div>
+        <div class="rank-value-big" id="rankVal">—</div>
+        <div class="rank-sub" id="rankSub">Based on total work time</div>
+      </div>
+    </div>
+
+    <!-- SECTION LABEL -->
+    <div class="section-label">
+      <div class="section-label-icon"><i class="fas fa-chart-area"></i></div>
+      Performance Chart (Last 20 Days)
+    </div>
+
+    <!-- CHART -->
+    <div class="chart-panel">
+      <div class="cp-stripe"></div>
+      <div class="cp-inner">
+        <div class="cp-head">
+          <div class="cp-icon"><i class="fas fa-chart-area"></i></div>
+          <div>
+            <div class="cp-title">Daily Work Time</div>
+            <div class="cp-desc">Last 20 days · Minutes logged per day</div>
+          </div>
+        </div>
+        <canvas id="reportChart"></canvas>
+      </div>
+    </div>
+
+    <!-- SECTION LABEL -->
+    <div class="section-label">
+      <div class="section-label-icon"><i class="fas fa-table"></i></div>
+      Work Records
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-panel">
+      <div class="tp-stripe"></div>
+      <div class="tp-inner">
+        <div class="tp-head">
+          <div class="tp-title-wrap">
+            <div class="tp-icon"><i class="fas fa-list-check"></i></div>
+            <div class="tp-title">Detailed Work Log</div>
+          </div>
+          <span class="tp-count" id="recordCount"><i class="fas fa-database"></i> 0 records</span>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th><i class="fas fa-hashtag"></i> Sl.No</th>
+              <th><i class="fas fa-user"></i> Name</th>
+              <th><i class="fas fa-briefcase"></i> Work Type</th>
+              <th><i class="fas fa-calendar"></i> Date</th>
+              <th><i class="fas fa-id-card"></i> File ID</th>
+              <th><i class="fas fa-hourglass"></i> Time (Sec)</th>
+              <th><i class="fas fa-clock"></i> Time (Min)</th>
+              <th><i class="fas fa-circle-check"></i> Status</th>
+            </tr>
+          </thead>
+          <tbody id="reportTableBody">
+            <tr><td colspan="8"><div class="empty-state"><i class="fas fa-inbox"></i><span>No records yet</span><p>Fetch a report to see data here</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tp-footer" id="tableFooter">—</div>
+    </div>
+
+  </div><!-- /results-wrap -->
+
+</div><!-- /page -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="https://www.quantumcoderstechlab.codes/assets/Data%20Solutions/Logo/QCDL.png"
+      alt="QCDS" class="topbar-logo" id="topbarLogo"
+      onload="this.classList.add('loaded');document.getElementById('logoWrap').style.display='none'"
+      onerror="this.style.display='none'">
+      <div>
+        <div class="footer-brand-name">QuantumCoders Data Solutions</div>
+        <div class="footer-brand-tagline">Member Report Portal · v3.0</div>
+      </div>
+    </div>
+    <div class="footer-address">Berhampur, Odisha, India 760001<br><span style="font-size:0.68rem;color:var(--text-light);">All data sourced from "File Complited" sheet</span></div>
+    <div>
+      <a class="footer-link" href="https://quantumcoderstechlab.codes/quantumcoders-data-solutions.html" target="_blank"><i class="fas fa-globe"></i> Visit Website</a>
+      <div class="footer-copy" style="margin-top:8px;text-align:right;">© 2026 QuantumCoders Tech Lab</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+var STATE = {
+  selectedName: null,    // null = not selected from list
+  allNames: [],          // fetched from server
+  currentData: null,     // last successful fetch result
+  acFocusIdx: -1,        // autocomplete keyboard nav
+  chartInstance: null,
+  fetching: false
+};
+
+/* ═══════════════════════════════════════════════
+   CLOCK
+═══════════════════════════════════════════════ */
+function updateClock() {
+  var now = new Date(), h = now.getHours(), m = now.getMinutes().toString().padStart(2,'0'), s = now.getSeconds().toString().padStart(2,'0');
+  var ampm = h >= 12 ? 'PM' : 'AM'; h = (h % 12 || 12).toString().padStart(2,'0');
+  var el = document.getElementById('topbarClock');
+  if (el) el.textContent = h + ':' + m + ':' + s + ' ' + ampm;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ═══════════════════════════════════════════════
+   TOAST SYSTEM
+═══════════════════════════════════════════════ */
+var toastIcons = { success:'fa-circle-check', error:'fa-circle-xmark', warning:'fa-triangle-exclamation', info:'fa-circle-info' };
+var toastTitles = { success:'Success', error:'Error', warning:'Warning', info:'Info' };
+
+function showToast(type, title, msg, duration) {
+  duration = duration || 4000;
+  var container = document.getElementById('toast-container');
+  var t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  t.innerHTML =
+    '<i class="fas ' + toastIcons[type] + ' toast-icon"></i>' +
+    '<div class="toast-body-wrap">' +
+      '<div class="toast-title">' + (title || toastTitles[type]) + '</div>' +
+      (msg ? '<div class="toast-msg">' + msg + '</div>' : '') +
+    '</div>' +
+    '<button class="toast-close" onclick="dismissToast(this.parentElement)">×</button>';
+  container.appendChild(t);
+  setTimeout(function(){ dismissToast(t); }, duration);
+}
+
+function dismissToast(el) {
+  if (!el || el.classList.contains('out')) return;
+  el.classList.add('out');
+  setTimeout(function(){ if(el.parentElement) el.parentElement.removeChild(el); }, 400);
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  setDefaultDates();
+  loadNames();
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.autocomplete-wrap')) closeAC();
+  });
+});
+
+function setDefaultDates() {
+  var to = new Date();
+  var from = new Date();
+  from.setDate(from.getDate() - 30);
+  document.getElementById('fromDate').value = fmtDateInput(from);
+  document.getElementById('toDate').value = fmtDateInput(to);
+  validateDates();
+}
+
+function fmtDateInput(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function loadNames() {
+  google.script.run
+    .withSuccessHandler(function(names) {
+      STATE.allNames = names || [];
+    })
+    .withFailureHandler(function(e) {
+      showToast('warning','Names not loaded','Could not fetch member list: ' + e);
+    })
+    .getUniqueNames();
+}
+
+/* ═══════════════════════════════════════════════
+   AUTOCOMPLETE
+═══════════════════════════════════════════════ */
+function handleNameInput(val) {
+  STATE.selectedName = null;
+  STATE.acFocusIdx = -1;
+  document.getElementById('nameHint').textContent = 'Type 2+ letters to see suggestions';
+  document.getElementById('nameHint').className = 'field-hint';
+  document.getElementById('nameInput').classList.remove('error');
+
+  if (val.trim().length < 2) {
+    closeAC();
+    return;
+  }
+  var lower = val.trim().toLowerCase();
+  var filtered = STATE.allNames.filter(function(n){ return n.toLowerCase().includes(lower); }).slice(0,10);
+  renderAC(filtered, val);
+}
+
+function renderAC(names, query) {
+  var list = document.getElementById('acList');
+  if (names.length === 0) {
+    list.innerHTML = '<div class="ac-empty"><i class="fas fa-search" style="margin-right:6px;opacity:0.4;"></i>No matching members found</div>';
+    list.classList.add('open');
+    return;
+  }
+  var html = '';
+  names.forEach(function(n, i) {
+    var init = n.charAt(0).toUpperCase();
+    var hl = n.replace(new RegExp('(' + escapeRegex(query.trim()) + ')', 'gi'), '<strong style="color:var(--primary)">$1</strong>');
+    html += '<div class="ac-item" data-name="' + n + '" onmousedown="selectName(\'' + escapeAttr(n) + '\')" data-idx="' + i + '">' +
+      '<div class="ac-avatar">' + init + '</div>' +
+      '<span>' + hl + '</span>' +
+    '</div>';
+  });
+  list.innerHTML = html;
+  list.classList.add('open');
+}
+
+function selectName(name) {
+  STATE.selectedName = name;
+  document.getElementById('nameInput').value = name;
+  document.getElementById('nameHint').textContent = '✓ ' + name + ' selected';
+  document.getElementById('nameHint').className = 'field-hint success';
+  document.getElementById('nameInput').classList.remove('error');
+  closeAC();
+}
+
+function closeAC() {
+  document.getElementById('acList').classList.remove('open');
+  STATE.acFocusIdx = -1;
+}
+
+function handleNameKey(e) {
+  var list = document.getElementById('acList');
+  var items = list.querySelectorAll('.ac-item');
+  if (!list.classList.contains('open') || !items.length) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); STATE.acFocusIdx = Math.min(STATE.acFocusIdx+1, items.length-1); highlightAC(items); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); STATE.acFocusIdx = Math.max(STATE.acFocusIdx-1, -1); highlightAC(items); }
+  else if (e.key === 'Enter') { e.preventDefault(); if(STATE.acFocusIdx>=0 && items[STATE.acFocusIdx]) selectName(items[STATE.acFocusIdx].dataset.name); }
+  else if (e.key === 'Escape') { closeAC(); }
+}
+
+function highlightAC(items) {
+  items.forEach(function(el,i){ el.classList.toggle('focused', i===STATE.acFocusIdx); });
+}
+
+function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function escapeAttr(s) { return s.replace(/'/g,"\\'"); }
+
+/* ═══════════════════════════════════════════════
+   DATE VALIDATION
+═══════════════════════════════════════════════ */
+function validateDates() {
+  var from = document.getElementById('fromDate').value;
+  var to   = document.getElementById('toDate').value;
+  var fromHint = document.getElementById('fromHint');
+  var toHint   = document.getElementById('toHint');
+  var badge    = document.getElementById('daysBadgeWrap');
+
+  fromHint.textContent = '\u00a0'; fromHint.className = 'field-hint';
+  toHint.textContent   = '\u00a0'; toHint.className   = 'field-hint';
+  document.getElementById('fromDate').classList.remove('error');
+  document.getElementById('toDate').classList.remove('error');
+  badge.style.display = 'none';
+
+  if (!from) { fromHint.textContent = '⚠ Please select a from date'; fromHint.className='field-hint danger'; document.getElementById('fromDate').classList.add('error'); return false; }
+  if (!to)   { toHint.textContent   = '⚠ Please select a to date';   toHint.className='field-hint danger'; document.getElementById('toDate').classList.add('error'); return false; }
+
+  var fd = new Date(from), td = new Date(to);
+  if (fd > td) {
+    toHint.textContent = '⚠ To Date must be after From Date'; toHint.className='field-hint danger';
+    document.getElementById('toDate').classList.add('error'); return false;
+  }
+  var days = Math.round((td - fd) / 86400000) + 1;
+  badge.style.display = 'block';
+  document.getElementById('daysBadge').innerHTML = '<i class="fas fa-calendar-range"></i> ' + days + ' day' + (days!==1?'s':'') + ' selected';
+  return true;
+}
+
+/* ═══════════════════════════════════════════════
+   LOADING BAR ANIMATION
+═══════════════════════════════════════════════ */
+var loadingTimer = null;
+function startLoading() {
+  var bar = document.getElementById('loadingBar');
+  var fill = document.getElementById('loadingBarFill');
+  bar.classList.add('active');
+  fill.style.width = '0%';
+  var pct = 0;
+  clearInterval(loadingTimer);
+  loadingTimer = setInterval(function() {
+    if (pct < 85) { pct += Math.random() * 8; fill.style.width = Math.min(pct,85) + '%'; }
+  }, 300);
+}
+function stopLoading() {
+  clearInterval(loadingTimer);
+  var fill = document.getElementById('loadingBarFill');
+  fill.style.width = '100%';
+  setTimeout(function() { document.getElementById('loadingBar').classList.remove('active'); fill.style.width='0%'; }, 400);
+}
+
+/* ═══════════════════════════════════════════════
+   FETCH REPORT
+═══════════════════════════════════════════════ */
+function fetchReport() {
+  // Validate name
+  var nameInput = document.getElementById('nameInput').value.trim();
+  if (!nameInput) {
+    document.getElementById('nameInput').classList.add('error');
+    document.getElementById('nameHint').textContent = '⚠ Please enter your name';
+    document.getElementById('nameHint').className = 'field-hint danger';
+    showToast('error','Name Required','Please type and select your name from the dropdown');
+    return;
+  }
+  if (!STATE.selectedName) {
+    document.getElementById('nameInput').classList.add('error');
+    document.getElementById('nameHint').textContent = '⚠ Please select name from the list — do not type manually';
+    document.getElementById('nameHint').className = 'field-hint danger';
+    showToast('warning','Invalid Selection','Please select your name from the suggestion dropdown, not by typing manually');
+    return;
+  }
+  if (!validateDates()) {
+    showToast('error','Invalid Dates','Please fix the date fields before fetching');
+    return;
+  }
+  if (STATE.fetching) return;
+
+  STATE.fetching = true;
+  var btn = document.getElementById('fetchBtn');
+  btn.disabled = true;
+  btn.classList.add('spin');
+  btn.innerHTML = '<i class="fas fa-rotate"></i> Fetching...';
+
+  startLoading();
+  showToast('info','Fetching Report','Loading data for ' + STATE.selectedName + '…', 6000);
+
+  var from = document.getElementById('fromDate').value;
+  var to   = document.getElementById('toDate').value;
+
+  google.script.run
+    .withSuccessHandler(function(data) {
+      STATE.fetching = false;
+      stopLoading();
+      btn.disabled = false;
+      btn.classList.remove('spin');
+      btn.innerHTML = '<i class="fas fa-search"></i> Fetch Report';
+
+      if (!data || !data.records || data.records.length === 0) {
+        showToast('warning','No Data Found','No records found for ' + STATE.selectedName + ' in the selected date range');
+        document.getElementById('resultsSection').classList.add('hidden');
+        hideActionBtns();
+        return;
+      }
+
+      STATE.currentData = data;
+      renderResults(data);
+      document.getElementById('resultsSection').classList.remove('hidden');
+      showActionBtns();
+      document.getElementById('resultsSection').scrollIntoView({ behavior:'smooth', block:'start' });
+      showToast('success','Report Loaded',data.records.length + ' records found for ' + STATE.selectedName);
+    })
+    .withFailureHandler(function(err) {
+      STATE.fetching = false;
+      stopLoading();
+      btn.disabled = false;
+      btn.classList.remove('spin');
+      btn.innerHTML = '<i class="fas fa-search"></i> Fetch Report';
+      showToast('error','Fetch Failed','Server error: ' + err);
+    })
+    .getFilteredReport(STATE.selectedName, from, to);
+}
+
+/* ═══════════════════════════════════════════════
+   RENDER RESULTS
+═══════════════════════════════════════════════ */
+function renderResults(data) {
+  // Summary cards
+  document.getElementById('statFiles').textContent = data.totalFiles;
+  document.getElementById('statMins').textContent  = data.totalMinutes.toFixed(2);
+  document.getElementById('statHMS').textContent   = data.totalHMS;
+  document.getElementById('statAvg').textContent   = data.avgMinutes.toFixed(2);
+
+  // Rank
+  if (data.rank && data.rank.position) {
+    document.getElementById('rankCard').classList.remove('hidden');
+    var medals = ['🥇','🥈','🥉'];
+    var medal  = medals[data.rank.position - 1] || ('#' + data.rank.position);
+    document.getElementById('rankVal').textContent = medal + ' Rank #' + data.rank.position + ' of ' + data.rank.totalMembers;
+    document.getElementById('rankSub').textContent = data.totalMinutes.toFixed(2) + ' min logged — based on total work time';
+  } else {
+    document.getElementById('rankCard').classList.add('hidden');
+  }
+
+  // Chart
+  renderChart(data.chartData);
+
+  // Table
+  renderTable(data.records);
+
+  // Footer
+  document.getElementById('recordCount').innerHTML = '<i class="fas fa-database"></i> ' + data.records.length + ' records';
+  document.getElementById('tableFooter').textContent =
+    'Showing all ' + data.records.length + ' records for ' + STATE.selectedName + ' · Total: ' + data.totalMinutes.toFixed(2) + ' min';
+}
+
+function renderTable(records) {
+  var tbody = document.getElementById('reportTableBody');
+  if (!records || !records.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fas fa-inbox"></i><span>No records found</span></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = records.map(function(r, i) {
+    var statusClass = getStatusClass(r.finalStatus);
+    return '<tr>' +
+      '<td class="td-mono">' + (r.slNo || 'N/A') + '</td>' +
+      '<td style="font-weight:700;color:var(--text)">' + (r.name || 'N/A') + '</td>' +
+      '<td>' + (r.workType || 'N/A') + '</td>' +
+      '<td class="td-date">' + (r.date || 'N/A') + '</td>' +
+      '<td class="td-mono">' + (r.id || 'N/A') + '</td>' +
+      '<td class="td-mono">' + (r.timeSec ? Number(r.timeSec).toFixed(3) : 'N/A') + '</td>' +
+      '<td class="td-mono">' + (r.timeMin ? Number(r.timeMin).toFixed(2) : 'N/A') + '</td>' +
+      '<td><span class="status-pill ' + statusClass + '">' + (r.finalStatus || 'N/A') + '</span></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function getStatusClass(s) {
+  if (!s) return 'sp-pending';
+  var lower = s.toLowerCase();
+  if (lower.includes('accept')) return 'sp-accepted';
+  if (lower.includes('reject')) return 'sp-rejected';
+  return 'sp-pending';
+}
+
+function renderChart(chartData) {
+  var canvas = document.getElementById('reportChart');
+  var ctx = canvas.getContext('2d');
+  if (STATE.chartInstance) { STATE.chartInstance.destroy(); STATE.chartInstance = null; }
+
+  if (!chartData || !chartData.length) return;
+
+  var labels = chartData.map(function(d){ return d.date; });
+  var values = chartData.map(function(d){ return d.time; });
+
+  STATE.chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Time (Min)',
+        data: values,
+        borderColor: '#0f4c81',
+        backgroundColor: function(ctx) {
+          var g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
+          g.addColorStop(0, 'rgba(15,76,129,0.18)');
+          g.addColorStop(1, 'rgba(15,76,129,0.01)');
+          return g;
+        },
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#0f4c81',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { labels: { font:{ family:'Plus Jakarta Sans', size:12 }, color:'#4a5568', usePointStyle:true } },
+        tooltip: { titleFont:{ family:'Plus Jakarta Sans' }, bodyFont:{ family:'JetBrains Mono' } }
+      },
+      scales: {
+        y: { beginAtZero:true, ticks:{ color:'#8896a5', font:{ family:'JetBrains Mono', size:11 } }, grid:{ color:'rgba(229,231,235,0.6)' } },
+        x: { ticks:{ color:'#8896a5', font:{ family:'Plus Jakarta Sans', size:11 } }, grid:{ color:'rgba(229,231,235,0.4)' } }
+      }
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   ACTION BUTTONS
+═══════════════════════════════════════════════ */
+function showActionBtns() {
+  ['csvBtn','pdfBtn','emailBtn','waBtn'].forEach(function(id){
+    document.getElementById(id).classList.remove('hidden');
+  });
+}
+function hideActionBtns() {
+  ['csvBtn','pdfBtn','emailBtn','waBtn'].forEach(function(id){
+    document.getElementById(id).classList.add('hidden');
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   DOWNLOAD CSV
+═══════════════════════════════════════════════ */
+function downloadCSV() {
+  if (!STATE.currentData) { showToast('error','No Data','Fetch a report first'); return; }
+  var rows = STATE.currentData.records;
+  var header = 'Sl.No,Name,Work Type,Date,File ID,Time (Sec),Time (Min),Final Status\n';
+  var body = rows.map(function(r) {
+    return [r.slNo||'N/A', '"'+(r.name||'N/A')+'"', '"'+(r.workType||'N/A')+'"',
+      r.date||'N/A', r.id||'N/A',
+      r.timeSec ? Number(r.timeSec).toFixed(3) : 'N/A',
+      r.timeMin ? Number(r.timeMin).toFixed(2) : 'N/A',
+      '"'+(r.finalStatus||'N/A')+'"'].join(',');
+  }).join('\n');
+  var csv = header + body;
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'Report_' + STATE.selectedName.replace(/\s+/g,'_') + '_' + new Date().toISOString().split('T')[0] + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  showToast('success','CSV Downloaded','Your report has been downloaded');
+}
+
+/* ═══════════════════════════════════════════════
+   DOWNLOAD PDF
+═══════════════════════════════════════════════ */
+function downloadPDF() {
+  if (!STATE.currentData) { showToast('error','No Data','Fetch a report first'); return; }
+  var d = STATE.currentData;
+  var name = STATE.selectedName;
+  var from = document.getElementById('fromDate').value;
+  var to   = document.getElementById('toDate').value;
+  var rows = d.records.slice(0, 200);
+
+  var tableRows = rows.map(function(r, i) {
+    var bg = i % 2 === 0 ? '#fff' : '#f8fafc';
+    return '<tr style="background:' + bg + '">' +
+      '<td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:11px">' + (r.slNo||'N/A') + '</td>' +
+      '<td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:11px">' + (r.date||'N/A') + '</td>' +
+      '<td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:11px">' + (r.workType||'N/A') + '</td>' +
+      '<td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:11px">' + (r.id||'N/A') + '</td>' +
+      '<td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:11px;text-align:right">' + (r.timeMin ? Number(r.timeMin).toFixed(2) : 'N/A') + '</td>' +
+      '<td style="padding:7px 10px;border:1px solid #e2e8f0;font-size:11px">' + (r.finalStatus||'N/A') + '</td>' +
+    '</tr>';
+  }).join('');
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Report</title></head><body style="margin:20px;font-family:Arial,sans-serif">' +
+    '<div style="text-align:center;margin-bottom:20px">' +
+    '<div style="font-size:22px;font-weight:800;color:#0f4c81">QuantumCoders Data Solutions</div>' +
+    '<div style="font-size:15px;font-weight:700;margin:6px 0">Personal Work Report</div>' +
+    '<div style="font-size:13px;color:#4a5568">' + name + ' · ' + from + ' to ' + to + '</div></div>' +
+    '<table style="width:100%;border-collapse:collapse;margin-bottom:16px"><tr style="background:#f0f4f9">' +
+    '<td style="padding:9px 12px;border:1px solid #e2e8f0;font-weight:700;font-size:12px">Total Files</td><td style="padding:9px 12px;border:1px solid #e2e8f0;font-size:12px">' + d.totalFiles + '</td>' +
+    '<td style="padding:9px 12px;border:1px solid #e2e8f0;font-weight:700;font-size:12px">Total Time (Min)</td><td style="padding:9px 12px;border:1px solid #e2e8f0;font-size:12px">' + d.totalMinutes.toFixed(2) + '</td>' +
+    '<td style="padding:9px 12px;border:1px solid #e2e8f0;font-weight:700;font-size:12px">Total Time (H:M:S)</td><td style="padding:9px 12px;border:1px solid #e2e8f0;font-size:12px">' + d.totalHMS + '</td>' +
+    '</tr></table>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:12px">' +
+    '<thead><tr style="background:#0f4c81;color:white"><th style="padding:8px 10px;border:1px solid #1a6bb5;text-align:left">Sl</th><th style="padding:8px 10px;border:1px solid #1a6bb5;text-align:left">Date</th><th style="padding:8px 10px;border:1px solid #1a6bb5;text-align:left">Type</th><th style="padding:8px 10px;border:1px solid #1a6bb5;text-align:left">ID</th><th style="padding:8px 10px;border:1px solid #1a6bb5;text-align:right">Min</th><th style="padding:8px 10px;border:1px solid #1a6bb5;text-align:left">Status</th></tr></thead>' +
+    '<tbody>' + tableRows + '</tbody></table>' +
+    '<div style="margin-top:20px;font-size:10px;color:#8896a5;border-top:1px solid #e2e8f0;padding-top:10px">Generated: ' + new Date().toLocaleString() + ' · QuantumCoders Data Solutions</div>' +
+    '</body></html>';
+
+  var win = window.open('','_blank');
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+    setTimeout(function(){ win.print(); }, 800);
+    showToast('success','PDF Ready','Print dialog opened — Save as PDF');
+  } else {
+    showToast('warning','Popup Blocked','Please allow popups and try again');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   WHATSAPP SHARE
+═══════════════════════════════════════════════ */
+function shareWhatsApp() {
+  if (!STATE.currentData) { showToast('error','No Data','Fetch a report first'); return; }
+  var d = STATE.currentData;
+  var msg = '📊 *My Work Report — ' + STATE.selectedName + '*\n\n' +
+    '📁 Total Files: ' + d.totalFiles + '\n' +
+    '⏱ Total Time: ' + d.totalMinutes.toFixed(2) + ' min (' + d.totalHMS + ')\n' +
+    '📊 Avg per File: ' + d.avgMinutes.toFixed(2) + ' min\n' +
+    (d.rank && d.rank.position ? '🏆 Rank: #' + d.rank.position + ' of ' + d.rank.totalMembers + ' members\n' : '') +
+    '\n— QuantumCoders Data Solutions';
+  window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msg), '_blank');
+}
+
+/* ═══════════════════════════════════════════════
+   EMAIL MODAL
+═══════════════════════════════════════════════ */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function submitEmail() {
+  if (!STATE.currentData) { showToast('error','No Data','Fetch report first'); return; }
+  var email = document.getElementById('emailInput').value.trim();
+  var hint  = document.getElementById('emailHint');
+  if (!email) { hint.textContent='⚠ Email is required'; hint.className='field-hint danger'; document.getElementById('emailInput').classList.add('error'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { hint.textContent='⚠ Invalid email format'; hint.className='field-hint danger'; document.getElementById('emailInput').classList.add('error'); return; }
+
+  var btn = document.getElementById('sendEmailBtn');
+  btn.disabled = true;
+  btn.classList.add('spin');
+  btn.innerHTML = '<i class="fas fa-rotate"></i> Sending...';
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      btn.disabled = false;
+      btn.classList.remove('spin');
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Email';
+      if (result.success) {
+        closeModal('emailModal');
+        document.getElementById('emailInput').value = '';
+        showToast('success','Email Sent',result.message);
+      } else {
+        hint.textContent = '⚠ ' + (result.message || 'Failed to send');
+        hint.className = 'field-hint danger';
+        showToast('error','Email Failed', result.message || 'Server error');
+      }
+    })
+    .withFailureHandler(function(err) {
+      btn.disabled = false;
+      btn.classList.remove('spin');
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Email';
+      showToast('error','Email Failed', String(err));
+    })
+    .sendReportEmail(email, STATE.currentData, STATE.selectedName);
+}
+
+/* ═══════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════ */
+function resetAll() {
+  STATE.selectedName = null;
+  STATE.currentData  = null;
+  document.getElementById('nameInput').value = '';
+  document.getElementById('nameInput').classList.remove('error');
+  document.getElementById('nameHint').textContent = 'Start typing your name to see suggestions';
+  document.getElementById('nameHint').className = 'field-hint';
+  document.getElementById('resultsSection').classList.add('hidden');
+  hideActionBtns();
+  setDefaultDates();
+  closeAC();
+  showToast('info','Reset','Form has been cleared');
+}
+
+/* ═══════════════════════════════════════════════
+   CLOSE MODAL ON OVERLAY CLICK
+═══════════════════════════════════════════════ */
+document.getElementById('emailModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal('emailModal');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Email System – QuantumCoders Data Solutions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --navy:#0B1F3A; --navy2:#112444; --navy3:#0d2952;
+      --blue:#1456A8; --blue2:#1a6bbf; --blue3:#2382e0;
+      --sky:#38b6ff; --sky2:#61c6ff;
+      --accent:#f0a500; --accent2:#f7c232;
+      --success:#10b981; --danger:#ef4444; --warn:#f59e0b;
+      --text:#0d1b2e; --text2:#334155; --text3:#64748b; --text4:#94a3b8;
+      --bg:#f1f5f9; --bg2:#ffffff; --bg3:#e8eef6; --bg4:#f8fafc;
+      --card:#ffffff;
+      --border:rgba(20,86,168,0.1); --border2:rgba(20,86,168,0.22);
+      --shadow:0 4px 20px rgba(11,31,58,0.08);
+      --shadow2:0 12px 40px rgba(11,31,58,0.14);
+      --shadow3:0 24px 60px rgba(11,31,58,0.2);
+      --r:14px; --r2:20px; --r3:28px;
+      --tr:all 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:
+        radial-gradient(ellipse 90% 60% at -5% 0%,rgba(20,86,168,0.07) 0%,transparent 60%),
+        radial-gradient(ellipse 50% 50% at 105% 100%,rgba(56,182,255,0.06) 0%,transparent 55%);
+    }
+    body::after{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background-image:linear-gradient(rgba(20,86,168,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(20,86,168,0.035) 1px,transparent 1px);
+      background-size:48px 48px;
+    }
+
+    /* ── LOGIN ── */
+    #loginScreen{
+      position:fixed;inset:0;z-index:99999;
+      background:linear-gradient(145deg,#05101e 0%,#0a1e3a 45%,#0e2b52 80%,#0f3566 100%);
+      display:flex;align-items:center;justify-content:center;padding:20px;
+      transition:opacity 0.5s ease;
+    }
+    #loginScreen.hiding{opacity:0;pointer-events:none}
+    #loginScreen::before{
+      content:'';position:absolute;inset:0;
+      background-image:radial-gradient(circle,rgba(255,255,255,0.06) 1px,transparent 1px);
+      background-size:36px 36px;animation:gridDrift 25s linear infinite;
+    }
+    #loginScreen::after{
+      content:'';position:absolute;inset:0;pointer-events:none;
+      background:
+        radial-gradient(ellipse 60% 50% at 10% 15%,rgba(56,182,255,0.13) 0%,transparent 60%),
+        radial-gradient(ellipse 45% 55% at 90% 85%,rgba(240,165,0,0.09) 0%,transparent 55%);
+    }
+    @keyframes gridDrift{from{background-position:0 0}to{background-position:36px 36px}}
+
+    .login-card{
+      position:relative;z-index:1;width:100%;max-width:460px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.11);
+      border-radius:var(--r3);padding:48px 44px 44px;
+      backdrop-filter:blur(28px) saturate(160%);
+      box-shadow:0 48px 96px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.09);
+      animation:cardUp 0.65s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes cardUp{from{opacity:0;transform:translateY(36px) scale(0.96)}to{opacity:1;transform:none}}
+    .login-card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      border-radius:var(--r3) var(--r3) 0 0;
+      background:linear-gradient(90deg,var(--blue),var(--sky),var(--accent));
+    }
+
+    .lc-brand{display:flex;align-items:center;gap:16px;margin-bottom:36px}
+    .lc-logo-box{
+      width:54px;height:54px;border-radius:14px;flex-shrink:0;
+      background:linear-gradient(135deg,var(--navy2),var(--blue2));
+      display:flex;align-items:center;justify-content:center;font-size:1.35rem;color:white;
+      box-shadow:0 8px 24px rgba(20,86,168,0.5);
+    }
+    .lc-brand-name{font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:800;
+      background:linear-gradient(90deg,#dceeff,var(--sky));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:0.3px}
+    .lc-brand-sub{font-size:0.62rem;font-weight:600;color:var(--accent2);letter-spacing:2.2px;text-transform:uppercase;margin-top:3px}
+    .lc-title{font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:800;color:#fff;margin-bottom:6px}
+    .lc-sub{font-size:0.83rem;color:rgba(255,255,255,0.48);margin-bottom:36px;font-weight:400}
+    .lc-label{font-size:0.67rem;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+    .lc-label i{font-size:0.6rem;color:var(--sky)}
+    .lc-input-wrap{position:relative}
+    .lc-input{
+      width:100%;padding:15px 48px 15px 18px;
+      background:rgba(255,255,255,0.06);
+      border:1.5px solid rgba(255,255,255,0.11);
+      border-radius:var(--r);color:#fff;
+      font-family:'DM Sans',sans-serif;font-size:0.93rem;font-weight:500;
+      outline:none;transition:border-color 0.25s,background 0.25s,box-shadow 0.25s;
+      letter-spacing:2.5px;
+    }
+    .lc-input::placeholder{color:rgba(255,255,255,0.26);letter-spacing:0.5px;font-size:0.83rem}
+    .lc-input:focus{border-color:var(--sky);background:rgba(255,255,255,0.09);box-shadow:0 0 0 4px rgba(56,182,255,0.14)}
+    .lc-input.err{border-color:var(--danger);animation:shake 0.38s ease;box-shadow:0 0 0 4px rgba(239,68,68,0.13)}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+    .lc-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.33);font-size:0.83rem;transition:color 0.2s;padding:4px}
+    .lc-eye:hover{color:rgba(255,255,255,0.68)}
+    .lc-err{
+      display:flex;align-items:center;gap:7px;
+      background:rgba(239,68,68,0.11);border:1px solid rgba(239,68,68,0.28);
+      border-radius:9px;padding:10px 14px;font-size:0.74rem;color:#fca5a5;font-weight:600;
+      margin-top:10px;opacity:0;transform:translateY(-3px);transition:opacity 0.2s,transform 0.2s;
+    }
+    .lc-err.show{opacity:1;transform:translateY(0)}
+    .lc-btn{
+      width:100%;margin-top:12px;padding:16px;
+      background:linear-gradient(135deg,var(--navy3),var(--blue),var(--blue2));
+      color:#fff;border:none;border-radius:var(--r);
+      font-family:'DM Sans',sans-serif;font-size:0.93rem;font-weight:700;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+      transition:transform 0.25s,box-shadow 0.25s;
+      box-shadow:0 8px 28px rgba(20,86,168,0.5);position:relative;overflow:hidden;
+    }
+    .lc-btn::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.14),transparent);transition:0.5s}
+    .lc-btn:hover::after{left:100%}
+    .lc-btn:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(20,86,168,0.6)}
+    .lc-btn:disabled{opacity:0.55;cursor:not-allowed;transform:none}
+    .lc-spin{display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,0.28);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite}
+    .lc-btn.loading .lc-spin{display:block}
+    .lc-btn.loading .lc-btn-text{display:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .lc-footer{margin-top:28px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.07);text-align:center;font-size:0.64rem;color:rgba(255,255,255,0.32);font-weight:600}
+    .lc-footer i{color:var(--success);font-size:0.58rem;margin-right:4px}
+
+    /* ── TOPBAR ── */
+    .topbar{
+      position:sticky;top:0;z-index:100;width:100%;
+      background:rgba(255,255,255,0.93);backdrop-filter:blur(24px) saturate(180%);
+      border-bottom:1px solid var(--border);
+      box-shadow:0 1px 0 var(--border),0 2px 12px rgba(0,0,0,0.05);
+      padding:0 28px;height:64px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .tb-brand{display:flex;align-items:center;gap:14px;text-decoration:none}
+    .tb-logo-wrap{width:40px;height:40px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--navy),var(--blue));display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(20,86,168,0.3)}
+    .tb-logo-wrap i{color:#fff;font-size:1.1rem}
+    .tb-logo-img{height:34px;width:auto;display:none}
+    .tb-logo-img.loaded{display:block}
+    .tb-divider{width:1.5px;height:30px;background:linear-gradient(to bottom,transparent,var(--border2),transparent)}
+    .tb-name{font-family:'Syne',sans-serif;font-size:0.84rem;font-weight:800;background:linear-gradient(135deg,var(--navy),var(--blue2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .tb-sub{font-size:0.58rem;font-weight:700;color:var(--accent);letter-spacing:2.5px;text-transform:uppercase;margin-top:1px}
+    .tb-right{display:flex;align-items:center;gap:8px}
+    .timer-badge{display:flex;align-items:center;gap:6px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.18);border-radius:50px;padding:5px 13px;font-size:0.65rem;font-weight:700;color:var(--danger)}
+    .timer-badge i{font-size:0.58rem}
+    .tb-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:50px;border:1.5px solid var(--border2);background:transparent;font-family:'DM Sans',sans-serif;font-size:0.67rem;font-weight:700;color:var(--text3);cursor:pointer;transition:var(--tr);text-transform:uppercase}
+    .tb-btn:hover{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.3);color:var(--danger)}
+
+    /* ── PAGE ── */
+    .page{position:relative;z-index:1;width:100%;max-width:1140px;padding:36px 22px 64px;display:flex;flex-direction:column;gap:24px}
+
+    /* ── HERO ── */
+    .hero{
+      background:linear-gradient(130deg,#071629 0%,#0b2040 35%,var(--blue) 75%,var(--blue2) 100%);
+      border-radius:var(--r3);padding:36px 44px 32px;position:relative;overflow:hidden;
+      box-shadow:var(--shadow3);
+    }
+    .hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,0.06) 1px,transparent 1px);background-size:26px 26px}
+    .hero::after{content:'';position:absolute;top:-100px;right:-80px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(56,182,255,0.16) 0%,transparent 65%);pointer-events:none}
+    .hero-inner{position:relative;z-index:1;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+    .hero-ico{width:66px;height:66px;border-radius:18px;flex-shrink:0;border:1px solid rgba(255,255,255,0.16);background:rgba(255,255,255,0.09);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:1.75rem;color:#fff}
+    .hero-tag{font-size:0.6rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.48);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+    .hero-tag::before{content:'';width:14px;height:1px;background:rgba(255,255,255,0.28)}
+    .hero-title{font-family:'Syne',sans-serif;font-size:clamp(1.35rem,3.5vw,2rem);font-weight:800;color:#fff;margin-bottom:5px}
+    .hero-sub{font-size:0.83rem;color:rgba(255,255,255,0.58);font-weight:400}
+    .hero-pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:5px}
+    .hero-pill{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.13);border-radius:50px;padding:5px 13px;font-size:0.68rem;font-weight:600;color:rgba(255,255,255,0.82)}
+    .hero-pill i{font-size:0.6rem;margin-right:4px;opacity:0.7}
+
+    /* ── GRID ── */
+    .main-grid{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+
+    /* ── CARDS ── */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);box-shadow:var(--shadow);overflow:hidden}
+    .card-stripe{height:3.5px}
+    .cs-navy{background:linear-gradient(90deg,var(--navy),var(--blue2),var(--sky))}
+    .cs-gold{background:linear-gradient(90deg,#92530a,var(--accent),var(--accent2))}
+    .cs-green{background:linear-gradient(90deg,#065f46,var(--success),#34d399)}
+    .cs-red{background:linear-gradient(90deg,#7f1d1d,var(--danger),#f87171)}
+    .card-body{padding:22px}
+    .card-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:15px;border-bottom:1px solid var(--border)}
+    .card-icon{width:40px;height:40px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff}
+    .ci-navy{background:linear-gradient(135deg,var(--navy),var(--blue2));box-shadow:0 4px 14px rgba(20,86,168,0.32)}
+    .ci-gold{background:linear-gradient(135deg,#92530a,var(--accent));box-shadow:0 4px 14px rgba(240,165,0,0.32)}
+    .ci-green{background:linear-gradient(135deg,#065f46,var(--success));box-shadow:0 4px 14px rgba(16,185,129,0.28)}
+    .ci-red{background:linear-gradient(135deg,#7f1d1d,var(--danger));box-shadow:0 4px 14px rgba(239,68,68,0.28)}
+    .ci-sky{background:linear-gradient(135deg,var(--blue),var(--sky));box-shadow:0 4px 14px rgba(56,182,255,0.28)}
+    .card-title{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;color:var(--text)}
+    .card-desc{font-size:0.7rem;color:var(--text4);margin-top:2px}
+
+    /* ── MODE TABS ── */
+    .mode-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;background:var(--bg3);border-radius:var(--r);padding:4px;margin-bottom:16px}
+    .mode-tab{padding:9px 5px;border-radius:10px;border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:600;color:var(--text3);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:5px}
+    .mode-tab.on{background:#fff;color:var(--blue);box-shadow:0 2px 10px rgba(0,0,0,0.07)}
+    .mode-tab i{font-size:0.63rem}
+
+    /* ── SEND MODE TOGGLE ── */
+    .send-mode-toggle{display:flex;gap:6px;margin-bottom:16px}
+    .smt-btn{flex:1;padding:10px 8px;border-radius:var(--r);border:1.5px solid var(--border2);background:var(--bg4);font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:600;color:var(--text3);cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:7px;text-align:center}
+    .smt-btn.on{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:0 4px 14px rgba(11,31,58,0.28)}
+    .smt-btn i{font-size:0.65rem}
+    .mode-note{font-size:0.69rem;color:var(--text3);background:rgba(20,86,168,0.05);border:1px solid var(--border);border-radius:9px;padding:9px 12px;display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+    .mode-note i{font-size:0.62rem;color:var(--sky);margin-top:2px;flex-shrink:0}
+    .mode-note.group-note{background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.2)}
+    .mode-note.group-note i{color:var(--success)}
+
+    /* ── TAGS ── */
+    .tags-wrap{display:flex;flex-wrap:wrap;gap:5px;min-height:34px;padding:7px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:9px;transition:border-color 0.2s}
+    .tags-wrap:focus-within{border-color:var(--blue)}
+    .r-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(20,86,168,0.08);border:1px solid rgba(20,86,168,0.2);border-radius:50px;padding:3px 9px;font-size:0.69rem;font-weight:600;color:var(--blue)}
+    .r-tag button{background:none;border:none;cursor:pointer;color:var(--blue);font-size:0.58rem;opacity:0.65;padding:0;display:flex;align-items:center}
+    .r-tag button:hover{opacity:1}
+    .r-count{display:inline-flex;align-items:center;gap:5px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.24);border-radius:50px;padding:3px 9px;font-size:0.69rem;font-weight:700;color:#059669}
+    .ph-text{font-size:0.7rem;color:var(--text4);align-self:center;padding:2px}
+
+    /* ── SEARCH ── */
+    .search-wrap{position:relative;margin-bottom:9px}
+    .search-inp{width:100%;padding:10px 13px 10px 34px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.83rem;outline:none;transition:border-color 0.25s,box-shadow 0.25s}
+    .search-inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(20,86,168,0.08)}
+    .search-inp::placeholder{color:var(--text4)}
+    .search-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:0.72rem;color:var(--text4)}
+    .member-list{max-height:210px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r);background:#fff}
+    .member-list::-webkit-scrollbar{width:4px}
+    .member-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+    .m-item{display:flex;align-items:center;gap:9px;padding:9px 11px;cursor:pointer;transition:background 0.14s;border-bottom:1px solid var(--border)}
+    .m-item:last-child{border-bottom:none}
+    .m-item:hover{background:rgba(20,86,168,0.04)}
+    .m-item.sel{background:rgba(20,86,168,0.07)}
+    .m-av{width:28px;height:28px;border-radius:7px;flex-shrink:0;background:linear-gradient(135deg,var(--blue),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:800;color:#fff;font-family:'Syne',sans-serif}
+    .m-name{font-size:0.78rem;font-weight:600;color:var(--text)}
+    .m-email{font-size:0.65rem;color:var(--text4);margin-top:1px}
+    .m-chk{width:17px;height:17px;border-radius:5px;border:1.5px solid var(--border2);background:var(--bg);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+    .m-item.sel .m-chk{background:var(--blue);border-color:var(--blue)}
+    .m-chk i{font-size:0.58rem;color:#fff;display:none}
+    .m-item.sel .m-chk i{display:block}
+    .m-empty{padding:22px;text-align:center;font-size:0.76rem;color:var(--text4)}
+
+    /* ── PASTE ── */
+    .paste-area{width:100%;padding:11px 13px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.8rem;outline:none;resize:vertical;min-height:88px;transition:border-color 0.25s}
+    .paste-area:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(20,86,168,0.07)}
+    .detect-btn{width:100%;padding:10px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;border:none;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:0.76rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:7px;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 14px rgba(20,86,168,0.28)}
+    .detect-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(20,86,168,0.38)}
+
+    /* ── ALL MODE ── */
+    .all-info{background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(56,182,255,0.06));border:1px solid rgba(16,185,129,0.18);border-radius:var(--r);padding:16px;text-align:center}
+    .all-count{font-family:'JetBrains Mono',monospace;font-size:2.2rem;font-weight:700;color:var(--blue)}
+    .all-label{font-size:0.7rem;color:var(--text3);margin-top:3px;font-weight:600}
+    .all-pills{margin-top:11px;max-height:110px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:4px}
+    .email-pill{background:rgba(20,86,168,0.07);border:1px solid var(--border);border-radius:50px;padding:2px 8px;font-size:0.6rem;font-weight:600;color:var(--blue)}
+
+    /* ── QUOTA PANEL ── */
+    .quota-panel{border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+    .quota-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;background:var(--bg4);transition:background 0.2s;user-select:none}
+    .quota-header:hover{background:var(--bg3)}
+    .quota-header-left{display:flex;align-items:center;gap:10px;font-size:0.82rem;font-weight:700;color:var(--text)}
+    .quota-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--sky));display:flex;align-items:center;justify-content:center;font-size:0.78rem;color:#fff}
+    .quota-chevron{font-size:0.65rem;color:var(--text4);transition:transform 0.3s}
+    .quota-chevron.open{transform:rotate(180deg)}
+    .quota-body{display:none;padding:18px;border-top:1px solid var(--border)}
+    .quota-body.open{display:block}
+    .quota-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .quota-stat{display:flex;flex-direction:column;gap:3px}
+    .quota-stat-val{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--blue);line-height:1}
+    .quota-stat-label{font-size:0.66rem;color:var(--text4);font-weight:500}
+    .status-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:50px;font-size:0.68rem;font-weight:700}
+    .sb-sent{background:rgba(16,185,129,0.1);color:#059669;border:1px solid rgba(16,185,129,0.22)}
+    .sb-pending{background:rgba(245,158,11,0.1);color:#d97706;border:1px solid rgba(245,158,11,0.22)}
+    .quota-bar-bg{background:var(--bg3);border-radius:50px;height:7px;overflow:hidden;margin-bottom:5px}
+    .quota-bar-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--blue),var(--sky));transition:width 0.6s ease}
+    .quota-bar-labels{display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text4);margin-bottom:14px}
+    .refresh-btn{width:100%;padding:9px;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:600;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:var(--tr)}
+    .refresh-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+    /* ── BATCH PREVIEW ── */
+    .batch-summary{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.18);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .bs-num{font-family:'JetBrains Mono',monospace;font-size:1.35rem;font-weight:700;color:var(--blue);line-height:1}
+    .bs-label{font-size:0.74rem;font-weight:700;color:var(--text);line-height:1.3}
+    .bs-sub{font-size:0.63rem;color:var(--text4)}
+    .batch-item{display:flex;align-items:center;gap:7px;padding:8px 11px;background:var(--bg);border:1px solid var(--border);border-radius:9px;margin-bottom:6px}
+    .batch-num{width:22px;height:22px;border-radius:5px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:flex;align-items:center;justify-content:center;font-size:0.63rem;font-weight:800;color:#fff;flex-shrink:0}
+    .batch-info{flex:1}
+    .batch-info-main{font-size:0.74rem;font-weight:700;color:var(--text)}
+    .batch-info-sub{font-size:0.62rem;color:var(--text4)}
+    .batch-cnt{font-size:0.68rem;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--blue)}
+
+    /* ── FORM ── */
+    .form-group{display:flex;flex-direction:column;gap:7px;margin-bottom:18px}
+    .form-group:last-child{margin-bottom:0}
+    .form-label{font-size:0.67rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);display:flex;align-items:center;gap:6px}
+    .form-label i{font-size:0.6rem;opacity:0.75}
+    .form-input{width:100%;padding:12px 15px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.87rem;outline:none;transition:border-color 0.25s,box-shadow 0.25s,background 0.25s}
+    .form-input:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 4px rgba(20,86,168,0.08)}
+    .form-input::placeholder{color:var(--text4)}
+    .form-select{width:100%;padding:12px 15px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.87rem;outline:none;transition:border-color 0.25s;cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+    .form-select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(20,86,168,0.08)}
+
+    /* ── EDITOR ── */
+    .editor-wrap{border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color 0.25s,box-shadow 0.25s}
+    .editor-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 4px rgba(20,86,168,0.08)}
+    .editor-tb{display:flex;align-items:center;gap:2px;padding:7px 9px;background:var(--bg3);border-bottom:1px solid var(--border);flex-wrap:wrap}
+    .tb-grp{display:flex;align-items:center;gap:1px;padding:0 5px;border-right:1px solid var(--border)}
+    .tb-grp:last-child{border-right:none;padding-right:0;margin-left:auto}
+    .tb-b{width:27px;height:27px;border-radius:5px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.74rem;color:var(--text3);transition:background 0.14s,color 0.14s;font-family:'DM Sans',sans-serif;font-weight:700}
+    .tb-b:hover{background:#fff;color:var(--blue)}
+    .editor-area{min-height:180px;max-height:320px;overflow-y:auto;padding:14px 16px;outline:none;font-family:'DM Sans',sans-serif;font-size:0.88rem;line-height:1.75;color:var(--text);background:#fff}
+    .editor-area:empty::before{content:attr(data-placeholder);color:var(--text4);font-size:0.83rem;pointer-events:none}
+    .editor-area::-webkit-scrollbar{width:4px}
+    .editor-area::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+    .editor-foot{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--bg3);border-top:1px solid var(--border)}
+    .editor-chars{font-size:0.61rem;color:var(--text4);font-family:'JetBrains Mono',monospace}
+    .editor-note{font-size:0.61rem;color:var(--text4);display:flex;align-items:center;gap:4px}
+    .editor-note i{color:var(--success);font-size:0.57rem}
+
+    /* ── TREND BUTTON & SECTION ── */
+    .trend-btn{
+      display:flex;align-items:center;gap:9px;padding:11px 18px;
+      background:linear-gradient(135deg,rgba(240,165,0,0.1),rgba(247,194,50,0.08));
+      border:1.5px solid rgba(240,165,0,0.3);border-radius:var(--r);
+      font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700;color:#92530a;
+      cursor:pointer;width:100%;transition:var(--tr);
+    }
+    .trend-btn:hover{background:linear-gradient(135deg,rgba(240,165,0,0.18),rgba(247,194,50,0.14));border-color:rgba(240,165,0,0.5);transform:translateY(-1px)}
+    .trend-btn i{font-size:0.75rem;color:var(--accent)}
+    .trend-section{
+      display:none;background:linear-gradient(135deg,#fffbf0,#fff9e8);
+      border:1.5px solid rgba(240,165,0,0.25);border-radius:var(--r);padding:16px;margin-top:8px;
+    }
+    .trend-section.open{display:block;animation:fadeUp 0.25s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .trend-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .trend-inp{flex:1;min-width:80px;padding:8px 12px;background:#fff;border:1.5px solid rgba(240,165,0,0.3);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:0.9rem;font-weight:700;color:#92530a;outline:none;text-align:center;transition:border-color 0.2s}
+    .trend-inp:focus{border-color:var(--accent)}
+    .trend-dir{display:flex;gap:5px}
+    .trend-dir-btn{padding:7px 12px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg);font-size:0.72rem;font-weight:700;cursor:pointer;transition:var(--tr);font-family:'DM Sans',sans-serif}
+    .trend-dir-btn.on.up{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#059669}
+    .trend-dir-btn.on.down{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--danger)}
+    .trend-insert-btn{padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.74rem;font-weight:700;cursor:pointer;transition:var(--tr);display:flex;align-items:center;gap:6px}
+    .trend-insert-btn:hover{background:#d48f00;transform:translateY(-1px)}
+    .trend-auto-btn{padding:8px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:600;color:var(--text3);cursor:pointer;transition:var(--tr);display:flex;align-items:center;gap:5px}
+    .trend-auto-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+    .trend-preview-box{margin-top:10px;background:#fff;border:1px solid rgba(240,165,0,0.2);border-radius:9px;padding:10px 14px;font-size:0.78rem;color:var(--text2);display:flex;align-items:center;gap:9px}
+    .trend-preview-box i{font-size:0.8rem}
+
+    /* ── ATTACH ── */
+    .attach-zone{border:1.5px dashed var(--border2);border-radius:var(--r);padding:14px 16px;background:var(--bg);cursor:pointer;transition:border-color 0.25s,background 0.25s;position:relative}
+    .attach-zone:hover,.attach-zone.over{border-color:var(--blue);background:rgba(20,86,168,0.03)}
+    .attach-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .attach-inner{display:flex;align-items:center;gap:11px;pointer-events:none}
+    .attach-ico{width:36px;height:36px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,rgba(20,86,168,0.09),rgba(56,182,255,0.09));border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:0.88rem;color:var(--blue)}
+    .attach-main{font-size:0.78rem;font-weight:700;color:var(--text)}
+    .attach-sub{font-size:0.66rem;color:var(--text4);margin-top:1px}
+    .attach-types{margin-left:auto;display:flex;flex-wrap:wrap;gap:3px;pointer-events:none}
+    .at-pill{background:var(--bg3);border:1px solid var(--border);border-radius:50px;padding:2px 7px;font-size:0.55rem;font-weight:700;color:var(--text3);text-transform:uppercase}
+    .attached-list{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+    .att-item{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:7px 9px;animation:fadeUp 0.2s ease}
+    .att-thumb{width:32px;height:32px;border-radius:6px;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
+    .att-file-ico{width:32px;height:32px;border-radius:6px;flex-shrink:0;background:linear-gradient(135deg,var(--blue),var(--sky));display:flex;align-items:center;justify-content:center;font-size:0.82rem;color:#fff}
+    .att-name{font-size:0.74rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .att-size{font-size:0.61rem;color:var(--text4)}
+    .att-rm{width:25px;height:25px;border-radius:6px;flex-shrink:0;border:1px solid var(--border);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.62rem;color:var(--text4);transition:var(--tr)}
+    .att-rm:hover{background:rgba(239,68,68,0.08);color:var(--danger);border-color:rgba(239,68,68,0.28)}
+
+    /* ── PREVIEW ── */
+    .preview-toggle{width:100%;padding:10px 15px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:0.76rem;font-weight:600;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:var(--tr)}
+    .preview-toggle:hover{border-color:var(--blue);color:var(--blue)}
+    .preview-toggle i.ch{font-size:0.63rem;transition:transform 0.28s}
+    .preview-toggle.open i.ch{transform:rotate(180deg)}
+    .preview-box{display:none;border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-top:7px}
+    .preview-box.open{display:block}
+    .preview-bar{background:var(--bg3);padding:8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+    .pdot{width:8px;height:8px;border-radius:50%}
+    .preview-content{background:#fff;padding:10px}
+    .preview-frame{width:100%;min-height:200px;border:none;border-radius:8px;background:#fff}
+
+    /* ── EMAIL HISTORY ── */
+    .history-table{width:100%;border-collapse:collapse;font-size:0.76rem}
+    .history-table th{padding:8px 12px;text-align:left;font-size:0.64rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text4);border-bottom:1.5px solid var(--border);background:var(--bg4)}
+    .history-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+    .history-table tr:last-child td{border-bottom:none}
+    .history-table tr:hover td{background:rgba(20,86,168,0.03)}
+    .hist-status{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:50px;font-size:0.65rem;font-weight:700}
+    .hs-sent{background:rgba(16,185,129,0.1);color:#059669;border:1px solid rgba(16,185,129,0.2)}
+    .hs-fail{background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.2)}
+    .hist-mode{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:50px;font-size:0.62rem;font-weight:600;background:rgba(20,86,168,0.08);border:1px solid var(--border);color:var(--blue)}
+    .history-empty{text-align:center;padding:28px;font-size:0.78rem;color:var(--text4);font-style:italic}
+
+    /* ── SEND SECTION ── */
+    .send-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);box-shadow:var(--shadow);overflow:hidden}
+    .send-stripe{height:3.5px;background:linear-gradient(90deg,var(--navy),var(--blue),var(--sky),var(--accent))}
+    .send-inner{padding:22px 24px}
+    .send-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+    .send-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:50px;font-size:0.7rem;font-weight:600;background:var(--bg);border:1px solid var(--border);color:var(--text3)}
+    .send-chip i{font-size:0.62rem}
+    .send-chip.hl{background:rgba(20,86,168,0.07);border-color:rgba(20,86,168,0.2);color:var(--blue)}
+    .send-chip .cnt{font-family:'JetBrains Mono',monospace;font-weight:700}
+    .send-btn{
+      width:100%;padding:16px;
+      background:linear-gradient(135deg,var(--navy),var(--blue),var(--blue2));
+      color:#fff;border:none;border-radius:var(--r);
+      font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:11px;
+      transition:transform 0.25s,box-shadow 0.25s;
+      box-shadow:0 6px 24px rgba(20,86,168,0.35);position:relative;overflow:hidden;
+    }
+    .send-btn::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.16),transparent);transition:0.6s}
+    .send-btn:hover::after{left:100%}
+    .send-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(20,86,168,0.5)}
+    .send-btn:active{transform:scale(0.99)}
+    .send-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+    .btn-spinner{display:none;width:20px;height:20px;border:2px solid rgba(255,255,255,0.28);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite}
+    .send-btn.sending .btn-spinner{display:block}
+    .send-btn.sending .btn-text{display:none}
+
+    /* Progress */
+    .progress-wrap{display:none;margin-top:14px}
+    .progress-wrap.open{display:block}
+    .progress-bg{background:var(--bg3);border-radius:50px;height:7px;overflow:hidden}
+    .progress-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--blue),var(--sky));transition:width 0.4s ease}
+    .progress-meta{display:flex;justify-content:space-between;margin-top:5px;font-size:0.68rem;font-weight:600;color:var(--text3)}
+    .batch-log{margin-top:9px;max-height:72px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+    .log-item{font-size:0.66rem;color:var(--text3);display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace}
+    .log-item i{font-size:0.58rem;color:var(--success)}
+    .log-item.err i{color:var(--danger)}
+
+    /* ── QUICK INSERT ── */
+    .qi-row{display:flex;flex-wrap:wrap;gap:5px}
+    .qi-btn{padding:5px 11px;border-radius:50px;background:var(--bg);border:1px solid var(--border);font-size:0.68rem;font-weight:600;color:var(--text3);cursor:pointer;transition:var(--tr);font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px}
+    .qi-btn i{font-size:0.6rem}
+    .qi-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+    /* ── SECTION LABEL ── */
+    .sec-label{font-size:0.66rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text4);margin-bottom:9px;display:flex;align-items:center;gap:7px}
+    .sec-label i{font-size:0.58rem;color:var(--blue)}
+
+    /* ── TOAST ── */
+    .toast-wrap{position:fixed;top:72px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:9px;pointer-events:none;width:340px}
+    .toast{background:#fff;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow2);overflow:hidden;pointer-events:all;animation:toastIn 0.32s cubic-bezier(0.22,1,0.36,1) both}
+    @keyframes toastIn{from{opacity:0;transform:translateX(48px) scale(0.95)}to{opacity:1;transform:none}}
+    .toast.out{animation:toastOut 0.25s ease forwards}
+    @keyframes toastOut{to{opacity:0;transform:translateX(48px) scale(0.95)}}
+    .toast-stripe{height:3.5px}
+    .ts-success{background:linear-gradient(90deg,var(--success),#34d399)}
+    .ts-error{background:linear-gradient(90deg,var(--danger),#f87171)}
+    .ts-info{background:linear-gradient(90deg,var(--blue),var(--sky))}
+    .ts-warning{background:linear-gradient(90deg,var(--warn),var(--accent2))}
+    .toast-body{display:flex;align-items:flex-start;gap:10px;padding:12px 13px}
+    .toast-ico{width:30px;height:30px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.87rem}
+    .ti-success{background:rgba(16,185,129,0.1);color:#059669}
+    .ti-error{background:rgba(239,68,68,0.1);color:var(--danger)}
+    .ti-info{background:rgba(20,86,168,0.09);color:var(--blue)}
+    .ti-warning{background:rgba(245,158,11,0.1);color:var(--warn)}
+    .toast-title{font-size:0.8rem;font-weight:700;color:var(--text);margin-bottom:2px}
+    .toast-msg{font-size:0.71rem;color:var(--text3);line-height:1.5}
+    .toast-close{background:none;border:none;cursor:pointer;color:var(--text4);font-size:0.7rem;padding:2px;transition:color 0.2s;flex-shrink:0}
+    .toast-close:hover{color:var(--text)}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:860px){.main-grid{grid-template-columns:1fr}}
+    @media(max-width:640px){
+      .topbar{padding:0 14px;height:58px}
+      .page{padding:18px 13px 48px;gap:16px}
+      .card-body{padding:17px}
+      .send-inner{padding:17px}
+      .hero{padding:24px 22px}
+      .hero-ico{display:none}
+      .toast-wrap{right:10px;left:10px;width:auto}
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="lc-brand">
+      <div class="lc-logo-box"><i class="fas fa-envelope-open-text"></i></div>
+      <div>
+        <div class="lc-brand-name">QuantumCoders Data Solutions</div>
+        <div class="lc-brand-sub">Email System</div>
+      </div>
+    </div>
+    <div class="lc-title">Secure Access</div>
+    <div class="lc-sub">Enter your admin password to continue</div>
+    <div style="margin-bottom:18px">
+      <div class="lc-label"><i class="fas fa-lock"></i> Admin Password</div>
+      <div class="lc-input-wrap">
+        <input type="password" id="loginInp" class="lc-input" placeholder="Enter password"
+          onkeydown="if(event.key==='Enter')attemptLogin()" autocomplete="current-password">
+        <button class="lc-eye" onclick="toggleEye()"><i class="fas fa-eye" id="eyeIco"></i></button>
+      </div>
+      <div class="lc-err" id="loginErr"><i class="fas fa-circle-xmark"></i><span id="loginErrTxt">Incorrect password.</span></div>
+    </div>
+    <button class="lc-btn" id="loginBtn" onclick="attemptLogin()">
+      <div class="lc-spin"></div>
+      <div class="lc-btn-text"><i class="fas fa-envelope-circle-check"></i>&nbsp; Access Email System</div>
+    </button>
+    <div class="lc-footer"><i class="fas fa-circle-check"></i> Session expires in 30 minutes · End-to-end secured</div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a class="tb-brand" href="#" target="_self">
+    <div class="tb-logo-wrap" id="tbLogoWrap"><i class="fas fa-envelope-open-text"></i></div>
+    <img src="https://www.quantumcoderstechlab.codes/assets/Data%20Solutions/Logo/QCDL.png"
+      alt="QCDS" class="tb-logo-img" id="tbLogoImg"
+      onload="this.classList.add('loaded');document.getElementById('tbLogoWrap').style.display='none'"
+      onerror="this.style.display='none'">
+    <div class="tb-divider"></div>
+    <div>
+      <div class="tb-name">Email System</div>
+      <div class="tb-sub">QuantumCoders Data Solutions</div>
+    </div>
+  </a>
+  <div class="tb-right">
+    <div class="timer-badge" id="timerBadge"><i class="fas fa-clock"></i><span id="timerDisp">30:00</span></div>
+    <button class="tb-btn" onclick="doLogout()"><i class="fas fa-right-from-bracket"></i> Logout</button>
+  </div>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-ico"><i class="fas fa-paper-plane"></i></div>
+      <div class="hero-text" style="flex:1">
+        <div class="hero-tag">QuantumCoders Data Solutions</div>
+        <div class="hero-title">Professional Email System</div>
+        <div class="hero-sub">Send branded emails via Google Group (1 quota) or individual BCC batches — with trend comparisons, history tracking &amp; rich formatting.</div>
+        <div class="hero-pills">
+          <div class="hero-pill" id="totalMemberPill"><i class="fas fa-users"></i> Loading…</div>
+          <div class="hero-pill"><i class="fas fa-envelope-circle-check"></i> 1-Quota Group Mode</div>
+          <div class="hero-pill"><i class="fas fa-layer-group"></i> BCC Batch Mode</div>
+          <div class="hero-pill"><i class="fas fa-shield-halved"></i> Secure &amp; Verified</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT COLUMN -->
+    <div style="display:flex;flex-direction:column;gap:18px">
+
+      <!-- Recipients Card -->
+      <div class="card">
+        <div class="card-stripe cs-navy"></div>
+        <div class="card-body">
+          <div class="card-head">
+            <div class="card-icon ci-navy"><i class="fas fa-users"></i></div>
+            <div>
+              <div class="card-title">Recipients</div>
+              <div class="card-desc">Choose who receives this email</div>
+            </div>
+          </div>
+
+          <!-- Send Mode -->
+          <div class="sec-label"><i class="fas fa-network-wired"></i> Sending Mode</div>
+          <div class="send-mode-toggle">
+            <button class="smt-btn on" id="smtGroup" onclick="setSendMode('group')">
+              <i class="fas fa-people-group"></i> Google Group<br>
+              <span style="font-size:0.6rem;font-weight:500;opacity:0.8">(1 quota only)</span>
+            </button>
+            <button class="smt-btn" id="smtIndiv" onclick="setSendMode('individual')">
+              <i class="fas fa-layer-group"></i> Individual BCC<br>
+              <span style="font-size:0.6rem;font-weight:500;opacity:0.8">(batched, BCC)</span>
+            </button>
+          </div>
+          <div class="mode-note group-note" id="sendModeNote">
+            <i class="fas fa-circle-check"></i>
+            <span id="sendModeNoteText">Email sent to <strong>qcds-team-reports@googlegroups.com</strong> — Google Group distributes to all members. Uses <strong>only 1 email quota</strong>.</span>
+          </div>
+
+          <div style="margin-top:16px"></div>
+
+          <!-- Recipient Mode Tabs (only for individual mode) -->
+          <div id="recipientModeSection">
+            <div class="sec-label" style="margin-top:14px"><i class="fas fa-users"></i> Recipient Selection</div>
+            <div class="mode-wrap">
+              <button class="mode-tab on" id="tab-all" onclick="switchMode('all')"><i class="fas fa-users"></i> All</button>
+              <button class="mode-tab" id="tab-sel" onclick="switchMode('sel')"><i class="fas fa-user-check"></i> Selected</button>
+              <button class="mode-tab" id="tab-custom" onclick="switchMode('custom')"><i class="fas fa-at"></i> Custom</button>
+            </div>
+
+            <!-- ALL -->
+            <div id="mode-all">
+              <div class="all-info">
+                <div class="all-count" id="allCount">—</div>
+                <div class="all-label">team members will receive this email</div>
+              </div>
+              <div class="all-pills" id="allPills" style="margin-top:10px"></div>
+            </div>
+
+            <!-- SELECTED -->
+            <div id="mode-sel" style="display:none">
+              <div class="tags-wrap" id="selTagsWrap"><span class="ph-text">Search and add members below…</span></div>
+              <div class="search-wrap">
+                <i class="fas fa-magnifying-glass search-ico"></i>
+                <input type="text" id="memberSearch" class="search-inp" placeholder="Search by name or email…" oninput="filterMembers(this.value)">
+              </div>
+              <div class="member-list" id="memberList">
+                <div class="m-empty"><i class="fas fa-spinner fa-spin" style="display:block;margin-bottom:7px;color:var(--blue)"></i>Loading…</div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+                <span style="font-size:0.68rem;color:var(--text4)" id="selCountLbl">0 selected</span>
+                <button style="font-size:0.68rem;color:var(--danger);background:none;border:none;cursor:pointer;font-weight:700" onclick="clearSel()">Clear All</button>
+              </div>
+            </div>
+
+            <!-- CUSTOM -->
+            <div id="mode-custom" style="display:none">
+              <div class="tags-wrap" id="custTagsWrap"><span class="ph-text">Paste emails below to auto-detect…</span></div>
+              <textarea id="pasteArea" class="paste-area" placeholder="Paste emails in any format — spaces, commas, newlines…"></textarea>
+              <div style="font-size:0.62rem;color:var(--text4);display:flex;align-items:flex-start;gap:5px;margin-top:5px;line-height:1.5">
+                <i class="fas fa-info-circle" style="color:var(--sky);margin-top:2px;flex-shrink:0"></i>
+                Supports any format — space, comma, or newline separated.
+              </div>
+              <button class="detect-btn" onclick="detectEmails()"><i class="fas fa-wand-magic-sparkles"></i> Auto-Detect &amp; Add Emails</button>
+              <div style="display:flex;justify-content:space-between;margin-top:7px">
+                <span style="font-size:0.68rem;color:var(--text4)" id="custCountLbl">0 detected</span>
+                <button style="font-size:0.68rem;color:var(--danger);background:none;border:none;cursor:pointer;font-weight:700" onclick="clearCust()">Clear All</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Quota Panel -->
+      <div class="card">
+        <div class="card-stripe cs-green"></div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="toggleQuota()">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="card-icon ci-sky"><i class="fas fa-gauge-high"></i></div>
+              <div>
+                <div class="card-title">Quota Status</div>
+                <div class="card-desc">Email limits &amp; daily send status</div>
+              </div>
+            </div>
+            <i class="fas fa-chevron-down" id="quotaChevron" style="font-size:0.65rem;color:var(--text4);transition:transform 0.28s"></i>
+          </div>
+          <div id="quotaBody" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+              <div class="quota-stat">
+                <div class="quota-stat-val" id="quotaVal">—</div>
+                <div class="quota-stat-label">Emails Remaining Today</div>
+              </div>
+              <div>
+                <div style="font-size:0.64rem;color:var(--text4);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Daily Report</div>
+                <div class="status-badge sb-pending" id="dailyStatusBadge"><i class="fas fa-clock"></i> <span id="dailyStatusTxt">Checking…</span></div>
+              </div>
+            </div>
+            <div style="font-size:0.66rem;color:var(--text4);margin-bottom:5px">Quota Usage</div>
+            <div class="quota-bar-bg"><div class="quota-bar-fill" id="quotaBarFill" style="width:0%"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.6rem;color:var(--text4);margin-top:4px;margin-bottom:14px">
+              <span id="quotaUsedLbl">Used: —</span><span>Max: 1,500/day</span>
+            </div>
+            <button class="refresh-btn" onclick="loadQuota()"><i class="fas fa-rotate-right"></i> Refresh Status</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Batch Preview -->
+      <div class="card" id="batchCard">
+        <div class="card-stripe cs-green"></div>
+        <div class="card-body">
+          <div class="card-head">
+            <div class="card-icon ci-green"><i class="fas fa-layer-group"></i></div>
+            <div>
+              <div class="card-title">Send Plan</div>
+              <div class="card-desc">Preview before sending</div>
+            </div>
+          </div>
+          <div id="batchPreview">
+            <div style="font-size:0.76rem;color:var(--text4);text-align:center;padding:10px 0;font-style:italic">Configure recipients to see send plan</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /left -->
+
+    <!-- RIGHT COLUMN -->
+    <div style="display:flex;flex-direction:column;gap:18px">
+
+      <!-- Composer -->
+      <div class="card">
+        <div class="card-stripe cs-gold"></div>
+        <div class="card-body">
+          <div class="card-head">
+            <div class="card-icon ci-gold"><i class="fas fa-pen-to-square"></i></div>
+            <div>
+              <div class="card-title">Email Composer</div>
+              <div class="card-desc">Write your professional message</div>
+            </div>
+          </div>
+
+          <!-- Sender Line -->
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-user-tie"></i> Sender Identity</label>
+            <select id="senderLine" class="form-select">
+              <option value="prem">From the desk of Prem Prasad Pradhan · Founder &amp; Admin</option>
+              <option value="official">Official QuantumCoders Data Solutions</option>
+            </select>
+          </div>
+
+          <!-- Subject -->
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-tag"></i> Email Subject</label>
+            <input type="text" id="emailSubject" class="form-input" placeholder="e.g. Weekly Update — May 2026">
+          </div>
+
+          <!-- Quick Insert -->
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-wand-sparkles"></i> Quick Insert</label>
+            <div class="qi-row">
+              <button class="qi-btn" onclick="insertGreeting()"><i class="fas fa-handshake"></i> Greeting</button>
+              <button class="qi-btn" onclick="insertClosing()"><i class="fas fa-signature"></i> Closing</button>
+              <button class="qi-btn" onclick="insertSeparator()"><i class="fas fa-minus"></i> Divider</button>
+              <button class="qi-btn" onclick="insertBullet()"><i class="fas fa-list-ul"></i> Bullet</button>
+              <button class="qi-btn" onclick="insertHighlight()"><i class="fas fa-star"></i> Highlight</button>
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-align-left"></i> Message Body</label>
+            <div class="editor-wrap">
+              <div class="editor-tb">
+                <div class="tb-grp">
+                  <button class="tb-b" onclick="fmt('bold')" title="Bold"><b>B</b></button>
+                  <button class="tb-b" onclick="fmt('italic')" title="Italic"><i>I</i></button>
+                  <button class="tb-b" onclick="fmt('underline')" title="Underline"><u>U</u></button>
+                </div>
+                <div class="tb-grp">
+                  <button class="tb-b" onclick="fmt('insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
+                  <button class="tb-b" onclick="fmt('insertOrderedList')"><i class="fas fa-list-ol"></i></button>
+                </div>
+                <div class="tb-grp">
+                  <button class="tb-b" onclick="fmt('justifyLeft')"><i class="fas fa-align-left"></i></button>
+                  <button class="tb-b" onclick="fmt('justifyCenter')"><i class="fas fa-align-center"></i></button>
+                  <button class="tb-b" onclick="fmt('justifyRight')"><i class="fas fa-align-right"></i></button>
+                </div>
+                <div class="tb-grp">
+                  <select onchange="fmt('fontSize',this.value);this.value=''" style="font-size:0.66rem;border:none;background:transparent;color:var(--text3);cursor:pointer;outline:none;padding:2px">
+                    <option value="">Size</option>
+                    <option value="1">Small</option><option value="3">Normal</option><option value="4">Large</option><option value="5">XL</option>
+                  </select>
+                  <select onchange="fmt('foreColor',this.value);this.value=''" style="font-size:0.66rem;border:none;background:transparent;color:var(--text3);cursor:pointer;outline:none;padding:2px">
+                    <option value="">Color</option>
+                    <option value="#1456A8">Blue</option><option value="#ef4444">Red</option><option value="#10b981">Green</option><option value="#f0a500">Orange</option><option value="#7c3aed">Purple</option><option value="#000">Black</option>
+                  </select>
+                </div>
+                <div class="tb-grp"><button class="tb-b" onclick="fmt('removeFormat')"><i class="fas fa-eraser"></i></button></div>
+              </div>
+              <div id="emailBody" class="editor-area" contenteditable="true"
+                data-placeholder="Write your message here…"
+                oninput="onBodyInput()"></div>
+              <div class="editor-foot">
+                <span class="editor-chars" id="charCount">0 chars</span>
+                <span class="editor-note"><i class="fas fa-circle-check"></i> HTML · Inline images · Mobile responsive</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TREND COMPARISON -->
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-chart-line"></i> Trend Comparison</label>
+            <button class="trend-btn" onclick="toggleTrend()">
+              <i class="fas fa-chart-line-up"></i>
+              <span>📈 Add Trend Comparison Section</span>
+              <i class="fas fa-chevron-down" id="trendChevron" style="margin-left:auto;font-size:0.65rem;transition:transform 0.28s"></i>
+            </button>
+            <div class="trend-section" id="trendSection">
+              <div style="font-size:0.73rem;font-weight:700;color:#92530a;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+                <i class="fas fa-chart-simple"></i> Configure Comparison
+              </div>
+              <div class="trend-row">
+                <div>
+                  <div style="font-size:0.62rem;color:var(--text4);margin-bottom:4px;font-weight:600">Value (%)</div>
+                  <input type="text" id="trendVal" class="trend-inp" value="12" style="width:80px">
+                </div>
+                <div>
+                  <div style="font-size:0.62rem;color:var(--text4);margin-bottom:4px;font-weight:600">Direction</div>
+                  <div class="trend-dir">
+                    <button class="trend-dir-btn on up" id="trendUp" onclick="setTrendDir('up')">▲ Up</button>
+                    <button class="trend-dir-btn down" id="trendDown" onclick="setTrendDir('down')">▼ Down</button>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:0.62rem;color:var(--text4);margin-bottom:4px;font-weight:600">Period</div>
+                  <select id="trendPeriod" class="form-select" style="padding:8px 12px;font-size:0.76rem;min-width:130px">
+                    <option value="yesterday">Today vs Yesterday</option>
+                    <option value="last-week">This Week vs Last Week</option>
+                    <option value="last-month">This Month vs Last Month</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex;gap:7px;margin-top:12px">
+                <button class="trend-auto-btn" onclick="autoCalcTrend()"><i class="fas fa-bolt"></i> Auto-Calculate</button>
+                <button class="trend-insert-btn" onclick="insertTrend()"><i class="fas fa-plus"></i> Insert into Email</button>
+              </div>
+              <div class="trend-preview-box" id="trendPreviewBox">
+                <i class="fas fa-chart-line" style="color:var(--accent)"></i>
+                <span id="trendPreviewTxt">📈 Comparison: Today vs Yesterday — <strong>+12% improvement</strong> in team output</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attachments -->
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-paperclip"></i> Attachments <span style="font-size:0.59rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text4)">(optional)</span></label>
+            <div class="attach-zone" id="attachZone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+              <input type="file" id="fileInput" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip" onchange="handleFiles(this.files)">
+              <div class="attach-inner">
+                <div class="attach-ico"><i class="fas fa-cloud-arrow-up"></i></div>
+                <div>
+                  <div class="attach-main">Drop files or click to browse</div>
+                  <div class="attach-sub">Images embedded inline · Others as attachments</div>
+                </div>
+                <div class="attach-types">
+                  <span class="at-pill">JPG</span><span class="at-pill">PNG</span><span class="at-pill">PDF</span><span class="at-pill">DOC</span>
+                </div>
+              </div>
+            </div>
+            <div class="attached-list" id="attachedList"></div>
+          </div>
+
+          <!-- Preview -->
+          <div class="form-group">
+            <button class="preview-toggle" id="previewToggle" onclick="togglePreview()">
+              <span><i class="fas fa-eye" style="margin-right:6px"></i> Email Preview</span>
+              <i class="fas fa-chevron-down ch"></i>
+            </button>
+            <div class="preview-box" id="previewBox">
+              <div class="preview-bar">
+                <div class="pdot" style="background:#ef4444"></div>
+                <div class="pdot" style="background:#f59e0b;margin-left:4px"></div>
+                <div class="pdot" style="background:var(--success);margin-left:4px"></div>
+                <span style="font-size:0.63rem;color:var(--text4);margin-left:9px;font-family:'JetBrains Mono',monospace">email-preview.html</span>
+              </div>
+              <div class="preview-content">
+                <iframe id="previewFrame" class="preview-frame" sandbox="allow-same-origin"></iframe>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Email History -->
+      <div class="card">
+        <div class="card-stripe cs-red"></div>
+        <div class="card-body">
+          <div class="card-head">
+            <div class="card-icon ci-red"><i class="fas fa-clock-rotate-left"></i></div>
+            <div>
+              <div class="card-title">Email History</div>
+              <div class="card-desc">Record of sent emails</div>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Subject</th>
+                  <th>Mode</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="historyBody">
+                <tr><td colspan="4"><div class="history-empty"><i class="fas fa-spinner fa-spin" style="margin-right:6px;color:var(--blue)"></i>Loading history…</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right -->
+
+  </div><!-- /grid -->
+
+  <!-- SEND SECTION -->
+  <div class="send-section">
+    <div class="send-stripe"></div>
+    <div class="send-inner">
+      <div class="send-chips">
+        <div class="send-chip hl"><i class="fas fa-users"></i><span><span class="cnt" id="rcptDisp">0</span> recipients</span></div>
+        <div class="send-chip"><i class="fas fa-layer-group"></i><span><span class="cnt" id="batchDisp">0</span> batches</span></div>
+        <div class="send-chip"><i class="fas fa-shield-halved"></i> BCC protected</div>
+        <div class="send-chip"><i class="fas fa-clock"></i> ~<span id="estTime">0</span>s estimated</div>
+        <div class="send-chip" id="modeChipDisplay"><i class="fas fa-people-group"></i> Group Mode</div>
+      </div>
+      <button class="send-btn" id="sendBtn" onclick="sendEmail()">
+        <div class="btn-spinner"></div>
+        <div class="btn-text"><i class="fas fa-paper-plane"></i>&nbsp; Send Professional Email</div>
+      </button>
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bg"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="progress-meta">
+          <span id="progressLabel">Sending…</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="batch-log" id="batchLog"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+/* ═══════════════════════════
+   SESSION
+═══════════════════════════ */
+const SK = 'qcds_email_v2';
+const SESS_DUR = 30 * 60 * 1000;
+let _sessExp = 0, _ctdn = null;
+
+function checkLogin() {
+  const s = localStorage.getItem(SK);
+  if (s) {
+    try {
+      const d = JSON.parse(s);
+      if (Date.now() < d.expiry) {
+        _sessExp = d.expiry;
+        hideLogin();
+        startCountdown();
+        return;
+      }
+    } catch(e) {}
+  }
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function hideLogin() {
+  const s = document.getElementById('loginScreen');
+  s.classList.add('hiding');
+  setTimeout(() => s.style.display = 'none', 500);
+}
+
+function startCountdown() {
+  if (_ctdn) clearInterval(_ctdn);
+  _ctdn = setInterval(() => {
+    const rem = Math.max(0, _sessExp - Date.now());
+    const m = Math.floor(rem / 60000), s = Math.floor((rem % 60000) / 1000);
+    const el = document.getElementById('timerDisp');
+    if (el) el.textContent = m + ':' + String(s).padStart(2,'0');
+    if (rem <= 0) { clearInterval(_ctdn); autoLogout(); }
+  }, 1000);
+}
+
+function autoLogout() {
+  showToast('warning','Session Expired','Please log in again.',3000);
+  setTimeout(() => { localStorage.removeItem(SK); location.reload(); }, 2000);
+}
+
+function toggleEye() {
+  const i = document.getElementById('loginInp'), ico = document.getElementById('eyeIco');
+  i.type = i.type === 'password' ? 'text' : 'password';
+  ico.className = i.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+
+function attemptLogin() {
+  const pass = document.getElementById('loginInp').value;
+  const btn = document.getElementById('loginBtn'), err = document.getElementById('loginErr'), inp = document.getElementById('loginInp');
+  inp.classList.remove('err'); err.classList.remove('show');
+  if (!pass) { inp.classList.add('err'); document.getElementById('loginErrTxt').textContent = 'Please enter your password.'; err.classList.add('show'); return; }
+  btn.classList.add('loading'); btn.disabled = true;
+  google.script.run
+    .withSuccessHandler(res => {
+      btn.classList.remove('loading'); btn.disabled = false;
+      if (res) {
+        _sessExp = Date.now() + SESS_DUR;
+        localStorage.setItem(SK, JSON.stringify({ expiry: _sessExp }));
+        hideLogin(); startCountdown();
+        showToast('success','Access Granted','Welcome back! Session valid for 30 minutes.');
+        initPage();
+      } else {
+        inp.classList.add('err'); err.classList.add('show');
+        document.getElementById('loginErrTxt').textContent = 'Incorrect password. Please try again.';
+        inp.value = '';
+        setTimeout(() => inp.classList.remove('err'), 600);
+      }
+    })
+    .withFailureHandler(() => {
+      btn.classList.remove('loading'); btn.disabled = false;
+      document.getElementById('loginErrTxt').textContent = 'Connection error. Please try again.';
+      document.getElementById('loginErr').classList.add('show');
+    })
+    .verifyPassword(pass);
+}
+
+function doLogout() {
+  if (!confirm('End your session and logout?')) return;
+  clearInterval(_ctdn); localStorage.removeItem(SK); location.reload();
+}
+
+checkLogin();
+
+/* ═══════════════════════════
+   SEND MODE
+═══════════════════════════ */
+let sendMode = 'group';
+
+function setSendMode(mode) {
+  sendMode = mode;
+  document.getElementById('smtGroup').classList.toggle('on', mode === 'group');
+  document.getElementById('smtIndiv').classList.toggle('on', mode === 'individual');
+  const noteEl = document.getElementById('sendModeNote');
+  const noteTxt = document.getElementById('sendModeNoteText');
+  const recSection = document.getElementById('recipientModeSection');
+  const modeChip = document.getElementById('modeChipDisplay');
+
+  if (mode === 'group') {
+    noteEl.className = 'mode-note group-note';
+    noteTxt.innerHTML = 'Email sent to <strong>qcds-team-reports@googlegroups.com</strong> — Google Group distributes to all members. Uses <strong>only 1 email quota</strong>.';
+    recSection.style.display = 'none';
+    modeChip.innerHTML = '<i class="fas fa-people-group"></i> Group Mode';
+  } else {
+    noteEl.className = 'mode-note';
+    noteTxt.innerHTML = 'Email sent individually via BCC batches of 45. Each batch uses <strong>1 email quota</strong>. Select recipients below.';
+    recSection.style.display = 'block';
+  }
+  updateBatchPreview();
+}
+
+/* ═══════════════════════════
+   MEMBERS
+═══════════════════════════ */
+let allMembers = [], selEmails = new Set(), custEmails = new Set();
+let currentMode = 'all';
+
+function initPage() {
+  loadMembers();
+  loadQuota();
+  loadHistory();
+}
+
+function loadMembers() {
+  google.script.run
+    .withSuccessHandler(members => {
+      allMembers = members || [];
+      document.getElementById('totalMemberPill').innerHTML = '<i class="fas fa-users"></i> ' + allMembers.length + ' team members';
+      document.getElementById('allCount').textContent = allMembers.length;
+      const pillsEl = document.getElementById('allPills');
+      if (pillsEl) { pillsEl.innerHTML = ''; allMembers.forEach(m => { const p = document.createElement('span'); p.className = 'email-pill'; p.textContent = m.email; pillsEl.appendChild(p); }); }
+      renderMemberList('');
+      updateBatchPreview();
+    })
+    .withFailureHandler(() => showToast('error','Load Failed','Could not load team members.'))
+    .getMembersForEmailSystem();
+}
+
+function switchMode(mode) {
+  currentMode = mode;
+  ['all','sel','custom'].forEach(m => {
+    document.getElementById('tab-'+m)?.classList.toggle('on', m === mode);
+    const el = document.getElementById('mode-'+m);
+    if (el) el.style.display = m === mode ? 'block' : 'none';
+  });
+  updateBatchPreview();
+}
+
+function filterMembers(q) { renderMemberList(q.toLowerCase()); }
+
+function renderMemberList(q) {
+  const list = document.getElementById('memberList');
+  const filtered = allMembers.filter(m => !q || m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q));
+  if (!filtered.length) { list.innerHTML = '<div class="m-empty">No members found</div>'; return; }
+  list.innerHTML = '';
+  filtered.forEach(m => {
+    const item = document.createElement('div');
+    item.className = 'm-item' + (selEmails.has(m.email) ? ' sel' : '');
+    item.innerHTML = `<div class="m-av">${m.name.charAt(0).toUpperCase()}</div><div style="flex:1;min-width:0"><div class="m-name">${m.name}</div><div class="m-email">${m.email}</div></div><div class="m-chk"><i class="fas fa-check"></i></div>`;
+    item.onclick = () => toggleMember(m.email, m.name, item);
+    list.appendChild(item);
+  });
+}
+
+function toggleMember(email, name, el) {
+  if (selEmails.has(email)) { selEmails.delete(email); el.classList.remove('sel'); }
+  else { selEmails.add(email); el.classList.add('sel'); }
+  renderSelTags(); updateBatchPreview();
+}
+
+function renderSelTags() {
+  const wrap = document.getElementById('selTagsWrap');
+  if (!selEmails.size) { wrap.innerHTML = '<span class="ph-text">Search and add members below…</span>'; document.getElementById('selCountLbl').textContent = '0 selected'; return; }
+  wrap.innerHTML = '';
+  selEmails.forEach(email => {
+    const m = allMembers.find(x => x.email === email);
+    const name = m ? m.name.split(' ')[0] : email;
+    const tag = document.createElement('div'); tag.className = 'r-tag';
+    tag.innerHTML = `${name} <button onclick="removeSel('${email}')"><i class="fas fa-xmark"></i></button>`;
+    wrap.appendChild(tag);
+  });
+  const ct = document.createElement('span'); ct.className = 'r-count'; ct.innerHTML = `<i class="fas fa-users" style="font-size:0.58rem"></i> ${selEmails.size}`; wrap.appendChild(ct);
+  document.getElementById('selCountLbl').textContent = selEmails.size + ' selected';
+}
+
+function removeSel(e) { selEmails.delete(e); renderMemberList(document.getElementById('memberSearch').value); renderSelTags(); updateBatchPreview(); }
+function clearSel() { selEmails.clear(); renderMemberList(''); renderSelTags(); updateBatchPreview(); }
+
+function detectEmails() {
+  const text = document.getElementById('pasteArea').value;
+  const re = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+  const found = text.match(re) || [];
+  let n = 0;
+  found.forEach(e => { const l = e.toLowerCase(); if (!custEmails.has(l)) { custEmails.add(l); n++; } });
+  renderCustTags(); updateBatchPreview();
+  if (!found.length) showToast('warning','No Emails Found','No valid emails detected in pasted text.');
+  else { showToast('success','Emails Detected', n + ' new email(s) added · ' + custEmails.size + ' total'); document.getElementById('pasteArea').value = ''; }
+}
+
+function renderCustTags() {
+  const wrap = document.getElementById('custTagsWrap');
+  if (!custEmails.size) { wrap.innerHTML = '<span class="ph-text">Paste emails below to auto-detect…</span>'; document.getElementById('custCountLbl').textContent = '0 detected'; return; }
+  wrap.innerHTML = '';
+  custEmails.forEach(email => {
+    const tag = document.createElement('div'); tag.className = 'r-tag';
+    tag.innerHTML = `${email} <button onclick="removeCust('${email}')"><i class="fas fa-xmark"></i></button>`;
+    wrap.appendChild(tag);
+  });
+  document.getElementById('custCountLbl').textContent = custEmails.size + ' email(s)';
+}
+
+function removeCust(e) { custEmails.delete(e); renderCustTags(); updateBatchPreview(); }
+function clearCust() { custEmails.clear(); renderCustTags(); updateBatchPreview(); }
+
+/* ═══════════════════════════
+   BATCH PREVIEW
+═══════════════════════════ */
+const BATCH = 45;
+
+function getActiveEmails() {
+  if (sendMode === 'group') return ['qcds-team-reports@googlegroups.com'];
+  if (currentMode === 'all') return allMembers.map(m => m.email);
+  if (currentMode === 'sel') return Array.from(selEmails);
+  return Array.from(custEmails);
+}
+
+function updateBatchPreview() {
+  const emails = sendMode === 'group' ? allMembers.map(m => m.email) : getActiveEmails();
+  const total = emails.length;
+  const batches = sendMode === 'group' ? 1 : (total === 0 ? 0 : Math.ceil(total / BATCH));
+  const est = batches <= 1 ? (total > 0 ? 3 : 0) : (batches - 1) * 3 + 3;
+
+  document.getElementById('rcptDisp').textContent = total;
+  document.getElementById('batchDisp').textContent = batches;
+  document.getElementById('estTime').textContent = est;
+
+  const prev = document.getElementById('batchPreview');
+  if (total === 0 && sendMode !== 'group') {
+    prev.innerHTML = '<div style="font-size:0.74rem;color:var(--text4);text-align:center;padding:10px 0;font-style:italic">Select recipients to see send plan</div>';
+    return;
+  }
+
+  if (sendMode === 'group') {
+    prev.innerHTML = `
+      <div class="batch-summary">
+        <div class="bs-num">1</div>
+        <div><div class="bs-label">Single Group Email</div><div class="bs-sub">${total} members via qcds-team-reports@googlegroups.com · 1 quota</div></div>
+      </div>
+      <div class="batch-item">
+        <div class="batch-num">1</div>
+        <div class="batch-info"><div class="batch-info-main">Google Group Dispatch</div><div class="batch-info-sub">All members receive via group · zero BCC needed</div></div>
+        <div class="batch-cnt">1 email</div>
+      </div>
+    `;
+    return;
+  }
+
+  let html = `<div class="batch-summary"><div class="bs-num">${batches}</div><div><div class="bs-label">Batch${batches!==1?'es':''} planned</div><div class="bs-sub">${total} recipients · ~${est}s total</div></div></div>`;
+  for (let b = 0; b < batches; b++) {
+    const cnt = Math.min(BATCH, total - b * BATCH);
+    html += `<div class="batch-item"><div class="batch-num">${b+1}</div><div class="batch-info"><div class="batch-info-main">Batch ${b+1}</div><div class="batch-info-sub">${cnt} emails via BCC${b<batches-1?' · 2s delay':''}</div></div><div class="batch-cnt">${cnt}</div></div>`;
+  }
+  prev.innerHTML = html;
+}
+
+/* ═══════════════════════════
+   QUOTA
+═══════════════════════════ */
+function toggleQuota() {
+  const body = document.getElementById('quotaBody');
+  const ch = document.getElementById('quotaChevron');
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  ch.style.transform = open ? 'rotate(180deg)' : '';
+  if (open) loadQuota();
+}
+
+function loadQuota() {
+  document.getElementById('quotaVal').textContent = '…';
+  google.script.run
+    .withSuccessHandler(res => {
+      if (!res) return;
+      const quota = res.quota || 0;
+      const used = 1500 - quota;
+      const pct = Math.min(100, (used / 1500) * 100);
+      document.getElementById('quotaVal').textContent = quota.toLocaleString();
+      document.getElementById('quotaBarFill').style.width = pct + '%';
+      document.getElementById('quotaUsedLbl').textContent = 'Used: ' + used.toLocaleString();
+      const badge = document.getElementById('dailyStatusBadge');
+      const txt = document.getElementById('dailyStatusTxt');
+      if (res.sentToday) {
+        badge.className = 'status-badge sb-sent';
+        txt.innerHTML = '✅ Sent Today';
+      } else {
+        badge.className = 'status-badge sb-pending';
+        txt.innerHTML = '⏳ Not Sent Yet';
+      }
+    })
+    .withFailureHandler(() => {})
+    .checkEmailStatus();
+}
+
+/* ═══════════════════════════
+   EMAIL HISTORY
+═══════════════════════════ */
+function loadHistory() {
+  google.script.run
+    .withSuccessHandler(rows => {
+      const tbody = document.getElementById('historyBody');
+      if (!rows || !rows.length) {
+        tbody.innerHTML = '<tr><td colspan="4"><div class="history-empty">No emails sent yet.</div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.slice(0,15).map(r => `
+        <tr>
+          <td style="font-size:0.72rem;color:var(--text3);white-space:nowrap">${r[0]||'—'}</td>
+          <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600">${r[1]||'—'}</td>
+          <td><span class="hist-mode"><i class="fas fa-${r[3]==='group'?'people-group':'layer-group'}" style="font-size:0.58rem"></i> ${r[3]==='group'?'Group':'Batch'}</span></td>
+          <td><span class="hist-status ${r[2]==='Sent'?'hs-sent':'hs-fail'}">${r[2]==='Sent'?'✓ Sent':'✗ Failed'}</span></td>
+        </tr>
+      `).join('');
+    })
+    .withFailureHandler(() => {})
+    .getEmailHistory();
+}
+
+/* ═══════════════════════════
+   EDITOR
+═══════════════════════════ */
+function fmt(cmd, val) {
+  document.getElementById('emailBody').focus();
+  document.execCommand(cmd, false, val || null);
+  updateCharCount();
+}
+
+function updateCharCount() {
+  const b = document.getElementById('emailBody');
+  const t = b.innerText || b.textContent || '';
+  document.getElementById('charCount').textContent = t.length + ' chars';
+}
+
+function onBodyInput() {
+  updateCharCount();
+  if (document.getElementById('previewToggle').classList.contains('open')) refreshPreview();
+}
+
+function insertGreeting() {
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Good Morning' : h < 14 ? 'Good Noon' : h < 18 ? 'Good Afternoon' : 'Good Evening';
+  document.getElementById('emailBody').focus();
+  document.execCommand('insertHTML', false, `<p><strong>Dear Team,</strong></p><p>${g},</p><p></p>`);
+  updateCharCount();
+}
+
+function insertClosing() {
+  const sender = document.getElementById('senderLine').value;
+  const sig = sender === 'prem'
+    ? 'Prem Prasad Pradhan<br>Founder, QuantumCoders Data Solutions'
+    : 'QuantumCoders Data Solutions<br>Official Communication';
+  document.getElementById('emailBody').focus();
+  document.execCommand('insertHTML', false, `<p></p><p>Best regards,<br><strong>${sig}</strong><br><a href="https://www.quantumcoderstechlab.codes" style="color:#1456A8">quantumcoderstechlab.codes</a></p>`);
+  updateCharCount();
+}
+
+function insertSeparator() {
+  document.getElementById('emailBody').focus();
+  document.execCommand('insertHTML', false, '<p><hr style="border:none;border-top:1px solid #e2e8f0;margin:8px 0"></p>');
+  updateCharCount();
+}
+
+function insertBullet() {
+  document.getElementById('emailBody').focus();
+  document.execCommand('insertUnorderedList', false, null);
+  updateCharCount();
+}
+
+function insertHighlight() {
+  document.getElementById('emailBody').focus();
+  document.execCommand('insertHTML', false, `<div style="background:linear-gradient(135deg,#fff9e8,#fffbf0);border:1px solid rgba(240,165,0,0.3);border-radius:10px;padding:12px 16px;margin:8px 0;font-size:14px;color:#92530a"><strong>⭐ Highlight:</strong> Your key message here.</div><p></p>`);
+  updateCharCount();
+}
+
+/* ═══════════════════════════
+   TREND COMPARISON
+═══════════════════════════ */
+let trendDir = 'up';
+
+function toggleTrend() {
+  const sec = document.getElementById('trendSection');
+  const ch = document.getElementById('trendChevron');
+  const open = sec.classList.toggle('open');
+  ch.style.transform = open ? 'rotate(180deg)' : '';
+  if (open) updateTrendPreview();
+}
+
+function setTrendDir(dir) {
+  trendDir = dir;
+  document.getElementById('trendUp').classList.toggle('on', dir === 'up');
+  document.getElementById('trendUp').classList.toggle('up', true);
+  document.getElementById('trendDown').classList.toggle('on', dir === 'down');
+  document.getElementById('trendDown').classList.toggle('down', true);
+  updateTrendPreview();
+}
+
+document.addEventListener('input', e => { if (e.target.id === 'trendVal' || e.target.id === 'trendPeriod') updateTrendPreview(); });
+
+function updateTrendPreview() {
+  const val = document.getElementById('trendVal').value || '0';
+  const period = document.getElementById('trendPeriod');
+  const periodLabel = period ? period.options[period.selectedIndex].text : 'Today vs Yesterday';
+  const arrow = trendDir === 'up' ? '📈' : '📉';
+  const sign = trendDir === 'up' ? '+' : '-';
+  const color = trendDir === 'up' ? '#059669' : '#dc2626';
+  document.getElementById('trendPreviewTxt').innerHTML = `${arrow} Comparison: ${periodLabel} — <strong style="color:${color}">${sign}${val}% ${trendDir === 'up' ? 'improvement' : 'decline'}</strong> in team output`;
+}
+
+function autoCalcTrend() {
+  showToast('info','Auto-Calculating','Fetching yesterday\'s production data…');
+  google.script.run
+    .withSuccessHandler(data => {
+      if (data && data.todayFiles !== undefined && data.report && data.report.length > 1) {
+        const todayF = data.todayFiles || 0;
+        const yestF = parseInt((data.report[1] || {}).files || 0);
+        if (yestF === 0) { showToast('warning','No Data','No yesterday data to compare.'); return; }
+        const pct = Math.round(((todayF - yestF) / yestF) * 100);
+        document.getElementById('trendVal').value = Math.abs(pct);
+        setTrendDir(pct >= 0 ? 'up' : 'down');
+        updateTrendPreview();
+        showToast('success','Calculated', `Today: ${todayF} files · Yesterday: ${yestF} files → ${pct > 0 ? '+':''}${pct}%`);
+      } else {
+        showToast('warning','Insufficient Data','Not enough data to auto-calculate trend.');
+      }
+    })
+    .withFailureHandler(() => showToast('error','Failed','Could not fetch production data.'))
+    .getDashboardData();
+}
+
+function insertTrend() {
+  const val = document.getElementById('trendVal').value || '0';
+  const period = document.getElementById('trendPeriod');
+  const periodLabel = period ? period.options[period.selectedIndex].text : 'Today vs Yesterday';
+  const arrow = trendDir === 'up' ? '📈' : '📉';
+  const sign = trendDir === 'up' ? '+' : '-';
+  const bgColor = trendDir === 'up' ? '#f0fdf4' : '#fef2f2';
+  const borderColor = trendDir === 'up' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
+  const textColor = trendDir === 'up' ? '#059669' : '#dc2626';
+  const html = `
+    <div style="background:${bgColor};border:1.5px solid ${borderColor};border-radius:12px;padding:14px 18px;margin:12px 0;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
+      <div style="font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${textColor};margin-bottom:6px">${arrow} TREND COMPARISON</div>
+      <div style="font-size:15px;font-weight:700;color:#0d1b2e">${periodLabel}</div>
+      <div style="font-size:22px;font-weight:900;color:${textColor};margin:6px 0">${sign}${val}% <span style="font-size:13px;font-weight:600">in team output</span></div>
+      <div style="font-size:11px;color:#64748b">Automatically calculated · QuantumCoders Data Solutions</div>
+    </div>
+  `;
+  document.getElementById('emailBody').focus();
+  document.execCommand('insertHTML', false, html + '<p></p>');
+  updateCharCount();
+  showToast('success','Inserted','Trend comparison added to email body.');
+  if (document.getElementById('previewToggle').classList.contains('open')) refreshPreview();
+}
+
+/* ═══════════════════════════
+   PREVIEW
+═══════════════════════════ */
+function togglePreview() {
+  const btn = document.getElementById('previewToggle'), box = document.getElementById('previewBox');
+  const open = btn.classList.toggle('open');
+  box.classList.toggle('open', open);
+  if (open) refreshPreview();
+}
+
+function refreshPreview() {
+  const subj = document.getElementById('emailSubject').value || '(No subject)';
+  const body = document.getElementById('emailBody').innerHTML || '<p style="color:#8896a5;font-style:italic">No content yet</p>';
+  const sender = document.getElementById('senderLine').value;
+  const senderLabel = sender === 'prem' ? 'From the desk of Prem Prasad Pradhan · Founder &amp; Admin' : 'Official QuantumCoders Data Solutions';
+  const html = buildEmailHtml(subj, body, [], senderLabel);
+  const frame = document.getElementById('previewFrame');
+  frame.srcdoc = html;
+  frame.style.height = '360px';
+}
+
+function buildEmailHtml(subject, bodyHtml, images, senderLabel) {
+  const imgSection = images.length ? `<div style="margin-top:24px;padding-top:18px;border-top:1px solid #e2e8f0"><p style="font-size:11px;color:#718096;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">ATTACHMENTS</p><div style="display:flex;flex-wrap:wrap;gap:10px">${images.map(img=>`<div style="text-align:center"><img src="${img.dataUrl}" alt="${img.name}" style="max-width:360px;max-height:260px;border-radius:10px;border:1px solid #e2e8f0;display:block"><p style="font-size:10px;color:#a0aec0;margin-top:5px">${img.name}</p></div>`).join('')}</div></div>` : '';
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:12px;background:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+<div style="max-width:580px;margin:0 auto;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.09)">
+  <!-- LOGO HEADER -->
+  <div style="background:linear-gradient(135deg,#071629 0%,#0b2040 35%,#1456A8 75%,#1a6bbf 100%);padding:28px 32px;text-align:center">
+    <img src="https://www.quantumcoderstechlab.codes/assets/Data%20Solutions/Logo/QCDL.png" alt="QCDS" style="height:48px;width:auto;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto" onerror="this.style.display='none'">
+    <div style="font-family:sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:1.5px;text-transform:uppercase">QUANTUMCODERS DATA SOLUTIONS</div>
+    <div style="font-size:9px;color:rgba(255,255,255,0.5);letter-spacing:2px;text-transform:uppercase;margin-top:3px">Official Communication</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.65);margin-top:8px;font-style:italic">${senderLabel||'Official QuantumCoders Data Solutions'}</div>
+  </div>
+  <!-- SUBJECT BAR -->
+  <div style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:14px 32px">
+    <div style="font-size:10px;color:#718096;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px">SUBJECT</div>
+    <div style="font-size:17px;font-weight:800;color:#0d1b2e">${subject}</div>
+  </div>
+  <!-- BODY -->
+  <div style="padding:28px 32px">
+    <div style="font-size:14px;line-height:1.8;color:#2d3748">${bodyHtml}</div>
+    ${imgSection}
+  </div>
+  <!-- FOOTER -->
+  <div style="background:#f8fafc;border-top:2px solid #e2e8f0;padding:20px 32px">
+    <div style="text-align:center;margin-bottom:12px">
+      <img src="https://www.quantumcoderstechlab.codes/assets/Data%20Solutions/Logo/QCDL.png" alt="QCDS" style="height:28px;width:auto;opacity:0.55" onerror="this.style.display='none'">
+    </div>
+    <div style="text-align:center;font-size:11px;color:#718096;line-height:1.7">
+      <strong style="color:#0d1b2e">QuantumCoders Data Solutions</strong><br>
+      Berhampur, Odisha, India 760001<br>
+      <a href="https://www.quantumcoderstechlab.codes" style="color:#1456A8;text-decoration:none;font-weight:600">www.quantumcoderstechlab.codes</a>
+    </div>
+    <div style="text-align:center;margin-top:12px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:10px;color:#a0aec0;line-height:1.6">
+      This is an official internal communication. Please do not reply to this email.<br>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLScIzlm1YLwsnGq9yryrz6_ZYoqSSKJPkm9aVwP3YjoK8c_Tvg/viewform" style="color:#1456A8;text-decoration:underline">Unsubscribe from daily reports</a>
+    </div>
+    <div style="text-align:center;margin-top:8px;font-size:9px;color:#cbd5e1">© 2026 QuantumCoders Data Solutions · All Rights Reserved</div>
+  </div>
+</div></body></html>`;
+}
+
+/* ═══════════════════════════
+   ATTACHMENTS
+═══════════════════════════ */
+let attachedFiles = [];
+function onDragOver(e) { e.preventDefault(); document.getElementById('attachZone').classList.add('over'); }
+function onDragLeave() { document.getElementById('attachZone').classList.remove('over'); }
+function onDrop(e) { e.preventDefault(); document.getElementById('attachZone').classList.remove('over'); handleFiles(e.dataTransfer.files); }
+function handleFiles(files) {
+  Array.from(files).forEach(file => {
+    if (attachedFiles.find(f => f.name===file.name && f.size===file.size)) return;
+    attachedFiles.push(file);
+    renderAttach(file);
+  });
+}
+function renderAttach(file) {
+  const list = document.getElementById('attachedList');
+  const item = document.createElement('div'); item.className = 'att-item'; item.dataset.fn = file.name;
+  const sz = file.size > 1048576 ? (file.size/1048576).toFixed(1)+' MB' : (file.size/1024).toFixed(0)+' KB';
+  if (file.type.startsWith('image/')) {
+    const r = new FileReader(); r.onload = e => { item.innerHTML = `<img src="${e.target.result}" class="att-thumb"><div style="flex:1;min-width:0"><div class="att-name">${file.name}</div><div class="att-size">${sz} · Embedded</div></div><button class="att-rm" onclick="removeFile('${file.name}')"><i class="fas fa-xmark"></i></button>`; }; r.readAsDataURL(file);
+  } else {
+    const icons = {pdf:'fa-file-pdf',doc:'fa-file-word',docx:'fa-file-word',xls:'fa-file-excel',xlsx:'fa-file-excel',txt:'fa-file-lines',zip:'fa-file-zipper'};
+    const ext = file.name.split('.').pop().toLowerCase();
+    item.innerHTML = `<div class="att-file-ico"><i class="fas ${icons[ext]||'fa-file'}"></i></div><div style="flex:1;min-width:0"><div class="att-name">${file.name}</div><div class="att-size">${sz} · Attachment</div></div><button class="att-rm" onclick="removeFile('${file.name}')"><i class="fas fa-xmark"></i></button>`;
+  }
+  list.appendChild(item);
+}
+function removeFile(name) {
+  attachedFiles = attachedFiles.filter(f => f.name !== name);
+  const item = document.querySelector(`[data-fn="${name}"]`); if (item) item.remove();
+  showToast('info','Removed',`"${name}" removed.`, 2200);
+}
+
+/* ═══════════════════════════
+   SEND
+═══════════════════════════ */
+function sendEmail() {
+  const subject = document.getElementById('emailSubject').value.trim();
+  const bodyHtml = document.getElementById('emailBody').innerHTML.trim();
+  const sender = document.getElementById('senderLine').value;
+  const senderLabel = sender === 'prem' ? 'From the desk of Prem Prasad Pradhan · Founder & Admin' : 'Official QuantumCoders Data Solutions';
+
+  if (!subject) { showToast('warning','Subject Required','Please enter a subject.'); return; }
+  if (!bodyHtml || bodyHtml === '<br>' || bodyHtml === '<p></p>') { showToast('warning','Empty Message','Please write a message.'); return; }
+
+  const emails = sendMode === 'group' ? ['qcds-team-reports@googlegroups.com'] : getActiveEmails();
+  if (!emails.length) { showToast('warning','No Recipients','Please select at least one recipient.'); return; }
+
+  const rcptDesc = sendMode === 'group' ? 'Google Group (all members)' : emails.length + ' recipient(s)';
+  const batches = sendMode === 'group' ? 1 : Math.ceil(emails.length / BATCH);
+  if (!confirm(`Send email to ${rcptDesc} in ${batches} batch(es)?\n\nSubject: ${subject}\nMode: ${sendMode === 'group' ? 'Google Group (1 quota)' : 'Individual BCC Batches'}`)) return;
+
+  const imgFiles = attachedFiles.filter(f => f.type.startsWith('image/'));
+  Promise.all(imgFiles.map(f => new Promise(res => { const r = new FileReader(); r.onload = e => res({name:f.name,dataUrl:e.target.result,type:f.type}); r.readAsDataURL(f); }))).then(images => {
+    const fullHtml = buildEmailHtml(subject, bodyHtml, images, senderLabel);
+    startSending(subject, fullHtml, emails);
+  });
+}
+
+function startSending(subject, htmlBody, emails) {
+  const btn = document.getElementById('sendBtn');
+  btn.classList.add('sending'); btn.disabled = true;
+  const pw = document.getElementById('progressWrap'); pw.classList.add('open');
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('progressPct').textContent = '0%';
+  document.getElementById('progressLabel').textContent = 'Preparing…';
+  document.getElementById('batchLog').innerHTML = '';
+
+  const fn = sendMode === 'group' ? 'sendEmailViaGroup' : 'sendEmailSystemBatch';
+  const args = sendMode === 'group' ? [subject, htmlBody] : [subject, htmlBody, emails];
+
+  google.script.run
+    .withSuccessHandler(result => {
+      btn.classList.remove('sending'); btn.disabled = false;
+      if (result.success) {
+        document.getElementById('progressFill').style.width = '100%';
+        document.getElementById('progressPct').textContent = '100%';
+        document.getElementById('progressLabel').textContent = '✅ Sent successfully!';
+        if (result.batches) {
+          const log = document.getElementById('batchLog');
+          result.batches.forEach(b => {
+            const item = document.createElement('div'); item.className = 'log-item' + (b.success ? '' : ' err');
+            item.innerHTML = `<i class="fas fa-${b.success?'circle-check':'circle-xmark'}"></i> Batch ${b.batch}: ${b.count} emails ${b.success?'sent ✓':'failed ✗'}`;
+            log.appendChild(item);
+          });
+        }
+        showToast('success','Email Sent! 🎉', sendMode === 'group' ? 'Sent via Google Group — 1 quota used.' : `Delivered to ${emails.length} recipient(s) in ${result.totalBatches} batch(es).`);
+        loadHistory(); loadQuota();
+        setTimeout(() => {
+          document.getElementById('emailSubject').value = '';
+          document.getElementById('emailBody').innerHTML = '';
+          attachedFiles = []; document.getElementById('attachedList').innerHTML = '';
+          pw.classList.remove('open'); updateCharCount();
+        }, 4500);
+      } else {
+        document.getElementById('progressLabel').textContent = '❌ Failed: ' + (result.error || 'Unknown error');
+        showToast('error','Send Failed', result.error || 'Please try again.');
+      }
+    })
+    .withFailureHandler(err => {
+      btn.classList.remove('sending'); btn.disabled = false;
+      document.getElementById('progressLabel').textContent = '❌ Error: ' + err;
+      showToast('error','Send Failed', 'Error: ' + err);
+    })
+    [fn](...args);
+}
+
+/* ═══════════════════════════
+   TOAST
+═══════════════════════════ */
+const TICONS = {success:'fas fa-circle-check',error:'fas fa-circle-xmark',info:'fas fa-circle-info',warning:'fas fa-triangle-exclamation'};
+function showToast(type, title, msg, dur=4500) {
+  const c = document.getElementById('toastWrap');
+  const t = document.createElement('div'); t.className = 'toast';
+  t.innerHTML = `<div class="toast-stripe ts-${type}"></div><div class="toast-body"><div class="toast-ico ti-${type}"><i class="${TICONS[type]}"></i></div><div style="flex:1"><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div><button class="toast-close" onclick="dismissToast(this.closest('.toast'))"><i class="fas fa-xmark"></i></button></div>`;
+  c.appendChild(t);
+  setTimeout(() => dismissToast(t), dur);
+}
+function dismissToast(t) {
+  if (!t || t.classList.contains('out')) return;
+  t.classList.add('out'); setTimeout(() => t.remove(), 250);
+}
+
+/* ═══════════════════════════
+   INIT
+═══════════════════════════ */
+window.onload = () => {
+  const s = localStorage.getItem(SK);
+  if (s) { try { const d = JSON.parse(s); if (Date.now() < d.expiry) { initPage(); } } catch(e) {} }
+  updateBatchPreview();
+  setSendMode('group');
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('emailBody')?.addEventListener('input', onBodyInput);
+  document.getElementById('emailSubject')?.addEventListener('input', () => {
+    if (document.getElementById('previewToggle').classList.contains('open')) refreshPreview();
+  });
+  document.getElementById('senderLine')?.addEventListener('change', () => {
+    if (document.getElementById('previewToggle').classList.contains('open')) refreshPreview();
+  });
+  updateTrendPreview();
+});
+</script>
+</body>
+</html>
